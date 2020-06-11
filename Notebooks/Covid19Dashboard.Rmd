@@ -1,0 +1,139 @@
+---
+title: "TestSetup"
+output: html_notebook
+# output: rmarkdown::github_document
+# output: 
+#  html_document:
+#    keep_md: true
+---
+
+# Exploratory analysis of Retail Trade Sales
+
+### Goals
+
+* Reproduce the Index of the Canadian Economic Dashboard and COVID-19
+* Identify data tables and vectors for the dashboard
+
+### Comments
+
+* Time series from Canadian Economic Dashboard and COVID-19 at https://www150.statcan.gc.ca/n1/pub/71-607-x/71-607-x2020009-eng.htm
+* There are 16 indicators
+* 
+
+
+
+```{r}
+#install.packages("cansim")
+# install.packages("plotly")
+library(cansim)
+library(ggplot2)
+library(dplyr)
+library(plotly)
+source("utils.R")
+```
+
+```{r}
+get_cansim_table_overview("20-10-0008-01")
+```
+
+
+
+
+```{r}
+
+```
+
+
+
+```{r}
+retail_sales <- get_cansim("20-10-0008-01")
+hours_worked <- get_cansim("14-10-0289-01")
+
+```
+
+## Extraction & Preprocessing
+
+Identify vector
+```{r}
+head(retail_sales)
+```
+
+```{r}
+retail_sales_can = get_cansim_vector('v52367097', '1976-01-01')
+retail_sales_can$REF_DATE = as.Date(retail_sales_can$REF_DATE)
+```
+
+```{r}
+head(retail_sales_can)
+```
+
+
+```{r}
+summary(retail_sales_can)
+```
+
+```{r}
+hours_worked_industries = get_cansim_vector('v4391505', '1976-01-01')
+hours_worked_industries$REF_DATE = as.Date(hours_worked_industries$REF_DATE)
+```
+
+```{r}
+head(hours_worked_industries)
+```
+
+```{r}
+```
+
+
+## Canadian Economic Dashboard 
+
+### Retail Sales & Hours Worked
+
+Create index through normalization using the reference month as in dashboard.
+```{r}
+ref_value = retail_sales_can$VALUE[retail_sales_can$REF_DATE == as.Date('2019-12-01')]
+retail_sales_can$VALUE_INDEX = 100. * retail_sales_can$VALUE/ref_value
+
+ref_value = hours_worked_industries$VALUE[hours_worked_industries$REF_DATE == as.Date('2019-12-01')]
+hours_worked_industries$VALUE_INDEX = 100. * hours_worked_industries$VALUE/ref_value
+```
+
+
+```{r}
+summary(select(retail_sales_can, REF_DATE, VALUE_INDEX))
+```
+
+```{r}
+summary(select(hours_worked_industries, REF_DATE, VALUE_INDEX))
+```
+
+
+```{r fig, fig.width = 16, fig.height=6}
+retail_sales_plot = ggplot() + geom_line(data=retail_sales_can, aes(x=REF_DATE, y=VALUE_INDEX, color='green'))
+hours_worked_plot = geom_line(data=hours_worked_industries, aes(x=REF_DATE, y=VALUE_INDEX, color='blue')) 
+
+plot = retail_sales_plot +  hours_worked_plot + scale_x_date(date_breaks="2 month", date_labels="%b %Y", limits = as.Date(c('2019-01-01','2020-06-01'))) + scale_y_continuous(breaks=seq(70, 105,5), limits= c(70, 105)) + scale_color_manual(labels = c("Retail trade sales (dollars)", "Actual hours worked"), values = c("blue", "red")) + labs(color='Legend')
+plot
+#ggplotly(plot)
+```
+
+## All Time Series
+
+```{r}
+< - 
+```
+
+
+
+
+```{r}
+#select(hours_worked_plot, c("VALUES"))
+hours_worked_industries %>% select(REF_DATE, VALUE_INDEX)
+```
+
+
+```{r}
+ggplot() + geom_line(data=hours_worked_industries, aes(x=REF_DATE, y=VALUE_INDEX)) 
+```
+
+
