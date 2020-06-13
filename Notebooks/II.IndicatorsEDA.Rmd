@@ -1,0 +1,91 @@
+---
+title: "I. Indicator Vector EDA"
+output: html_notebook
+---
+
+### Goals
+
+* Exploratory Data Analysis of Dashboard Vectors
+
+### Comments
+
+```{r}
+suppressMessages(library(cansim))
+suppressMessages(library(ggplot2))
+suppressMessages(library(dplyr))
+suppressMessages(library(plotly))
+suppressMessages(library(stringr))
+```
+
+## Step 1: Data Retrieval
+
+```{r}
+vectors = c("v65201210", "v41690973", "v2062809", "v1001827265", "v1001826653", "v52367097", "v4391505", "v800450", "v32858858", "v32858865", "v32858872", "v74869", "v129449", "v129460", "v129472", "v129482")
+length(vectors)
+```
+
+I expect this date to be before the start of all time series/vectors.
+```{r}
+start_date <- '1900-01-01'
+```
+
+Retrieve all vectors. They are concatunated along axis 0.
+```{r}
+indicators <- get_cansim_vector(vectors, start_date)
+dim( indicators)
+```
+
+## Step 2: Meet and Greet Data
+
+* There are no missing values available as NA or empty strings. Placeholder missing values still possible.
+* There are no duplicate rows.
+* Data types
+  * nominal: COORDINATE, VECTOR
+  * numeric, discrete: DECIMALS, SYMBOLS, frequencyCode, SCALAR_ID
+  * numeric, continous: 
+  * time: REF_DATE, releaseTime
+
+```{r}
+head(indicators)
+```
+
+```{r}
+set.seed(1)
+indicators %>% sample_n(10)
+```
+
+Check for missing values.
+
+Replace character columns with empty string with NA
+```{r}
+indicators <- indicators %>% mutate_if(is.character, list(~na_if(.,""))) 
+```
+
+```{r}
+sum(is.na(indicators))
+```
+
+
+No duplicate datapoints found.
+```{r}
+sum(duplicated(indicators))
+```
+
+Extraction detailed time information
+```{r}
+indicators$REF_YEAR = format(as.Date(indicators$REF_DATE, format="%Y-%m-%d"),"%Y")
+indicators$REF_MONTH = format(as.Date(indicators$REF_DATE, format="%Y-%m-%d"),"%m")
+indicators$REF_DAY = format(as.Date(indicators$REF_DATE, format="%Y-%m-%d"),"%d")
+```
+
+## Step 3: Data Distributions
+
+...
+
+
+
+
+
+
+
+

@@ -18,25 +18,19 @@ output: html_notebook
 
 * Time series from Canadian Economic Dashboard and COVID-19 at https://www150.statcan.gc.ca/n1/pub/71-607-x/71-607-x2020009-eng.htm
 * There are 16 indicators
-* 
-
 
 
 ```{r}
-#install.packages("cansim")
-# install.packages("plotly")
-library(cansim)
-library(ggplot2)
-library(dplyr)
-library(plotly)
-source("utils.R")
+suppressMessages(library(cansim))
+suppressMessages(library(ggplot2))
+suppressMessages(library(dplyr))
+suppressMessages(library(plotly))
+source("../src/utils.R")
 ```
 
 ```{r}
 get_cansim_table_overview("20-10-0008-01")
 ```
-
-
 
 
 ```{r}

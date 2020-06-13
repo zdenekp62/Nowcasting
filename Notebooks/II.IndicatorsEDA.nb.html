@@ -11,7 +11,7 @@
 
 
 
-<title>R Notebook</title>
+<title>I. Indicator Vector EDA</title>
 
 <script>// Pandoc 2.9 adds attributes on both header and div. We remove the former (to
 // be compatible with the behavior of Pandoc < 2.8).
@@ -1756,112 +1756,156 @@ summary {
 
 
 
-<h1 class="title toc-ignore">R Notebook</h1>
+<h1 class="title toc-ignore">I. Indicator Vector EDA</h1>
 
 </div>
 
 
 <!-- rnb-text-begin -->
-<div id="eda-of-the-16-covid-19-dashboard-indicators" class="section level1">
-<h1>EDA of the 16 Covid-19 Dashboard Indicators</h1>
 <div id="goals" class="section level3">
 <h3>Goals</h3>
+<ul>
+<li>Exploratory Data Analysis of Dashboard Vectors</li>
+</ul>
 </div>
 <div id="comments" class="section level3">
 <h3>Comments</h3>
 <!-- rnb-text-end -->
 <!-- rnb-chunk-begin -->
-<!-- rnb-source-begin eyJkYXRhIjoiYGBgclxubGlicmFyeShjYW5zaW0pXG5saWJyYXJ5KGdncGxvdDIpXG5saWJyYXJ5KGRwbHlyKVxubGlicmFyeShwbG90bHkpXG5saWJyYXJ5KHN0cmluZ3IpXG5gYGAifQ== -->
-<pre class="r"><code>library(cansim)
-library(ggplot2)
-library(dplyr)
-library(plotly)
-library(stringr)</code></pre>
-<!-- rnb-source-end -->
-<!-- rnb-chunk-end -->
-<!-- rnb-text-begin -->
-<p>cache tables in data directory</p>
-<!-- rnb-text-end -->
-<!-- rnb-chunk-begin -->
-<!-- rnb-source-begin eyJkYXRhIjoiYGBgclxub3B0aW9ucyhjYW5zaW0uY2FjaGVfcGF0aD1cIi9ob21lL2pvdnlhbi9kYXRhXCIpXG5gYGAifQ== -->
-<pre class="r"><code>options(cansim.cache_path=&quot;/home/jovyan/data&quot;)</code></pre>
+<!-- rnb-source-begin eyJkYXRhIjoiYGBgclxuc3VwcHJlc3NNZXNzYWdlcyhsaWJyYXJ5KGNhbnNpbSkpXG5zdXBwcmVzc01lc3NhZ2VzKGxpYnJhcnkoZ2dwbG90MikpXG5zdXBwcmVzc01lc3NhZ2VzKGxpYnJhcnkoZHBseXIpKVxuc3VwcHJlc3NNZXNzYWdlcyhsaWJyYXJ5KHBsb3RseSkpXG5zdXBwcmVzc01lc3NhZ2VzKGxpYnJhcnkoc3RyaW5ncikpXG5gYGAifQ== -->
+<pre class="r"><code>suppressMessages(library(cansim))
+suppressMessages(library(ggplot2))
+suppressMessages(library(dplyr))
+suppressMessages(library(plotly))
+suppressMessages(library(stringr))</code></pre>
 <!-- rnb-source-end -->
 <!-- rnb-chunk-end -->
 <!-- rnb-text-begin -->
 </div>
-<div id="data-extraction" class="section level2">
-<h2>Data Extraction</h2>
-<p>As defined under Definitions section at <a href="https://www150.statcan.gc.ca/n1/pub/71-607-x/71-607-x2020009-eng.htm" class="uri">https://www150.statcan.gc.ca/n1/pub/71-607-x/71-607-x2020009-eng.htm</a></p>
+<div id="step-1-data-retrieval" class="section level2">
+<h2>Step 1: Data Retrieval</h2>
 <!-- rnb-text-end -->
 <!-- rnb-chunk-begin -->
-<!-- rnb-source-begin eyJkYXRhIjoiYGBgclxuZGFzaGJvYXJkX3RhYmxlX25hbWVzID0gYyhcIjM2LTEwLTA0MzQtMDFcIiwgXCIxOC0xMC0wMDA0LTAxXCIsIFwiMTQtMTAtMDI4Ny0wMVwiLCBcIjEyLTEwLTAxMjEtMDFcIiwgXCIxMi0xMC0wMTIxLTAxXCIsXG4gICAgICAgICAgICAgICAgICAgICBcIjIwLTEwLTAwMDgtMDFcIiwgXCIxNC0xMC0wMjg5LTAxXCIsIFwiMTYtMTAtMDA0Ny0wMVwiLCBcIjIzLTEwLTAwMDgtMDFcIiwgXCIyMy0xMC0wMDA4LTAxXCIsXG4gICAgICAgICAgICAgICAgICAgICBcIjIzLTEwLTAwMDgtMDFcIiwgXCIyMy0xMC0wMjE2LTAxXCIsIFwiMjQtMTAtMDAwNS0wMVwiLCBcIjI0LTEwLTAwMDUtMDFcIiwgXCIyNC0xMC0wMDA1LTAxXCIsXG4gICAgICAgICAgICAgICAgICAgICBcIjI0LTEwLTAwMDUtMDFcIiApXG5sZW5ndGgoZGFzaGJvYXJkX3RhYmxlX25hbWVzKVxuYGBgIn0= -->
-<pre class="r"><code>dashboard_table_names = c(&quot;36-10-0434-01&quot;, &quot;18-10-0004-01&quot;, &quot;14-10-0287-01&quot;, &quot;12-10-0121-01&quot;, &quot;12-10-0121-01&quot;,
-                     &quot;20-10-0008-01&quot;, &quot;14-10-0289-01&quot;, &quot;16-10-0047-01&quot;, &quot;23-10-0008-01&quot;, &quot;23-10-0008-01&quot;,
-                     &quot;23-10-0008-01&quot;, &quot;23-10-0216-01&quot;, &quot;24-10-0005-01&quot;, &quot;24-10-0005-01&quot;, &quot;24-10-0005-01&quot;,
-                     &quot;24-10-0005-01&quot; )
-length(dashboard_table_names)</code></pre>
+<!-- rnb-source-begin eyJkYXRhIjoiYGBgclxudmVjdG9ycyA9IGMoXCJ2NjUyMDEyMTBcIiwgXCJ2NDE2OTA5NzNcIiwgXCJ2MjA2MjgwOVwiLCBcInYxMDAxODI3MjY1XCIsIFwidjEwMDE4MjY2NTNcIiwgXCJ2NTIzNjcwOTdcIiwgXCJ2NDM5MTUwNVwiLCBcInY4MDA0NTBcIiwgXCJ2MzI4NTg4NThcIiwgXCJ2MzI4NTg4NjVcIiwgXCJ2MzI4NTg4NzJcIiwgXCJ2NzQ4NjlcIiwgXCJ2MTI5NDQ5XCIsIFwidjEyOTQ2MFwiLCBcInYxMjk0NzJcIiwgXCJ2MTI5NDgyXCIpXG5sZW5ndGgodmVjdG9ycylcbmBgYCJ9 -->
+<pre class="r"><code>vectors = c(&quot;v65201210&quot;, &quot;v41690973&quot;, &quot;v2062809&quot;, &quot;v1001827265&quot;, &quot;v1001826653&quot;, &quot;v52367097&quot;, &quot;v4391505&quot;, &quot;v800450&quot;, &quot;v32858858&quot;, &quot;v32858865&quot;, &quot;v32858872&quot;, &quot;v74869&quot;, &quot;v129449&quot;, &quot;v129460&quot;, &quot;v129472&quot;, &quot;v129482&quot;)
+length(vectors)</code></pre>
 <!-- rnb-source-end -->
 <!-- rnb-output-begin eyJkYXRhIjoiWzFdIDE2XG4ifQ== -->
 <pre><code>[1] 16</code></pre>
 <!-- rnb-output-end -->
 <!-- rnb-chunk-end -->
 <!-- rnb-text-begin -->
-<p>Download all NDM tables</p>
+<p>I expect this date to be before the start of all time series/vectors.</p>
 <!-- rnb-text-end -->
 <!-- rnb-chunk-begin -->
-<!-- rnb-source-begin eyJkYXRhIjoiYGBgclxuZGFzaGJvYXJkX3RhYmxlcyA9IGxhcHBseShkYXNoYm9hcmRfdGFibGVfbmFtZXMsIEZVTj1nZXRfY2Fuc2ltKVxuYGBgIn0= -->
-<pre class="r"><code>dashboard_tables = lapply(dashboard_table_names, FUN=get_cansim)</code></pre>
+<!-- rnb-source-begin eyJkYXRhIjoiYGBgclxuc3RhcnRfZGF0ZSA8LSAnMTkwMC0wMS0wMSdcbmBgYCJ9 -->
+<pre class="r"><code>start_date &lt;- &#39;1900-01-01&#39;</code></pre>
 <!-- rnb-source-end -->
-<!-- rnb-output-begin eyJkYXRhIjoiUmVhZGluZyBDQU5TSU0gTkRNIHByb2R1Y3QgMzYtMTAtMDQzNCBmcm9tIGNhY2hlLlxuUmVhZGluZyBDQU5TSU0gTkRNIHByb2R1Y3QgMTgtMTAtMDAwNCBmcm9tIGNhY2hlLlxuUmVhZGluZyBDQU5TSU0gTkRNIHByb2R1Y3QgMTQtMTAtMDI4NyBmcm9tIGNhY2hlLlxuUmVhZGluZyBDQU5TSU0gTkRNIHByb2R1Y3QgMTItMTAtMDEyMSBmcm9tIGNhY2hlLlxuUmVhZGluZyBDQU5TSU0gTkRNIHByb2R1Y3QgMTItMTAtMDEyMSBmcm9tIGNhY2hlLlxuIn0= -->
-<pre><code>Reading CANSIM NDM product 36-10-0434 from cache.
-Reading CANSIM NDM product 18-10-0004 from cache.
-Reading CANSIM NDM product 14-10-0287 from cache.
-Reading CANSIM NDM product 12-10-0121 from cache.
-Reading CANSIM NDM product 12-10-0121 from cache.</code></pre>
+<!-- rnb-chunk-end -->
+<!-- rnb-text-begin -->
+<p>Retrieve all vectors. They are concatunated along axis 0.</p>
+<!-- rnb-text-end -->
+<!-- rnb-chunk-begin -->
+<!-- rnb-source-begin eyJkYXRhIjoiYGBgclxuaW5kaWNhdG9ycyA8LSBnZXRfY2Fuc2ltX3ZlY3Rvcih2ZWN0b3JzLCBzdGFydF9kYXRlKVxuZGltKCBpbmRpY2F0b3JzKVxuYGBgIn0= -->
+<pre class="r"><code>indicators &lt;- get_cansim_vector(vectors, start_date)
+dim( indicators)</code></pre>
+<!-- rnb-source-end -->
+<!-- rnb-output-begin eyJkYXRhIjoiWzFdIDc0OTUgICAgOVxuIn0= -->
+<pre><code>[1] 7495    9</code></pre>
 <!-- rnb-output-end -->
 <!-- rnb-chunk-end -->
 <!-- rnb-text-begin -->
-<p>Replace spaces in variable names with underscore for better processing</p>
-<!-- rnb-text-end -->
-<!-- rnb-chunk-begin -->
-<!-- rnb-chunk-end -->
-<!-- rnb-text-begin -->
-<!-- rnb-text-end -->
-<!-- rnb-chunk-begin -->
-<!-- rnb-chunk-end -->
-<!-- rnb-text-begin -->
-<p>Same table for exports and the imports here</p>
-<!-- rnb-text-end -->
-<!-- rnb-chunk-begin -->
-<!-- rnb-chunk-end -->
-<!-- rnb-text-begin -->
-<!-- rnb-text-end -->
-<!-- rnb-chunk-begin -->
-<!-- rnb-chunk-end -->
-<!-- rnb-text-begin -->
-<!-- rnb-text-end -->
-<!-- rnb-chunk-begin -->
-<!-- rnb-chunk-end -->
-<!-- rnb-text-begin -->
-<p>continue with 8 later</p>
-<!-- rnb-text-end -->
-<!-- rnb-chunk-begin -->
-<!-- rnb-chunk-end -->
-<!-- rnb-text-begin -->
-<!-- rnb-text-end -->
-<!-- rnb-chunk-begin -->
-<!-- rnb-chunk-end -->
-<!-- rnb-text-begin -->
-<!-- rnb-text-end -->
-<!-- rnb-chunk-begin -->
-<!-- rnb-chunk-end -->
-<!-- rnb-text-begin -->
-<p>GDP: all industries CPI: All-items consumer price index (2002=100), not adjusted for seasonality. Note that UOM is set as 2002=100. exports (4): assume <code>Total of all merchandise</code> is equal to <code>total of all products</code> in Definitions on website, filtered by <code>Export</code> and <code>Seasonal adjustment</code>, ’Balance of Payments`. Assume uOM dollars is current dollars.</p>
-<!-- rnb-text-end -->
 </div>
+<div id="step-2-meet-and-greet-data" class="section level2">
+<h2>Step 2: Meet and Greet Data</h2>
+<ul>
+<li>There are no missing values available as NA or empty strings. Placeholder missing values still possible.</li>
+<li>There are no duplicate rows.</li>
+<li>Data types
+<ul>
+<li>nominal: COORDINATE, VECTOR</li>
+<li>numeric, discrete: DECIMALS, SYMBOLS, frequencyCode, SCALAR_ID</li>
+<li>numeric, continous:</li>
+<li>time: REF_DATE, releaseTime</li>
+</ul></li>
+</ul>
+<!-- rnb-text-end -->
+<!-- rnb-chunk-begin -->
+<!-- rnb-source-begin eyJkYXRhIjoiYGBgclxuaGVhZChpbmRpY2F0b3JzKVxuYGBgIn0= -->
+<pre class="r"><code>head(indicators)</code></pre>
+<!-- rnb-source-end -->
+<!-- rnb-frame-begin eyJtZXRhZGF0YSI6eyJjbGFzc2VzIjpbInRibF9kZiIsInRibCIsImRhdGEuZnJhbWUiXSwibmNvbCI6OSwibnJvdyI6Nn0sInJkZiI6IlVrUllNd3BZQ2dBQUFBTUFBd1lEQUFNRkFBQUFBQVZWVkVZdE9BQUFCQUlBQUFBQkFBUUFDUUFBQUFGNEFBQURFd0FBQUFrQUFBQU5BQUFBQmdBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUE0QUFBQUdRWE8rYmNBQUFBQkJkR3RCRUFBQUFFRjI2dnZnQUFBQVFYYmNrOEFBQUFCQmRsRWtFQUFBQUVGMldiSlFBQUFBQUFBQUVBQUFBQVlBQkFBSkFBQUFDakU1T1RrdE1ERXRNREVBQkFBSkFBQUFDakU1T1RrdE1ESXRNREVBQkFBSkFBQUFDakU1T1RrdE1ETXRNREVBQkFBSkFBQUFDakU1T1RrdE1EUXRNREVBQkFBSkFBQUFDakU1T1RrdE1EVXRNREVBQkFBSkFBQUFDakU1T1RrdE1EWXRNREVBQUFBUUFBQUFCZ0FFQUFrQUFBQVFNakF3T0MweE1DMHlNbFF3T0Rvek1BQUVBQWtBQUFBUU1qQXdPQzB4TUMweU1sUXdPRG96TUFBRUFBa0FBQUFRTWpBd09DMHhNQzB5TWxRd09Eb3pNQUFFQUFrQUFBQVFNakF3T0MweE1DMHlNbFF3T0Rvek1BQUVBQWtBQUFBUU1qQXdPQzB4TUMweU1sUXdPRG96TUFBRUFBa0FBQUFRTWpBd09DMHhNQzB5TWxRd09Eb3pNQUFBQUEwQUFBQUdBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFEUUFBQUFZQUFBQUdBQUFBQmdBQUFBWUFBQUFHQUFBQUJnQUFBQVlBQUFBTkFBQUFCZ0FBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQkFBQUFBR0FBUUFDUUFBQUJNeExqRXVNaTR3TGpBdU1DNHdMakF1TUM0d0FBUUFDUUFBQUJNeExqRXVNaTR3TGpBdU1DNHdMakF1TUM0d0FBUUFDUUFBQUJNeExqRXVNaTR3TGpBdU1DNHdMakF1TUM0d0FBUUFDUUFBQUJNeExqRXVNaTR3TGpBdU1DNHdMakF1TUM0d0FBUUFDUUFBQUJNeExqRXVNaTR3TGpBdU1DNHdMakF1TUM0d0FBUUFDUUFBQUJNeExqRXVNaTR3TGpBdU1DNHdMakF1TUM0d0FBQUFFQUFBQUFZQUJBQUpBQUFBQm5ZM05EZzJPUUFFQUFrQUFBQUdkamMwT0RZNUFBUUFDUUFBQUFaMk56UTROamtBQkFBSkFBQUFCblkzTkRnMk9RQUVBQWtBQUFBR2RqYzBPRFk1QUFRQUNRQUFBQVoyTnpRNE5qa0FBQVFDQUFBQUFRQUVBQWtBQUFBRmJtRnRaWE1BQUFBUUFBQUFDUUFFQUFrQUFBQUlSRVZEU1UxQlRGTUFCQUFKQUFBQUJWWkJURlZGQUFRQUNRQUFBQWhTUlVaZlJFRlVSUUFFQUFrQUFBQUxjbVZzWldGelpWUnBiV1VBQkFBSkFBQUFCbE5aVFVKUFRBQUVBQWtBQUFBTlpuSmxjWFZsYm1ONVEyOWtaUUFFQUFrQUFBQUpVME5CVEVGU1gwbEVBQVFBQ1FBQUFBcERUMDlTUkVsT1FWUkZBQVFBQ1FBQUFBWldSVU5VVDFJQUFBUUNBQUFBQVFBRUFBa0FBQUFKY205M0xtNWhiV1Z6QUFBQURRQUFBQUtBQUFBQS8vLy8rZ0FBQkFJQUFBQUJBQVFBQ1FBQUFBVmpiR0Z6Y3dBQUFCQUFBQUFCQUFRQUNRQUFBQXBrWVhSaExtWnlZVzFsQUFBQS9nQUFCQUlBQUFBQkFBUUFDUUFBQUFkdmNIUnBiMjV6QUFBQ0V3QUFBQVVBQUFBUUFBQUFBUUFFQUFrQUFBQUJjZ0FBQUJBQUFBQUJBQVFBQ1FBQUFBOTFibTVoYldWa0xXTm9kVzVyTFRJQUFBQUtBQUFBQVFBQUFBQUFBQUFOQUFBQUFRQUFBQVlBQUFBTkFBQUFBUUFBQUFrQUFBUUNBQUFDL3dBQUFCQUFBQUFGQUFRQUNRQUFBQVpsYm1kcGJtVUFCQUFKQUFBQUJXeGhZbVZzQUFRQUNRQUFBQTV5YjNkdVlXMWxjeTV3Y21sdWRBQUVBQWtBQUFBS2NtOTNjeTUwYjNSaGJBQUVBQWtBQUFBS1kyOXNjeTUwYjNSaGJBQUFBUDRBQUFEKyJ9 -->
+<div data-pagedtable="false">
+<script data-pagedtable-source type="application/json">
+{"columns":[{"label":["DECIMALS"],"name":[1],"type":["int"],"align":["right"]},{"label":["VALUE"],"name":[2],"type":["dbl"],"align":["right"]},{"label":["REF_DATE"],"name":[3],"type":["chr"],"align":["left"]},{"label":["releaseTime"],"name":[4],"type":["chr"],"align":["left"]},{"label":["SYMBOL"],"name":[5],"type":["int"],"align":["right"]},{"label":["frequencyCode"],"name":[6],"type":["int"],"align":["right"]},{"label":["SCALAR_ID"],"name":[7],"type":["int"],"align":["right"]},{"label":["COORDINATE"],"name":[8],"type":["chr"],"align":["left"]},{"label":["VECTOR"],"name":[9],"type":["chr"],"align":["left"]}],"data":[{"1":"0","2":"20702940","3":"1999-01-01","4":"2008-10-22T08:30","5":"0","6":"6","7":"0","8":"1.1.2.0.0.0.0.0.0.0","9":"v74869"},{"1":"0","2":"21410833","3":"1999-02-01","4":"2008-10-22T08:30","5":"0","6":"6","7":"0","8":"1.1.2.0.0.0.0.0.0.0","9":"v74869"},{"1":"0","2":"24031166","3":"1999-03-01","4":"2008-10-22T08:30","5":"0","6":"6","7":"0","8":"1.1.2.0.0.0.0.0.0.0","9":"v74869"},{"1":"0","2":"23972156","3":"1999-04-01","4":"2008-10-22T08:30","5":"0","6":"6","7":"0","8":"1.1.2.0.0.0.0.0.0.0","9":"v74869"},{"1":"0","2":"23401025","3":"1999-05-01","4":"2008-10-22T08:30","5":"0","6":"6","7":"0","8":"1.1.2.0.0.0.0.0.0.0","9":"v74869"},{"1":"0","2":"23436069","3":"1999-06-01","4":"2008-10-22T08:30","5":"0","6":"6","7":"0","8":"1.1.2.0.0.0.0.0.0.0","9":"v74869"}],"options":{"columns":{"min":{},"max":[10],"total":[9]},"rows":{"min":[10],"max":[10],"total":[6]},"pages":{}}}
+  </script>
+</div>
+<!-- rnb-frame-end -->
+<!-- rnb-chunk-end -->
+<!-- rnb-text-begin -->
+<!-- rnb-text-end -->
+<!-- rnb-chunk-begin -->
+<!-- rnb-source-begin eyJkYXRhIjoiYGBgclxuc2V0LnNlZWQoMSlcbmluZGljYXRvcnMgJT4lIHNhbXBsZV9uKDEwKVxuYGBgIn0= -->
+<pre class="r"><code>set.seed(1)
+indicators %&gt;% sample_n(10)</code></pre>
+<!-- rnb-source-end -->
+<!-- rnb-frame-begin eyJtZXRhZGF0YSI6eyJjbGFzc2VzIjpbInRibF9kZiIsInRibCIsImRhdGEuZnJhbWUiXSwibmNvbCI6OSwibnJvdyI6MTB9LCJyZGYiOiJVa1JZTXdwWUNnQUFBQU1BQXdZREFBTUZBQUFBQUFWVlZFWXRPQUFBQkFJQUFBQUJBQVFBQ1FBQUFBRjRBQUFERXdBQUFBa0FBQUFOQUFBQUNnQUFBQUFBQUFBQUFBQUFBQUFBQUFFQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUVBQUFBT0FBQUFDa0VKWTJnQUFBQUFRTTk2QUFBQUFBQkJDejJnQUFBQUFFQWdNek16TXpNelFVWGZmUUFBQUFCQXVwMEFBQUFBQUVFWjlFd0FBQUFBUVVpaStZQUFBQUJCQlRGWUFBQUFBRUFzTXpNek16TXpBQUFBRUFBQUFBb0FCQUFKQUFBQUNqRTVPRGN0TURNdE1ERUFCQUFKQUFBQUNqSXdNVGN0TURFdE1ERUFCQUFKQUFBQUNqRTVPRGN0TURVdE1ERUFCQUFKQUFBQUNqRTVNekV0TURrdE1ERUFCQUFKQUFBQUNqRTVPREV0TVRJdE1ERUFCQUFKQUFBQUNqRTVPVGt0TURrdE1ERUFCQUFKQUFBQUNqSXdNREV0TURjdE1ERUFCQUFKQUFBQUNqRTVOek10TURNdE1ERUFCQUFKQUFBQUNqSXdNRE10TURJdE1ERUFCQUFKQUFBQUNqRTVOVFV0TURJdE1ERUFBQUFRQUFBQUNnQUVBQWtBQUFBUU1qQXdNQzB3TWkweE9GUXlNVG8xTmdBRUFBa0FBQUFRTWpBeE9TMHdNeTB5T0ZRd09Eb3pNQUFFQUFrQUFBQVFNakF3TUMwd01pMHhPRlF5TVRvMU5nQUVBQWtBQUFBUU1qQXdOeTB3TmkweE9WUXdOem93TUFBRUFBa0FBQUFRTWpBd01DMHdNaTB4T0ZReU1UbzFOZ0FFQUFrQUFBQVFNakF3T0Mwd01pMHhNbFF3T0Rvek1BQUVBQWtBQUFBUU1qQXhPQzB3TlMwd05GUXhNRG8xTUFBRUFBa0FBQUFRTWpBd01DMHdNaTB4T0ZReU1UbzFOZ0FFQUFrQUFBQVFNakF3Tnkwd09DMHlPVlF3T0Rvek1BQUVBQWtBQUFBUU1qQXdOeTB3TmkweE9WUXdOem93TUFBQUFBMEFBQUFLQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQTBBQUFBS0FBQUFCZ0FBQUFZQUFBQUdBQUFBQmdBQUFBWUFBQUFHQUFBQUJnQUFBQVlBQUFBR0FBQUFCZ0FBQUEwQUFBQUtBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFCQUFBQUFLQUFRQUNRQUFBQk14TGpNdU1DNHdMakF1TUM0d0xqQXVNQzR3QUFRQUNRQUFBQk14TGpFdU15NHhMakF1TUM0d0xqQXVNQzR3QUFRQUNRQUFBQk14TGpZdU1DNHdMakF1TUM0d0xqQXVNQzR3QUFRQUNRQUFBQk15TGpJdU1DNHdMakF1TUM0d0xqQXVNQzR3QUFRQUNRQUFBQk14TGpVdU1DNHdMakF1TUM0d0xqQXVNQzR3QUFRQUNRQUFBQk14TGpFdU15NHhMakF1TUM0d0xqQXVNQzR3QUFRQUNRQUFBQk14TGpZdU1DNHdMakF1TUM0d0xqQXVNQzR3QUFRQUNRQUFBQk14TGpFdU1DNHdMakF1TUM0d0xqQXVNQzR3QUFRQUNRQUFBQk14TGpFdU1TNHhMakF1TUM0d0xqQXVNQzR3QUFRQUNRQUFBQk15TGpJdU1DNHdMakF1TUM0d0xqQXVNQzR3QUFBQUVBQUFBQW9BQkFBSkFBQUFCM1l4TWprME5qQUFCQUFKQUFBQUNYWXpNamcxT0RnM01nQUVBQWtBQUFBSGRqRXlPVFE0TWdBRUFBa0FBQUFKZGpReE5qa3dPVGN6QUFRQUNRQUFBQWQyTVRJNU5EY3lBQVFBQ1FBQUFBbDJNekk0TlRnNE56SUFCQUFKQUFBQUIzWXhNamswT0RJQUJBQUpBQUFBQjNZeE1qazBORGtBQkFBSkFBQUFDWFl6TWpnMU9EZzFPQUFFQUFrQUFBQUpkalF4Tmprd09UY3pBQUFFQWdBQUFBRUFCQUFKQUFBQUJXNWhiV1Z6QUFBQUVBQUFBQWtBQkFBSkFBQUFDRVJGUTBsTlFVeFRBQVFBQ1FBQUFBVldRVXhWUlFBRUFBa0FBQUFJVWtWR1gwUkJWRVVBQkFBSkFBQUFDM0psYkdWaGMyVlVhVzFsQUFRQUNRQUFBQVpUV1UxQ1Qwd0FCQUFKQUFBQURXWnlaWEYxWlc1amVVTnZaR1VBQkFBSkFBQUFDVk5EUVV4QlVsOUpSQUFFQUFrQUFBQUtRMDlQVWtSSlRrRlVSUUFFQUFrQUFBQUdWa1ZEVkU5U0FBQUVBZ0FBQUFFQUJBQUpBQUFBQ1hKdmR5NXVZVzFsY3dBQUFBMEFBQUFDZ0FBQUFQLy8vL1lBQUFRQ0FBQUFBUUFFQUFrQUFBQUZZMnhoYzNNQUFBQVFBQUFBQVFBRUFBa0FBQUFLWkdGMFlTNW1jbUZ0WlFBQUFQNEFBQVFDQUFBQUFRQUVBQWtBQUFBSGIzQjBhVzl1Y3dBQUFoTUFBQUFGQUFBQUVBQUFBQUVBQkFBSkFBQUFBWElBQUFBUUFBQUFBUUFFQUFrQUFBQVBkVzV1WVcxbFpDMWphSFZ1YXkwekFBQUFDZ0FBQUFFQUFBQUFBQUFBRFFBQUFBRUFBQUFLQUFBQURRQUFBQUVBQUFBSkFBQUVBZ0FBQXY4QUFBQVFBQUFBQlFBRUFBa0FBQUFHWlc1bmFXNWxBQVFBQ1FBQUFBVnNZV0psYkFBRUFBa0FBQUFPY205M2JtRnRaWE11Y0hKcGJuUUFCQUFKQUFBQUNuSnZkM011ZEc5MFlXd0FCQUFKQUFBQUNtTnZiSE11ZEc5MFlXd0FBQUQrQUFBQS9nPT0ifQ== -->
+<div data-pagedtable="false">
+<script data-pagedtable-source type="application/json">
+{"columns":[{"label":["DECIMALS"],"name":[1],"type":["int"],"align":["right"]},{"label":["VALUE"],"name":[2],"type":["dbl"],"align":["right"]},{"label":["REF_DATE"],"name":[3],"type":["chr"],"align":["left"]},{"label":["releaseTime"],"name":[4],"type":["chr"],"align":["left"]},{"label":["SYMBOL"],"name":[5],"type":["int"],"align":["right"]},{"label":["frequencyCode"],"name":[6],"type":["int"],"align":["right"]},{"label":["SCALAR_ID"],"name":[7],"type":["int"],"align":["right"]},{"label":["COORDINATE"],"name":[8],"type":["chr"],"align":["left"]},{"label":["VECTOR"],"name":[9],"type":["chr"],"align":["left"]}],"data":[{"1":"0","2":"207981.0","3":"1987-03-01","4":"2000-02-18T21:56","5":"0","6":"6","7":"0","8":"1.3.0.0.0.0.0.0.0.0","9":"v129460"},{"1":"0","2":"16116.0","3":"2017-01-01","4":"2019-03-28T08:30","5":"0","6":"6","7":"0","8":"1.1.3.1.0.0.0.0.0.0","9":"v32858872"},{"1":"0","2":"223156.0","3":"1987-05-01","4":"2000-02-18T21:56","5":"0","6":"6","7":"0","8":"1.6.0.0.0.0.0.0.0.0","9":"v129482"},{"1":"1","2":"8.1","3":"1931-09-01","4":"2007-06-19T07:00","5":"0","6":"6","7":"0","8":"2.2.0.0.0.0.0.0.0.0","9":"v41690973"},{"1":"0","2":"2866938.0","3":"1981-12-01","4":"2000-02-18T21:56","5":"0","6":"6","7":"0","8":"1.5.0.0.0.0.0.0.0.0","9":"v129472"},{"1":"0","2":"6813.0","3":"1999-09-01","4":"2008-02-12T08:30","5":"0","6":"6","7":"0","8":"1.1.3.1.0.0.0.0.0.0","9":"v32858872"},{"1":"0","2":"425235.0","3":"2001-07-01","4":"2018-05-04T10:50","5":"0","6":"6","7":"0","8":"1.6.0.0.0.0.0.0.0.0","9":"v129482"},{"1":"0","2":"3229171.0","3":"1973-03-01","4":"2000-02-18T21:56","5":"0","6":"6","7":"0","8":"1.1.0.0.0.0.0.0.0.0","9":"v129449"},{"1":"0","2":"173611.0","3":"2003-02-01","4":"2007-08-29T08:30","5":"0","6":"6","7":"0","8":"1.1.1.1.0.0.0.0.0.0","9":"v32858858"},{"1":"1","2":"14.1","3":"1955-02-01","4":"2007-06-19T07:00","5":"0","6":"6","7":"0","8":"2.2.0.0.0.0.0.0.0.0","9":"v41690973"}],"options":{"columns":{"min":{},"max":[10],"total":[9]},"rows":{"min":[10],"max":[10],"total":[10]},"pages":{}}}
+  </script>
+</div>
+<!-- rnb-frame-end -->
+<!-- rnb-chunk-end -->
+<!-- rnb-text-begin -->
+<p>Check for missing values.</p>
+<p>Replace character columns with empty string with NA</p>
+<!-- rnb-text-end -->
+<!-- rnb-chunk-begin -->
+<!-- rnb-source-begin eyJkYXRhIjoiYGBgclxuaW5kaWNhdG9ycyA8LSBpbmRpY2F0b3JzICU+JSBtdXRhdGVfaWYoaXMuY2hhcmFjdGVyLCBsaXN0KH5uYV9pZiguLFwiXCIpKSkgXG5gYGAifQ== -->
+<pre class="r"><code>indicators &lt;- indicators %&gt;% mutate_if(is.character, list(~na_if(.,&quot;&quot;))) </code></pre>
+<!-- rnb-source-end -->
+<!-- rnb-chunk-end -->
+<!-- rnb-text-begin -->
+<!-- rnb-text-end -->
+<!-- rnb-chunk-begin -->
+<!-- rnb-source-begin eyJkYXRhIjoiYGBgclxuc3VtKGlzLm5hKGluZGljYXRvcnMpKVxuYGBgIn0= -->
+<pre class="r"><code>sum(is.na(indicators))</code></pre>
+<!-- rnb-source-end -->
+<!-- rnb-output-begin eyJkYXRhIjoiWzFdIDBcbiJ9 -->
+<pre><code>[1] 0</code></pre>
+<!-- rnb-output-end -->
+<!-- rnb-chunk-end -->
+<!-- rnb-text-begin -->
+<p>No duplicate datapoints found.</p>
+<!-- rnb-text-end -->
+<!-- rnb-chunk-begin -->
+<!-- rnb-source-begin eyJkYXRhIjoiYGBgclxuc3VtKGR1cGxpY2F0ZWQoaW5kaWNhdG9ycykpXG5gYGAifQ== -->
+<pre class="r"><code>sum(duplicated(indicators))</code></pre>
+<!-- rnb-source-end -->
+<!-- rnb-output-begin eyJkYXRhIjoiWzFdIDBcbiJ9 -->
+<pre><code>[1] 0</code></pre>
+<!-- rnb-output-end -->
+<!-- rnb-chunk-end -->
+<!-- rnb-text-begin -->
+<p>Extraction detailed time information</p>
+<!-- rnb-text-end -->
+<!-- rnb-chunk-begin -->
+<!-- rnb-source-begin eyJkYXRhIjoiYGBgclxuaW5kaWNhdG9ycyRSRUZfWUVBUiA9IGZvcm1hdChhcy5EYXRlKGluZGljYXRvcnMkUkVGX0RBVEUsIGZvcm1hdD1cIiVZLSVtLSVkXCIpLFwiJVlcIilcbmluZGljYXRvcnMkUkVGX01PTlRIID0gZm9ybWF0KGFzLkRhdGUoaW5kaWNhdG9ycyRSRUZfREFURSwgZm9ybWF0PVwiJVktJW0tJWRcIiksXCIlbVwiKVxuaW5kaWNhdG9ycyRSRUZfREFZID0gZm9ybWF0KGFzLkRhdGUoaW5kaWNhdG9ycyRSRUZfREFURSwgZm9ybWF0PVwiJVktJW0tJWRcIiksXCIlZFwiKVxuYGBgIn0= -->
+<pre class="r"><code>indicators$REF_YEAR = format(as.Date(indicators$REF_DATE, format=&quot;%Y-%m-%d&quot;),&quot;%Y&quot;)
+indicators$REF_MONTH = format(as.Date(indicators$REF_DATE, format=&quot;%Y-%m-%d&quot;),&quot;%m&quot;)
+indicators$REF_DAY = format(as.Date(indicators$REF_DATE, format=&quot;%Y-%m-%d&quot;),&quot;%d&quot;)</code></pre>
+<!-- rnb-source-end -->
+<!-- rnb-chunk-end -->
+<!-- rnb-text-begin -->
+</div>
+<div id="step-3-data-distributions" class="section level2">
+<h2>Step 3: Data Distributions</h2>
+<p>…</p>
+<!-- rnb-text-end -->
 </div>
 
-<div id="rmd-source-code">LS0tCnRpdGxlOiAiUiBOb3RlYm9vayIKb3V0cHV0OiBodG1sX25vdGVib29rCi0tLQoKCiMgRURBIG9mIHRoZSAxNiBDb3ZpZC0xOSBEYXNoYm9hcmQgSW5kaWNhdG9ycwoKIyMjIEdvYWxzCgojIyMgQ29tbWVudHMKCgoKYGBge3J9CmxpYnJhcnkoY2Fuc2ltKQpsaWJyYXJ5KGdncGxvdDIpCmxpYnJhcnkoZHBseXIpCmxpYnJhcnkocGxvdGx5KQpsaWJyYXJ5KHN0cmluZ3IpCmBgYAoKCgpjYWNoZSB0YWJsZXMgaW4gZGF0YSBkaXJlY3RvcnkKYGBge3J9Cm9wdGlvbnMoY2Fuc2ltLmNhY2hlX3BhdGg9Ii9ob21lL2pvdnlhbi9kYXRhIikKYGBgCgoKIyMgRGF0YSBFeHRyYWN0aW9uCgpBcyBkZWZpbmVkIHVuZGVyIERlZmluaXRpb25zIHNlY3Rpb24gYXQgaHR0cHM6Ly93d3cxNTAuc3RhdGNhbi5nYy5jYS9uMS9wdWIvNzEtNjA3LXgvNzEtNjA3LXgyMDIwMDA5LWVuZy5odG0KYGBge3J9CmRhc2hib2FyZF90YWJsZV9uYW1lcyA9IGMoIjM2LTEwLTA0MzQtMDEiLCAiMTgtMTAtMDAwNC0wMSIsICIxNC0xMC0wMjg3LTAxIiwgIjEyLTEwLTAxMjEtMDEiLCAiMTItMTAtMDEyMS0wMSIsCiAgICAgICAgICAgICAgICAgICAgICIyMC0xMC0wMDA4LTAxIiwgIjE0LTEwLTAyODktMDEiLCAiMTYtMTAtMDA0Ny0wMSIsICIyMy0xMC0wMDA4LTAxIiwgIjIzLTEwLTAwMDgtMDEiLAogICAgICAgICAgICAgICAgICAgICAiMjMtMTAtMDAwOC0wMSIsICIyMy0xMC0wMjE2LTAxIiwgIjI0LTEwLTAwMDUtMDEiLCAiMjQtMTAtMDAwNS0wMSIsICIyNC0xMC0wMDA1LTAxIiwKICAgICAgICAgICAgICAgICAgICAgIjI0LTEwLTAwMDUtMDEiICkKbGVuZ3RoKGRhc2hib2FyZF90YWJsZV9uYW1lcykKYGBgCgpEb3dubG9hZCBhbGwgTkRNIHRhYmxlcwpgYGB7cn0KZGFzaGJvYXJkX3RhYmxlcyA9IGxhcHBseShkYXNoYm9hcmRfdGFibGVfbmFtZXMsIEZVTj1nZXRfY2Fuc2ltKQpgYGAKCgpSZXBsYWNlIHNwYWNlcyBpbiB2YXJpYWJsZSBuYW1lcyB3aXRoIHVuZGVyc2NvcmUgZm9yIGJldHRlciBwcm9jZXNzaW5nCmBgYHtyfQpmb3IgKGkgaW4gc2VxX2Fsb25nKGRhc2hib2FyZF90YWJsZXMpKSB7CiAgY29sbmFtZXMoZGFzaGJvYXJkX3RhYmxlc1tbaV1dKSA9IHN0cl9yZXBsYWNlX2FsbChjb2xuYW1lcyhkYXNoYm9hcmRfdGFibGVzW1tpXV0pLCBjKCIgIiA9ICJfIikpCn0KYGBgCgoKYGBge3J9CmhlYWQoZmlsdGVyKGRhc2hib2FyZF90YWJsZXNbWzRdXSwgVHJhZGU9PSdFeHBvcnQnLCBTZWFzb25hbF9hZGp1c3RtZW50PT0nU2Vhc29uYWxseSBhZGp1c3RlZCcsIEJhc2lzPT0nQmFsYW5jZSBvZiBwYXltZW50cycpKQpgYGAKClNhbWUgdGFibGUgZm9yIGV4cG9ydHMgYW5kIHRoZSBpbXBvcnRzIGhlcmUKYGBge3J9CmhlYWQoZmlsdGVyKGRhc2hib2FyZF90YWJsZXNbWzRdXSwgVHJhZGU9PSdJbXBvcnQnLCBTZWFzb25hbF9hZGp1c3RtZW50PT0nU2Vhc29uYWxseSBhZGp1c3RlZCcsIEJhc2lzPT0nQmFsYW5jZSBvZiBwYXltZW50cycpKQpgYGAKCmBgYHtyfQpoZWFkKGZpbHRlcihkYXNoYm9hcmRfdGFibGVzW1s2XV0sIEFkanVzdG1lbnRzPT0nU2Vhc29uYWxseSBhZGp1c3RlZCcpKQpgYGAKCmBgYHtyfQpoZWFkKGZpbHRlcihkYXNoYm9hcmRfdGFibGVzW1s3XV0sIEFkanVzdG1lbnRzPT0nU2Vhc29uYWxseSBhZGp1c3RlZCcpKQpgYGAKCmNvbnRpbnVlIHdpdGggOCBsYXRlcgpgYGB7cn0KaGVhZChkYXNoYm9hcmRfdGFibGVzW1s4XV0gKQpgYGAKCgoKCmBgYHtyfQojdW5pcXVlKGRhc2hib2FyZF90YWJsZXNbWzRdXSRgTm9ydGhfQW1lcmljYW5fUHJvZHVjdF9DbGFzc2lmaWNhdGlvbl9TeXN0ZW1fKE5BUENTKWApCmBgYAoKCgpgYGB7cn0KdmVjdG9ycyA9IGMoInY2NTIwMTIxMCIsICJ2NDE2OTA5NzMiLCAidjIwNjI4MDkiLCAidjEwMDE4MjcyNjUiLCAidjEwMDE4MjY2NTMiLCAidjUyMzY3MDk3IiwgInY0MzkxNTA1IiwpCmBgYAoKR0RQOiBhbGwgaW5kdXN0cmllcwpDUEk6IEFsbC1pdGVtcyBjb25zdW1lciBwcmljZSBpbmRleCAoMjAwMj0xMDApLCBub3QgYWRqdXN0ZWQgZm9yIHNlYXNvbmFsaXR5LiBOb3RlIHRoYXQgVU9NIGlzIHNldCBhcyAyMDAyPTEwMC4KZXhwb3J0cyAoNCk6IGFzc3VtZSBgVG90YWwgb2YgYWxsIG1lcmNoYW5kaXNlYCBpcyBlcXVhbCB0byBgdG90YWwgb2YgYWxsIHByb2R1Y3RzYCBpbiBEZWZpbml0aW9ucyBvbiB3ZWJzaXRlLCBmaWx0ZXJlZCBieSBgRXhwb3J0YCBhbmQgYFNlYXNvbmFsIGFkanVzdG1lbnRgLCAnQmFsYW5jZSBvZiBQYXltZW50c2AuIEFzc3VtZSB1T00gZG9sbGFycyBpcyBjdXJyZW50IGRvbGxhcnMuCgoK</div>
+<div id="rmd-source-code">LS0tCnRpdGxlOiAiSS4gSW5kaWNhdG9yIFZlY3RvciBFREEiCm91dHB1dDogaHRtbF9ub3RlYm9vawotLS0KCiMjIyBHb2FscwoKKiBFeHBsb3JhdG9yeSBEYXRhIEFuYWx5c2lzIG9mIERhc2hib2FyZCBWZWN0b3JzCgojIyMgQ29tbWVudHMKCmBgYHtyfQpzdXBwcmVzc01lc3NhZ2VzKGxpYnJhcnkoY2Fuc2ltKSkKc3VwcHJlc3NNZXNzYWdlcyhsaWJyYXJ5KGdncGxvdDIpKQpzdXBwcmVzc01lc3NhZ2VzKGxpYnJhcnkoZHBseXIpKQpzdXBwcmVzc01lc3NhZ2VzKGxpYnJhcnkocGxvdGx5KSkKc3VwcHJlc3NNZXNzYWdlcyhsaWJyYXJ5KHN0cmluZ3IpKQpgYGAKCiMjIFN0ZXAgMTogRGF0YSBSZXRyaWV2YWwKCmBgYHtyfQp2ZWN0b3JzID0gYygidjY1MjAxMjEwIiwgInY0MTY5MDk3MyIsICJ2MjA2MjgwOSIsICJ2MTAwMTgyNzI2NSIsICJ2MTAwMTgyNjY1MyIsICJ2NTIzNjcwOTciLCAidjQzOTE1MDUiLCAidjgwMDQ1MCIsICJ2MzI4NTg4NTgiLCAidjMyODU4ODY1IiwgInYzMjg1ODg3MiIsICJ2NzQ4NjkiLCAidjEyOTQ0OSIsICJ2MTI5NDYwIiwgInYxMjk0NzIiLCAidjEyOTQ4MiIpCmxlbmd0aCh2ZWN0b3JzKQpgYGAKCkkgZXhwZWN0IHRoaXMgZGF0ZSB0byBiZSBiZWZvcmUgdGhlIHN0YXJ0IG9mIGFsbCB0aW1lIHNlcmllcy92ZWN0b3JzLgpgYGB7cn0Kc3RhcnRfZGF0ZSA8LSAnMTkwMC0wMS0wMScKYGBgCgpSZXRyaWV2ZSBhbGwgdmVjdG9ycy4gVGhleSBhcmUgY29uY2F0dW5hdGVkIGFsb25nIGF4aXMgMC4KYGBge3J9CmluZGljYXRvcnMgPC0gZ2V0X2NhbnNpbV92ZWN0b3IodmVjdG9ycywgc3RhcnRfZGF0ZSkKZGltKCBpbmRpY2F0b3JzKQpgYGAKCiMjIFN0ZXAgMjogTWVldCBhbmQgR3JlZXQgRGF0YQoKKiBUaGVyZSBhcmUgbm8gbWlzc2luZyB2YWx1ZXMgYXZhaWxhYmxlIGFzIE5BIG9yIGVtcHR5IHN0cmluZ3MuIFBsYWNlaG9sZGVyIG1pc3NpbmcgdmFsdWVzIHN0aWxsIHBvc3NpYmxlLgoqIFRoZXJlIGFyZSBubyBkdXBsaWNhdGUgcm93cy4KKiBEYXRhIHR5cGVzCiAgKiBub21pbmFsOiBDT09SRElOQVRFLCBWRUNUT1IKICAqIG51bWVyaWMsIGRpc2NyZXRlOiBERUNJTUFMUywgU1lNQk9MUywgZnJlcXVlbmN5Q29kZSwgU0NBTEFSX0lECiAgKiBudW1lcmljLCBjb250aW5vdXM6IAogICogdGltZTogUkVGX0RBVEUsIHJlbGVhc2VUaW1lCgpgYGB7cn0KaGVhZChpbmRpY2F0b3JzKQpgYGAKCmBgYHtyfQpzZXQuc2VlZCgxKQppbmRpY2F0b3JzICU+JSBzYW1wbGVfbigxMCkKYGBgCgpDaGVjayBmb3IgbWlzc2luZyB2YWx1ZXMuCgpSZXBsYWNlIGNoYXJhY3RlciBjb2x1bW5zIHdpdGggZW1wdHkgc3RyaW5nIHdpdGggTkEKYGBge3J9CmluZGljYXRvcnMgPC0gaW5kaWNhdG9ycyAlPiUgbXV0YXRlX2lmKGlzLmNoYXJhY3RlciwgbGlzdCh+bmFfaWYoLiwiIikpKSAKYGBgCgpgYGB7cn0Kc3VtKGlzLm5hKGluZGljYXRvcnMpKQpgYGAKCgpObyBkdXBsaWNhdGUgZGF0YXBvaW50cyBmb3VuZC4KYGBge3J9CnN1bShkdXBsaWNhdGVkKGluZGljYXRvcnMpKQpgYGAKCkV4dHJhY3Rpb24gZGV0YWlsZWQgdGltZSBpbmZvcm1hdGlvbgpgYGB7cn0KaW5kaWNhdG9ycyRSRUZfWUVBUiA9IGZvcm1hdChhcy5EYXRlKGluZGljYXRvcnMkUkVGX0RBVEUsIGZvcm1hdD0iJVktJW0tJWQiKSwiJVkiKQppbmRpY2F0b3JzJFJFRl9NT05USCA9IGZvcm1hdChhcy5EYXRlKGluZGljYXRvcnMkUkVGX0RBVEUsIGZvcm1hdD0iJVktJW0tJWQiKSwiJW0iKQppbmRpY2F0b3JzJFJFRl9EQVkgPSBmb3JtYXQoYXMuRGF0ZShpbmRpY2F0b3JzJFJFRl9EQVRFLCBmb3JtYXQ9IiVZLSVtLSVkIiksIiVkIikKYGBgCgojIyBTdGVwIDM6IERhdGEgRGlzdHJpYnV0aW9ucwoKLi4uCgoKCgoKCgoK</div>
 
 
 
@@ -1908,7 +1952,7 @@ $(document).ready(function () {
 <!-- code folding -->
 <script>
 $(document).ready(function () {
-  window.initializeSourceEmbed("IndicatorsEDA2.Rmd");
+  window.initializeSourceEmbed("II.IndicatorsEDA.Rmd");
   window.initializeCodeFolding("show" === "show");
 });
 </script>
