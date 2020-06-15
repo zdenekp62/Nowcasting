@@ -13,26 +13,26 @@ output: html_notebook
 suppressMessages(library(cansim))
 suppressMessages(library(ggplot2))
 suppressMessages(library(dplyr))
-suppressMessages(library(plotly))
+# suppressMessages(library(plotly))
 suppressMessages(library(stringr))
 ```
 
 ## Step 1: Data Retrieval
 
 ```{r}
-vectors = c("v65201210", "v41690973", "v2062809", "v1001827265", "v1001826653", "v52367097", "v4391505", "v800450", "v32858858", "v32858865", "v32858872", "v74869", "v129449", "v129460", "v129472", "v129482")
+vectors <- c("v65201210", "v41690973", "v2062809", "v1001827265", "v1001826653", "v52367097", "v4391505", "v800450", "v32858858", "v32858865", "v32858872", "v74869", "v129449", "v129460", "v129472", "v129482")
 length(vectors)
 ```
 
 I expect this date to be before the start of all time series/vectors.
 ```{r}
-start_date <- '1900-01-01'
+start_date <- "1900-01-01"
 ```
 
 Retrieve all vectors. They are concatunated along axis 0.
 ```{r}
 indicators <- get_cansim_vector(vectors, start_date)
-dim( indicators)
+dim(indicators)
 ```
 
 ## Step 2: Meet and Greet Data
@@ -58,7 +58,7 @@ Check for missing values.
 
 Replace character columns with empty string with NA
 ```{r}
-indicators <- indicators %>% mutate_if(is.character, list(~na_if(.,""))) 
+indicators <- indicators %>% mutate_if(is.character, list(~ na_if(., "")))
 ```
 
 ```{r}
@@ -73,19 +73,16 @@ sum(duplicated(indicators))
 
 Extraction detailed time information
 ```{r}
-indicators$REF_YEAR = format(as.Date(indicators$REF_DATE, format="%Y-%m-%d"),"%Y")
-indicators$REF_MONTH = format(as.Date(indicators$REF_DATE, format="%Y-%m-%d"),"%m")
-indicators$REF_DAY = format(as.Date(indicators$REF_DATE, format="%Y-%m-%d"),"%d")
+indicators$REF_YEAR <- format(as.Date(indicators$REF_DATE, format = "%Y-%m-%d"), "%Y")
+indicators$REF_MONTH <- format(as.Date(indicators$REF_DATE, format = "%Y-%m-%d"), "%m")
+indicators$REF_DAY <- format(as.Date(indicators$REF_DATE, format = "%Y-%m-%d"), "%d")
 ```
 
 ## Step 3: Data Distributions
 
-...
 
 
-
-
-
-
-
-
+```{r}
+#p <- ggplot(data = mpg, aes(x = displ, y = hwy)) + geom_point()
+#p + facet_wrap(~cyl)
+```

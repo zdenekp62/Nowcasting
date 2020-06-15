@@ -7,3 +7,4 @@ install.packages("lintr")
 # 
 install.packages("cansim")
 install.packages("plotly")
+install.packages("packrat")
