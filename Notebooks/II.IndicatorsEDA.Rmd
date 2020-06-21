@@ -13,16 +13,27 @@ output: html_notebook
 suppressMessages(library(cansim))
 suppressMessages(library(ggplot2))
 suppressMessages(library(dplyr))
-# suppressMessages(library(plotly))
+suppressMessages(library(plotly))
 suppressMessages(library(stringr))
+suppressMessages(library(lubridate))
+library(reshape2)
+library(tidyr)
+#library(data.table)
+source("../src/utils.R")
 ```
 
 ## Step 1: Data Retrieval
 
 ```{r}
-vectors <- c("v65201210", "v41690973", "v2062809", "v1001827265", "v1001826653", "v52367097", "v4391505", "v800450", "v32858858", "v32858865", "v32858872", "v74869", "v129449", "v129460", "v129472", "v129482")
-length(vectors)
+vector_names <- c("v65201210", "v41690973", "v2062809", "v1001827265", "v1001826653", "v52367097", "v4391505", "v800450", "v32858858", "v32858865", "v32858872", "v74869", "v129449", "v129460", "v129472", "v129482")
+length(vector_names)
 ```
+```{r}
+vector_descr = c("RealGDP", "CPI", "Employment [pers]", "Int. merchendise trade Exp. [$]", "Int. merchendise trade Imp. [$]",
+                 "Retail Sales [$]", "hours worked", "Manufact. sales [$]", "Aircraft domestic [#]", "Aircraft transborder [#]", "Aircraft int other [#]", "Railway carloads [tons]", "Travelers US [pers]", "Travelers other country [pers]", "CA resident US [pers]", "CAresident other country [pers]")
+names(vector_descr) <- vector_names
+```
+
 
 I expect this date to be before the start of all time series/vectors.
 ```{r}
@@ -31,8 +42,8 @@ start_date <- "1900-01-01"
 
 Retrieve all vectors. They are concatunated along axis 0.
 ```{r}
-indicators <- get_cansim_vector(vectors, start_date)
-dim(indicators)
+vectors <- get_cansim_vector(vector_names, start_date)
+dim(vectors)
 ```
 
 ## Step 2: Meet and Greet Data
@@ -46,43 +57,256 @@ dim(indicators)
   * time: REF_DATE, releaseTime
 
 ```{r}
-head(indicators)
+head(vectors)
 ```
 
 ```{r}
 set.seed(1)
-indicators %>% sample_n(10)
+vectors %>% sample_n(10)
 ```
 
 Check for missing values.
 
 Replace character columns with empty string with NA
 ```{r}
-indicators <- indicators %>% mutate_if(is.character, list(~ na_if(., "")))
+vectors <- vectors %>% mutate_if(is.character, list(~ na_if(., "")))
 ```
 
 ```{r}
-sum(is.na(indicators))
+sum(is.na(vectors))
 ```
 
 
 No duplicate datapoints found.
 ```{r}
-sum(duplicated(indicators))
+sum(duplicated(vectors))
 ```
 
-Extraction detailed time information
-```{r}
-indicators$REF_YEAR <- format(as.Date(indicators$REF_DATE, format = "%Y-%m-%d"), "%Y")
-indicators$REF_MONTH <- format(as.Date(indicators$REF_DATE, format = "%Y-%m-%d"), "%m")
-indicators$REF_DAY <- format(as.Date(indicators$REF_DATE, format = "%Y-%m-%d"), "%d")
-```
 
 ## Step 3: Data Distributions
 
+Analysis of economic variables and their meaning:
+
+* GDP: units in x1e6 dollars, average of 1.6Tr dollars GDP reasonable.
+* CPI: due to its nature as an index, the interpretation of absolute value is difficult. The only variable which goes to 1914 while the earliest other variables start at 1972. Expect significant differences over time in the way of calculation of the CPI!
+* Empoyment: average of 23M considering the unit x1000 in persons, reasonable considering 37M population of Canada
+* Int. merchendise trade Exp: units in x1e6 dollars, average of 31B dollars reasonable for all exports
+* Int. merchendise trade Imp: units in x1e6 dollars, 30B dollars is slighly less than the export;  might imply slight trade surplus
+* Retail Sales: 31B retail sales in dollars, due to units of x1e3; Retail sales (as our first dependent variable) has 251 data points spanning 19 years.
+* Hours worked: 490M hours worked on average per month (units x1e3); Note that table says "last 5 months", what does this imply? Considering the employment, on average  Canadians works only ~21hrs/month??
+* Manifacturing sales:  44B in sales (units in 1e3). this is larger than the retail sales
+* Aircraft domestic: on averaer 220k people travel via domestic airports. 0.5% of the whole population.
+* Aircraft transborder: On average 40k people travel between the US and Canada per month, ~1/5 of the domestic traveling.
+* Aircraft int other: On average 10k people travel between othe countries, 1/4 of the US travel.
+* Railway carloads: 26M tons on average per month are transported via railway. Lowest number of data points of just 255.
+* Travelers US: About 3M travelers from the US on average per month;
+* Travelers other country: 300k travelers from other countries, as only 1/10 of the travelers coming from the US
+* Canadians returning from US: 3.7M Canadians return from US per month on average
+* CAresident other country: 416k Canadians return from other countries, ~1/10 of Canadians return from US.
+
+
+
+
+Pivot table to allow each vector in separate column
+```{r}
+indicators <- pivot_wider(vectors, names_from = VECTOR, values_from = VALUE)
+indicators <- indicators %>% group_by(REF_DATE) %>% summarise_at(vector_names, sum, na.rm=TRUE)
+
+indicators$REF_YEAR <- format(as.Date(indicators$REF_DATE, format = "%Y-%m-%d"), "%Y")
+indicators$REF_MONTH <- format(as.Date(indicators$REF_DATE, format = "%Y-%m-%d"), "%m")
+indicators$REF_DAY <- format(as.Date(indicators$REF_DATE, format = "%Y-%m-%d"), "%d")
+
+indicators[indicators == 0] <- NA
+#print(dim(indicators))
+head(indicators)
+```
+
+
+The length of the time series varyies strongly. The CPI has the maximum, while hte minimum length is 279.
+```{r  rows.print=20, cols.print=10}
+summary <- select(indicators, vector_names)
+# data.table::setnames(summary, old = vector_names, new = vector_descr)
+summary <- do.call(data.frame, 
+           list(
+                names = vector_descr,
+                REF_DATE_min = sapply(vector_names, FUN=function (vect) {na.omit(select(indicators, REF_DATE, vect))$REF_DATE[1]}),
+                REF_DATE_max = sapply(vector_names, FUN=function (vect) {na.omit(select(indicators, REF_DATE, vect))$REF_DATE[[length(na.omit(select(indicators, REF_DATE, vect))$REF_DATE)]]}),
+                length = apply(summary, 2, function(x) length(which(!is.na(x))))))
+#summary$lag_REF_month <- today - as.Date(summary$REF_DATE_max)
+summary
+```
+
+> I remove values of the CPI index going back to 1914 as other indicators are not available for that time range. Specifically for further EDA I remove all entries before the start of the travel data in 1972-01-01.
+
+```{r}
+vectors <- subset(vectors, as.Date(vectors$REF_DATE) >= as.Date('1972-01-01'))
+indicators <- subset(indicators, as.Date(indicators$REF_DATE) >= as.Date('1972-01-01'))
+```
+
+```{r set-options, rows.print=20, cols.print=10}
+options(width = 220)
+summary <- select(indicators, vector_names)
+# data.table::setnames(summary, old = vector_names, new = vector_descr)
+summary <- do.call(data.frame, 
+           list(
+                names = vector_descr,
+                REF_DATE_min = sapply(vector_names, FUN=function (vect) {na.omit(select(indicators, REF_DATE, vect))$REF_DATE[1]}),
+                REF_DATE_max = sapply(vector_names, FUN=function (vect) {na.omit(select(indicators, REF_DATE, vect))$REF_DATE[[length(na.omit(select(indicators, REF_DATE, vect))$REF_DATE)]]}),
+                length = apply(summary, 2, function(x) length(which(!is.na(x))))))
+#summary$lag_REF_month <- today - as.Date(summary$REF_DATE_max)
+summary
+```
+
+
+
+```{r, rows.print=20}
+
+summary <- select(indicators, vector_names)
+# data.table::setnames(summary, old = vector_names, new = vector_descr)
+summary <- do.call(data.frame, 
+           list(
+                names = vector_descr,
+                mean = apply(summary, 2, mean, na.rm = TRUE),
+                #sd = apply(summary, 2, sd, na.rm = TRUE),
+                # median = apply(summary, 2, median, na.rm = TRUE),
+                min = apply(summary, 2, min, na.rm = TRUE),
+                q1 = apply(summary, 2, quantile,  probs = c(0.01), na.rm = TRUE), # 1% percentile
+                q99 = apply(summary, 2, quantile,  probs = c(0.99), na.rm = TRUE), # 99% percentile
+                max = apply(summary, 2
+                            , max, na.rm = TRUE)))
+summary
+
+
+```
+
+```{r}
+head(indicators)
+```
+
+Create a v-vector id to vector desription mapping.
+```{r}
+vectors$descr <- sapply(vectors$VECTOR, function(x) {vector_descr[x][[1]]})
+vectors$descr <- factor(vectors$descr , levels = rev(vector_descr)) # allow fixed order of indicator variables from here on
+```
+
+
+
+Distributions are distinct different for different variables. So is employment relative uniform while aircraft transborder shows a more normal-looking distribution.
+```{r, fig.width= 8, fig.height=12}
+p <- ggplot(data = vectors, aes(x = VALUE)) + geom_histogram()
+p + facet_wrap(~descr, scales = "free", ncol = 2, as.table = FALSE)
+```
+
+Outliers according to the IQR are present in `Travelers US` `Aircraft Transborder`, `CA Residents`.
+```{r,  fig.width= 8, fig.height=8}
+p <- ggplot(vectors, aes(x=VALUE)) + geom_boxplot(notch=FALSE)
+p + facet_wrap(~descr, scales = "free", ncol = 2, as.table = FALSE)
+```
+
+
+## Step 4: Relationship between variables
+
+Here in particular the time-dependencies of the economic variables are investigated.
+
+### Data Release Day Lag
+
+Lag between reference month and release time. Hours worked from LFS and manufacturing sales have the lowest lag of all indicators. Note that the REF_DATE refers to the reference month, and hence has to calculate the lag starting from after the reference month.
+The release lag for `hours worked` and `retail sales` are both only 1 working week and could serve as input for prediction of economic indicators of longer lag. Aircraft-related indicators have a significant lag of almost 2 months (58days)! `Travelers other country` has the largest lag of 59 days.
 
 
 ```{r}
-#p <- ggplot(data = mpg, aes(x = displ, y = hwy)) + geom_point()
-#p + facet_wrap(~cyl)
+get_lag <- function(reference_date, release_date) {
+    
+   release_date <- as.Date(release_date) 
+   reference_date <- as.Date(reference_date)
+   month(reference_date) <- month(reference_date) + 1
+   as.numeric(release_date - reference_date) +1 # add 1 day to include first day of month
+}
+
+```
+
+
+
+```{r, rows.print=20}
+lags <- select(vectors, REF_DATE, releaseTime, VECTOR)
+lags$lag <- mapply(get_lag, lags$REF_DATE, lags$releaseTime)
+lags <- lags %>% group_by(VECTOR) %>% top_n(1, REF_DATE)
+lags$names <- vector_descr
+lags
+```
+
+
+Time dependency of indicators on reference date. Strong diversity in time-series behavior: Trends, seasonal and cyclical behavior differs between the economic indicator.
+
+Seasonal adjustments (SA)
+
+* GDP: SA at annual rates
+* CPI: no SA
+* Employment: SA
+* Int. merchendise trade Exp: SA
+* Int. merchendise trade Import: SA
+* Retail Trade: SA
+* Hours worked: SA
+* Manufactors Sales: SA
+* Aircraft domestic: no SA
+* Aircraft transborder: no SA
+* Aircraft int other: no SA
+* railway carloads: no SA
+* Travelers US: SA
+* Travelers ohter country: SA
+* CA resident US: SA
+* CA resident other country: SA
+
+Are the strong variability of the Aircraft variables explained due to the non-SA treatment?
+```{r, fig.width= 8, fig.height=12}
+p <- ggplot(data = vectors, aes(x = as.Date(REF_DATE), y=VALUE)) + geom_line()
+p + facet_wrap(~descr, scales = "free_y", ncol = 1, as.table = FALSE)
+```
+
+
+Looking at the percentage change.
+```{r}
+percentage_change <- function(vector) {
+  
+  # change_vector <-vector("list", length(vector)) 
+  
+  vector[1] = 0
+  vector[2:length(vector)] <- (vector[2:length(vector)] - vector[1:length(vector)-1])/vector[1:length(vector)-1]
+  #print(length(change_vector))
+  vector
+}
+```
+
+
+```{r}
+indicators_perc <- data.frame(apply(select(indicators, vector_names), 2, percentage_change))
+indicators_perc$REF_DATE <- indicators$REF_DATE
+indicators_perc = indicators_perc[-1,] # remove first line/date for which differencing values are not available
+
+vectors_perc <- melt(indicators_perc,id="REF_DATE", na.rm = TRUE, variable.name = 'VECTOR', value.name = 'VALUE')
+vectors_perc$descr <- sapply(vectors_perc$VECTOR, function(x) {vector_descr[x][[1]]})
+vectors_perc$descr <- factor(vectors_perc$descr , levels = rev(vector_descr)) # allow fixed order of indicator variables from here on
+
+```
+
+1st difference as percentage change has removed the trends in all series however strong seasonal effects are still visible in all indicators
+```{r, fig.width= 8, fig.height=12}
+p <- ggplot(data = vectors_perc, aes(x = as.Date(REF_DATE), y=VALUE)) + geom_line()
+p + facet_wrap(~descr, scales = "free_y", ncol = 1, as.table = FALSE)
+```
+
+
+### Correlation between Retail Sales and other short-publication-lagged variables 
+
+
+sample cross-correlation function for which we consider retail sales as predictor variable (see its long publication lag) and hours worked as a dependet variable (withv52367097 = retail sales v4391505 = hours worked). I find that when retail sales are high, then 1 month before the hours worked are high. Further correlations beyond 95% CI are not visible.
+```{r}
+ccf(indicators_perc$v4391505, indicators_perc$v52367097, lag.max = 12, type = c("correlation"),
+    plot = TRUE, na.action = na.pass, ylab = "cross-correlation function")
+```
+
+sample cross-correlation function for manufacturing sales (having a short lag) and retail sales. There is a weaker correlation and lag of 1 month for the manufacturing sales before the retail sales. One finds a strong correlation with a positive lag, indicating retail lags behind manufacturing by 1 month.
+```{r}
+ccf(indicators_perc$v800450, indicators_perc$v52367097, lag.max = 12, type = c("correlation"),
+    plot = TRUE, na.action = na.pass, ylab = "cross-correlation function")
 ```
