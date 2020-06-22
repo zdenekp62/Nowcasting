@@ -9,6 +9,8 @@ output: html_notebook
 
 ### Comments
 
+* Covid-19 dashboard at https://www150.statcan.gc.ca/n1/pub/71-607-x/71-607-x2020009-eng.htm
+
 ```{r}
 suppressMessages(library(cansim))
 suppressMessages(library(ggplot2))
@@ -295,8 +297,16 @@ p <- ggplot(data = vectors_perc, aes(x = as.Date(REF_DATE), y=VALUE)) + geom_lin
 p + facet_wrap(~descr, scales = "free_y", ncol = 1, as.table = FALSE)
 ```
 
+### Auto-correlations of time series
 
-### Correlation between Retail Sales and other short-publication-lagged variables 
+
+```{r}
+co2.acf <- acf(indicators_perc$v52367097, lag.max = 12, na.action = na.pass, ylab = 'auto-correlation function')
+```
+
+
+
+### Correlation between percentage changes of Retail Sales and other short-publication-lagged variables 
 
 
 sample cross-correlation function for which we consider retail sales as predictor variable (see its long publication lag) and hours worked as a dependet variable (withv52367097 = retail sales v4391505 = hours worked). I find that when retail sales are high, then 1 month before the hours worked are high. Further correlations beyond 95% CI are not visible.

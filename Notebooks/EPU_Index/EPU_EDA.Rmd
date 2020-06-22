@@ -1,0 +1,154 @@
+---
+title: "R Notebook"
+output: html_notebook
+---
+
+# EDA of the Econonomic Policy Uncertainty (EPU) Index
+
+### Goals
+
+* Analyze the properties of the index
+
+### Comments
+
+
+* EPU Index
+  * Source: for Canada: http://www.policyuncertainty.com/canada_monthly.html
+  * Includes 5 Canadian Newspapers: The Gazette, The Vancouver Sun, The Toronto Star, The Ottawa Citizen, and The Globe and Mail, Canadian Newswire.
+  * Selection of Articles: Utilize the number of news articles containing the terms uncertain or uncertainty, economic or economy, as well as policy relevant terms (scaled by the smoothed number of articles containing 'today')
+    * Policy relevant terms include: 'policy', 'tax', 'spending', 'regulation', 'central bank', 'budget', and 'deficit'.
+  * Index calculation: 
+    * Each paper-specific monthly series is normalized to standard deviation 1 prior to 2011 and then summed across papers, by month. Finally, the series is normalized to mean 100 prior to 2011.
+  * data from the preceding two months may be revised slightly: This is driven by the fact that some online newspapers do not immediately update their online archives with all articles, leading to slightly changing totals for the previous 1-2 months.
+
+* Questions
+  * Are there any time series breaks? How "reliable" is the index?
+
+```{r}
+#install.packages("readxl")
+#install.packages("scales")
+```
+
+
+
+```{r}
+library("readxl")
+library("scales")
+library(zoo)
+library(ggplot2)
+library(plotly)
+library(quantmod)
+library("xts")
+
+```
+
+## Step 1: Data Retrieval
+
+Downloaded from http://www.policyuncertainty.com/canada_monthly.html
+
+```{r}
+epu <- read_excel("/home/jovyan/data/Canada_Policy_Uncertainty_Data.xlsx",sheet=1, col_types = c("text","text","numeric"))
+head(epu)
+```
+
+
+
+```{r}
+# other data, not relevant
+# my_data2 <- read_excel("Canada_Policy_Uncertainty_Data.xlsx",sheet=2)#, c("text","text","numeric","numeric","numeric"))
+# head(my_data2)
+```
+
+## Step 2: Meet and Greet Data
+
+
+```{r}
+epu$date <- paste(epu$Year,epu$Month,sep="-")
+head(epu$date)
+```
+
+
+```{r}
+# format date column
+epu$date <- as.yearmon(epu$date, format = "%Y-%m")
+epu <- epu[-nrow(epu),]
+colnames(epu)[3]<-"epu"
+head(epu)
+```
+
+```{r}
+set.seed(1)
+epu %>% sample_n(10)
+```
+
+Check for missing values.
+
+Replace character columns with empty string with NA
+```{r}
+epu <- epu %>% mutate_if(is.character, list(~ na_if(., "")))
+```
+
+```{r}
+sum(is.na(vectors))
+```
+
+Is there missing data in terms of a continous monthly series?
+
+```{r}
+print(min(epu$date))
+print(max(epu$date))
+```
+
+```{r}
+complete_sequence = seq(from = as.Date(min(epu$date)), to = as.Date(max(epu$date)),  by = "month")
+complete_sequence = as.yearmon(complete_sequence)
+complete_sequence[1:5]
+```
+
+There are no missing values which shows the time series does not have missing monthly values.
+```{r}
+all(epu$date == complete_sequence)
+```
+
+No duplicate datapoints found.
+```{r}
+sum(duplicated(vectors))
+```
+
+## Step 3: Data Distributions
+
+```{r}
+summary(epu)
+```
+
+```{r, fig.width=8, fig.height=4}
+ggplot(data = epu, aes(x = epu)) + geom_histogram() + xlab('epu values')
+```
+
+
+## Step 4: Relationship between variables
+
+Here in particular the time-dependencies of the economic variables are investigated.
+
+
+
+```{r}
+epu <- xts(df_epu$epu, df_epu$date)
+```
+
+
+label variable allows to show time in tooltip
+
+```{r}
+fig<-ggplot(epu, aes(x = Index, y = epu)) + geom_line()
+ggplotly(fig)
+#fig
+```
+
+
+```{r}
+fig<-ggplot(epu, aes(x = Index, y = epu)) + geom_line() + xlim(2000,2018)
+#ggplotly(fig)
+fig
+```
+
