@@ -32,6 +32,4 @@ glimpse(stations)
 stations_search("Toronto City", interval = "day")
 ```
 
-```{r}
-
-```
+some changes
