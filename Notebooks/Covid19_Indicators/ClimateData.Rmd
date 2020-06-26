@@ -1,0 +1,37 @@
+---
+title: "II. Weather and Climate Data"
+output: html_notebook
+---
+
+### Goals
+
+* Authomatically downloading weather and climate data
+
+### Comments
+
+* For downloading data from Environment and Climate Change Canada (ECCC) website,
+we use package `weathercan` which can be installed directly from CRAN. 
+
+* To downlaod data using this package, we need to know the `station_id`
+associated with the station we are interested in.
+
+
+```{r}
+suppressMessages(library(weathercan))
+```
+
+```{r}
+head(stations)
+```
+
+```{r}
+glimpse(stations)
+```
+
+```{r}
+stations_search("Toronto City", interval = "day")
+```
+
+```{r}
+
+```
