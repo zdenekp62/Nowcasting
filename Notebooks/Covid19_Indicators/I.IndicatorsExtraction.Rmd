@@ -31,9 +31,12 @@ options(cansim.cache_path = "/home/jovyan/data")
 As defined under Definitions section at https://www150.statcan.gc.ca/n1/pub/71-607-x/71-607-x2020009-eng.htm. Note that a snapshot of the website state at time of development of this notebook is in ../references/Canadian Economic Dashboard and COVID-19.pdf
 ```{r}
 dashboard_table_names <- c(
-  "36-10-0434-01", "18-10-0004-01", "14-10-0287-01", "12-10-0121-01", "12-10-0121-01",
-  "20-10-0008-01", "14-10-0289-01", "16-10-0047-01", "23-10-0008-01", "23-10-0008-01",
-  "23-10-0008-01", "23-10-0216-01", "24-10-0005-01", "24-10-0005-01", "24-10-0005-01",
+  "36-10-0434-01", "18-10-0004-01", "14-10-0287-01", "12-10-0121-01",
+  "12-10-0121-01",
+  "20-10-0008-01", "14-10-0289-01", "16-10-0047-01", "23-10-0008-01",
+  "23-10-0008-01",
+  "23-10-0008-01", "23-10-0216-01", "24-10-0005-01", "24-10-0005-01",
+  "24-10-0005-01",
   "24-10-0005-01"
 )
 length(dashboard_table_names)
@@ -41,7 +44,7 @@ length(dashboard_table_names)
 
 Download all NDM tables (uncomment when need to download again)
 ```{r}
-dashboard_tables = lapply(dashboard_table_names, FUN = get_cansim)
+dashboard_tables <- lapply(dashboard_table_names, FUN = get_cansim)
 ```
 
 ## B. Preprocessing and Vector Identification
@@ -49,18 +52,23 @@ dashboard_tables = lapply(dashboard_table_names, FUN = get_cansim)
 Replace spaces in variable names with underscore for better processing. Search through tables and identify correct vectors for dashboard. List of vectors in D.
 ```{r}
 for (i in seq_along(dashboard_tables)) {
-  colnames(dashboard_tables[[i]]) <- str_replace_all(colnames(dashboard_tables[[i]]), c(" " = "_", "\\(" = "_", "\\)" = "_"))
+  colnames(dashboard_tables[[i]]) <- str_replace_all(
+    colnames(dashboard_tables[[i]]), c(" " = "_", "\\(" = "_", "\\)" = "_"))
 }
 ```
 
 
 ```{r}
-head(filter(dashboard_tables[[4]], Trade == "Export", Seasonal_adjustment == "Seasonally adjusted", Basis == "Balance of payments"))
+head(filter(dashboard_tables[[4]], Trade == "Export",
+            Seasonal_adjustment == "Seasonally adjusted",
+            Basis == "Balance of payments"))
 ```
 
 Same table for exports and the imports here
 ```{r}
-head(filter(dashboard_tables[[4]], Trade == "Import", Seasonal_adjustment == "Seasonally adjusted", Basis == "Balance of payments"))
+head(filter(dashboard_tables[[4]], Trade == "Import",
+            Seasonal_adjustment == "Seasonally adjusted",
+            Basis == "Balance of payments"))
 ```
 
 ```{r}
@@ -73,23 +81,32 @@ dashboard_table_names[[8]]
 
 
 ```{r}
-head(filter(dashboard_tables[[8]], Seasonal_adjustment == "Seasonally adjusted", Principal_statistics == "Sales of goods manufactured (shipments)", North_American_Industry_Classification_System__NAICS_ == "Manufacturing [31-33]"))
+head(filter(dashboard_tables[[8]], Seasonal_adjustment == "Seasonally adjusted",
+            Principal_statistics == "Sales of goods manufactured (shipments)",
+            North_American_Industry_Classification_System__NAICS_ ==
+              "Manufacturing [31-33]"))
 ```
 
 ```{r}
-head(filter(dashboard_tables[[9]], Type_of_operation == "Total itinerant movements", Domestic_and_international_itinerant_movements ==
+head(filter(dashboard_tables[[9]], Type_of_operation ==
+              "Total itinerant movements",
+            Domestic_and_international_itinerant_movements ==
   "Domestic movements"))
 ```
 
 same table as 9
 ```{r}
-head(filter(dashboard_tables[[10]], Type_of_operation == "Total itinerant movements", Domestic_and_international_itinerant_movements ==
+head(filter(dashboard_tables[[10]], Type_of_operation ==
+              "Total itinerant movements",
+            Domestic_and_international_itinerant_movements ==
   "Transborder movements"))
 ```
 
 same table as 9
 ```{r}
-head(filter(dashboard_tables[[11]], Type_of_operation == "Total itinerant movements", Domestic_and_international_itinerant_movements ==
+head(filter(dashboard_tables[[11]],
+            Type_of_operation == "Total itinerant movements",
+            Domestic_and_international_itinerant_movements ==
   "Other international movements"))
 ```
 
@@ -97,18 +114,19 @@ head(filter(dashboard_tables[[11]], Type_of_operation == "Total itinerant moveme
 head(filter(dashboard_tables[[14]]))
 ```
 
-  
-
 ```{r}
-head(filter(dashboard_tables[[14]], Traveller_category == "Travellers from countries other than United States"))
+head(filter(dashboard_tables[[14]], Traveller_category ==
+              "Travellers from countries other than United States"))
 ```
 
 ```{r}
-head(filter(dashboard_tables[[15]], Traveller_category == "Canadian travellers returning from United States"))
+head(filter(dashboard_tables[[15]], Traveller_category ==
+              "Canadian travellers returning from United States"))
 ```
 
 ```{r}
-head(filter(dashboard_tables[[16]], Traveller_category == "Canadian travellers returning from countries other than United States"))
+head(filter(dashboard_tables[[16]], Traveller_category ==
+      "Canadian travellers returning from countries other than United States"))
 ```
 
 
@@ -117,7 +135,10 @@ head(filter(dashboard_tables[[16]], Traveller_category == "Canadian travellers r
 
 Vectors identified through the previous analysis. Order 
 ```{r}
-vectors <- c("v65201210", "v41690973", "v2062809", "v1001827265", "v1001826653", "v52367097", "v4391505", "v800450", "v32858858", "v32858865", "v32858872", "v74869", "v129449", "v129460", "v129472", "v129482")
+vectors <- c("v65201210", "v41690973", "v2062809", "v1001827265",
+             "v1001826653", "v52367097", "v4391505", "v800450",
+             "v32858858", "v32858865", "v32858872", "v74869",
+             "v129449", "v129460", "v129472", "v129482")
 length(vectors)
 ```
 

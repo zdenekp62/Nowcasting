@@ -25,13 +25,6 @@ output: html_notebook
   * Are there any time series breaks? How "reliable" is the index?
 
 ```{r}
-#install.packages("readxl")
-#install.packages("scales")
-```
-
-
-
-```{r}
 library("readxl")
 library("scales")
 library(zoo)
@@ -39,7 +32,6 @@ library(ggplot2)
 library(plotly)
 library(quantmod)
 library("xts")
-
 ```
 
 ## Step 1: Data Retrieval
@@ -47,23 +39,19 @@ library("xts")
 Downloaded from http://www.policyuncertainty.com/canada_monthly.html
 
 ```{r}
-epu <- read_excel("/home/jovyan/data/Canada_Policy_Uncertainty_Data.xlsx",sheet=1, col_types = c("text","text","numeric"))
+epu <- read_excel("/home/jovyan/data/Canada_Policy_Uncertainty_Data.xlsx",
+  sheet = 1, col_types = c("text", "text", "numeric")
+)
 head(epu)
 ```
 
-
-
-```{r}
-# other data, not relevant
-# my_data2 <- read_excel("Canada_Policy_Uncertainty_Data.xlsx",sheet=2)#, c("text","text","numeric","numeric","numeric"))
-# head(my_data2)
-```
+Note there is other data in teh same sheet `my_data2 <- read_excel("Canada_Policy_Uncertainty_Data.xlsx",sheet=2)#, `.
 
 ## Step 2: Meet and Greet Data
 
 
 ```{r}
-epu$date <- paste(epu$Year,epu$Month,sep="-")
+epu$date <- paste(epu$Year, epu$Month, sep = "-")
 head(epu$date)
 ```
 
@@ -71,8 +59,8 @@ head(epu$date)
 ```{r}
 # format date column
 epu$date <- as.yearmon(epu$date, format = "%Y-%m")
-epu <- epu[-nrow(epu),]
-colnames(epu)[3]<-"epu"
+epu <- epu[-nrow(epu), ]
+colnames(epu)[3] <- "epu"
 head(epu)
 ```
 
@@ -100,8 +88,11 @@ print(max(epu$date))
 ```
 
 ```{r}
-complete_sequence = seq(from = as.Date(min(epu$date)), to = as.Date(max(epu$date)),  by = "month")
-complete_sequence = as.yearmon(complete_sequence)
+complete_sequence <- seq(
+  from = as.Date(min(epu$date)),
+  to = as.Date(max(epu$date)), by = "month"
+)
+complete_sequence <- as.yearmon(complete_sequence)
 complete_sequence[1:5]
 ```
 
@@ -122,7 +113,9 @@ summary(epu)
 ```
 
 ```{r, fig.width=8, fig.height=4}
-ggplot(data = epu, aes(x = epu)) + geom_histogram() + xlab('epu values')
+ggplot(data = epu, aes(x = epu)) +
+  geom_histogram() +
+  xlab("epu values")
 ```
 
 
@@ -140,15 +133,15 @@ epu <- xts(df_epu$epu, df_epu$date)
 label variable allows to show time in tooltip
 
 ```{r}
-fig<-ggplot(epu, aes(x = Index, y = epu)) + geom_line()
+fig <- ggplot(epu, aes(x = Index, y = epu)) +
+  geom_line()
 ggplotly(fig)
-#fig
 ```
 
 
 ```{r}
-fig<-ggplot(epu, aes(x = Index, y = epu)) + geom_line() + xlim(2000,2018)
-#ggplotly(fig)
+fig <- ggplot(epu, aes(x = Index, y = epu)) +
+  geom_line() +
+  xlim(2000, 2018)
 fig
 ```
-

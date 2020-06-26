@@ -5,6 +5,7 @@ The project goal is the forecast of economic indicators to provide more timely i
 ## Setup
 
 * Make sure that .Rprofile is loaded to allow access to pre-installed packages
+* GitHub repo at https://github.com/dsd-statcan/forcasting
 
 ## R Style Guide
 
