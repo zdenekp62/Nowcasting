@@ -1,0 +1,33 @@
+---
+title: "R Notebook"
+output: html_notebook
+---
+
+# Extraction of GoogleTrends Data
+
+https://trends.google.com/trends/explore?date=2008-01-01%202020-06-28&geo=CA&q=job
+
+
+
+Unofficial API available through module: https://github.com/GeneralMills/pytrends
+However it could disappear any time.
+Is there an R package?
+
+* http://techslides.com/hacking-the-google-trends-api
+* 
+
+* Which search tearms to use?
+
+### Comments
+
+* Attributes of Data Source:
+  * Time series are 'Interest over time': 'Numbers represent search interest relative to the highest point on the chart for the given region and time. A value of 100 is the peak popularity for the term. A value of 50 means that the term is half as popular. A score of 0 means there was not enough data for this term.'
+  * Has multiple categories and sub-categories one can choose. This results in a lot of time series data
+  * Has categories Google Shopping (retail useful) and Web Search.
+  * Data seems to go back to 2008/01/01
+  * There is no official Trends API, so download will need to happen through inofficial packages. Is this a no-go then?
+  .
+  
+  
+
+

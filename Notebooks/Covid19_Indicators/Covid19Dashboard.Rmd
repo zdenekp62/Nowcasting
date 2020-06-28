@@ -28,15 +28,39 @@ suppressMessages(library(plotly))
 source("../src/utils.R")
 ```
 
+## Extract the Data
 ```{r}
-get_cansim_table_overview("20-10-0008-01")
+vector_names <- c(
+  "v65201210", "v41690973", "v2062809", "v1001827265",
+  "v1001826653", "v52367097", "v4391505", "v800450",
+  "v32858858", "v32858865", "v32858872", "v74869", "v129449",
+  "v129460", "v129472", "v129482"
+)
+length(vector_names)
 ```
 
-
 ```{r}
-
+vector_descr <- c(
+  "RealGDP", "CPI", "Employment [pers]", "Int. merchendise trade Exp. [$]",
+  "Int. merchendise trade Imp. [$]", "Retail Sales [$]", "hours worked",
+  "Manufact. sales [$]", "Aircraft domestic [#]", "Aircraft transborder [#]",
+  "Aircraft int other [#]", "Railway carloads [tons]", "Travelers US [pers]",
+  "Travelers other country [pers]", "CA resident US [pers]",
+  "CAresident other country [pers]"
+)
+names(vector_descr) <- vector_names
 ```
 
+I expect this date to be before the start of all time series/vectors.
+```{r}
+start_date <- "1900-01-01"
+```
+
+Retrieve all vectors. They are concatunated along axis 0.
+```{r}
+vectors <- get_cansim_vector(vector_names, start_date)
+dim(vectors)
+```
 
 
 ```{r}
@@ -45,89 +69,72 @@ hours_worked <- get_cansim("14-10-0289-01")
 
 ```
 
-## Extraction & Preprocessing
+## Preprocessing
 
-Identify vector
-```{r}
-head(retail_sales)
-```
+Normalization all indicators so that December 2019 = 100
 
 ```{r}
-retail_sales_can = get_cansim_vector('v52367097', '1976-01-01')
-retail_sales_can$REF_DATE = as.Date(retail_sales_can$REF_DATE)
-```
-
-```{r}
-head(retail_sales_can)
+vectors$REF_DATE = as.Date(vectors$REF_DATE)
 ```
 
 
 ```{r}
-summary(retail_sales_can)
+head(vectors)
 ```
 
 ```{r}
-hours_worked_industries = get_cansim_vector('v4391505', '1976-01-01')
-hours_worked_industries$REF_DATE = as.Date(hours_worked_industries$REF_DATE)
+vector_names[1]
 ```
 
 ```{r}
-head(hours_worked_industries)
+length(vector_names)
+```
+
+
+```{r}
+indicators1 <- vector(length=16)
+for (i in 1:length(vector_names)) {
+  #print(i)
+  indicator = filter(vectors, VECTOR == vector_names[i])
+  ref_value = indicator$VALUE[indicator$REF_DATE == as.Date('2019-12-01')]
+  indicator$VALUE_INDEX = 100. * indicator$VALUE/ref_value
+  if (i == 1) {indicators = indicator}
+  else {indicators <- rbind(indicators, indicator)}
+  # indicators1[i]  <- indicator
+}
 ```
 
 ```{r}
+head(indicators)
 ```
+
+```{r}
+indicators$descr <- sapply(indicators$VECTOR, function(x) {
+  vector_descr[x][[1]]
+})
+```
+
+
 
 
 ## Canadian Economic Dashboard 
 
 ### Retail Sales & Hours Worked
 
-Create index through normalization using the reference month as in dashboard.
 ```{r}
-ref_value = retail_sales_can$VALUE[retail_sales_can$REF_DATE == as.Date('2019-12-01')]
-retail_sales_can$VALUE_INDEX = 100. * retail_sales_can$VALUE/ref_value
-
-ref_value = hours_worked_industries$VALUE[hours_worked_industries$REF_DATE == as.Date('2019-12-01')]
-hours_worked_industries$VALUE_INDEX = 100. * hours_worked_industries$VALUE/ref_value
+p <- ggplot(indicators, aes(x=REF_DATE, y=VALUE_INDEX)) + geom_line((aes(group=descr, color=descr))) +
+  scale_x_date(date_breaks="2 month", date_labels="%b %Y", limits = as.Date(c('2019-01-01','2020-06-01'))) + scale_y_continuous(breaks=seq(0, 180,20), limits= c(0, 180)) + labs(title='Index, December 2019=100', x='', y='')
+ggplotly(p)
 ```
 
 
-```{r}
-summary(select(retail_sales_can, REF_DATE, VALUE_INDEX))
-```
-
-```{r}
-summary(select(hours_worked_industries, REF_DATE, VALUE_INDEX))
-```
 
 
 ```{r fig, fig.width = 16, fig.height=6}
-retail_sales_plot = ggplot() + geom_line(data=retail_sales_can, aes(x=REF_DATE, y=VALUE_INDEX, color='green'))
-hours_worked_plot = geom_line(data=hours_worked_industries, aes(x=REF_DATE, y=VALUE_INDEX, color='blue')) 
+# retail_sales_plot = ggplot() + geom_line(data=retail_sales_can, aes(x=REF_DATE, #y=VALUE_INDEX, color='green'))
+#hours_worked_plot = geom_line(data=hours_worked_industries, aes(x=REF_DATE, y=VALUE_INDEX, color='blue')) 
 
-plot = retail_sales_plot +  hours_worked_plot + scale_x_date(date_breaks="2 month", date_labels="%b %Y", limits = as.Date(c('2019-01-01','2020-06-01'))) + scale_y_continuous(breaks=seq(70, 105,5), limits= c(70, 105)) + scale_color_manual(labels = c("Retail trade sales (dollars)", "Actual hours worked"), values = c("blue", "red")) + labs(color='Legend')
-plot
+#plot = retail_sales_plot +  hours_worked_plot + scale_x_date(date_breaks="2 month", date_labels="%b %Y", limits = as.Date(c('2019-01-01','2020-06-01'))) + scale_y_continuous(breaks=seq(70, 105,5), limits= c(70, 105)) + scale_color_manual(labels = c("Retail trade sales (dollars)", "Actual hours worked"), values = c("blue", "red")) + labs(color='Legend')
+#plot
 #ggplotly(plot)
 ```
-
-## All Time Series
-
-```{r}
-< - 
-```
-
-
-
-
-```{r}
-#select(hours_worked_plot, c("VALUES"))
-hours_worked_industries %>% select(REF_DATE, VALUE_INDEX)
-```
-
-
-```{r}
-ggplot() + geom_line(data=hours_worked_industries, aes(x=REF_DATE, y=VALUE_INDEX)) 
-```
-
-

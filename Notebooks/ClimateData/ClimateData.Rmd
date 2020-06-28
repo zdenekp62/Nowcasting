@@ -34,7 +34,7 @@ stations_search("Toronto City", interval = "day")
 ```
 
 ```{r}
-toronto <- weather_dl(station_ids = 31688, start = "2018-02-01", end = "2018-04-15")
+toronto <- weather_dl(station_ids = 31688, start = "2018-02-01", end = "2018-04-15", interval = "day")
 ```
 
 ```{r}
@@ -42,7 +42,7 @@ View(toronto)
 ```
 
 ```{r}
-ggplot(data = toronto, aes(x = time, y = temp, group = station_name, colour = station_name)) +
+ggplot(data = toronto, aes(x = date, y = mean_temp, group = station_name, colour = station_name)) +
   theme_minimal() + 
   geom_line()
 ```
