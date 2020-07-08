@@ -1,0 +1,69 @@
+---
+title: "R Notebook"
+output: html_notebook
+---
+
+# Extraction of GoogleTrends Data
+
+### Goals
+
+* Extract google trend data related to unemployment
+* Leverage google Ads to identify keywords
+* Do extraction manual
+
+### Comments
+
+https://trends.google.com/trends/explore?date=2008-01-01%202020-06-28&geo=CA&q=job
+
+
+* Automatic extraction
+  * Unofficial API available through module: https://github.com/GeneralMills/pytrends
+  * However it could disappear any time.
+  * Is there an R package?
+  * http://techslides.com/hacking-the-google-trends-api
+
+
+* Attributes of Data Source:
+  * Time series are 'Interest over time': 'Numbers represent search interest relative to the highest point on the chart for the given region and time. A value of 100 is the peak popularity for the term. A value of 50 means that the term is half as popular. A score of 0 means there was not enough data for this term.'
+  * This is a problem as this relative curve can change when a new peak popularity changes. A change in peak popularity will lead to a vertical shift of the curve.
+  * Has multiple categories and sub-categories one can choose. This results in a lot of time series data
+  * Has categories Google Shopping (retail useful) and Web Search.
+  * Data seems to go back to 2008/01/01
+  * There is no official Trends API, so download will need to happen through inofficial packages. Is this a no-go then?
+  * Notes from Google are available on the graphs
+    * 01/01/2011: improvement of geographical assignment
+    * 01/01/2016: improvement of data collection process
+  * One can extract a time series for multiple terms, 'separated by a '+' sign. A maximum of 4 terms (containing multiple words per term) are allowed (https://support.google.com/trends/answer/4359582?hl=en&ref_topic=4365599)
+
+
+* Choice of search terms for Google Trends with help of Google Ads (https://ads.google.com/aw/keywordplanner/ideas)
+  * For unemployemnt I find 316 keyword ideas from which I choose 14 indicators which are most frequent on the monthly average. The monthly average of the searched keyword is calculated from June 2016 - May 2020 and provided by Google Ads.
+    * 'unemployment': 10-100k average searches per month (June 2016 - May 2020)
+    * 'employment insurance': 10k-100k
+    * 'unemployment insurance': 10k-100k
+    * 'canadian unemployment rate' : 10k-100k
+    * 'unemployment office': 1k-10k
+    * 'unemployment rate' : 1k-10k
+    * 'structural unemployment' 1k-10k
+    * 'frictional unemployment': 1k-10k
+    * 'apply for unemployment': 1k-10k
+    * 'ei benefits': 1k - 10k
+    * 'apply for ei online' 1k-10k
+    * 'ei insurance': 1k -10k
+    * 'ei application status; 1k-10k
+    * 'service canada ei application' 1k-10k
+  * Plus these are keywords from Tuhkuri16 which either appear in the keyword ideas or do not (NA label):
+    * 'unemployment benefits' 100-1k
+    * 'unemployment claim': 100-1k
+    * 'unemployment compensation' - NA
+    * 'applying for unemployment' -NA
+    * 'filing for unemployment' -NA
+    * 'unemployment online' 100-1k
+    * 'unemployment office locations' -NA
+    * 'unemployment eligibility' 10-100
+    * 'ui benefits' - 100-1k
+    * 'unemployment benefit' -NA
+    
+* Extracted through manual downloading the time series for all keywords listed above on 01/07/20.
+
+

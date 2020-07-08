@@ -1,5 +1,5 @@
 ---
-title: "I. Indicator Vector EDA"
+title: "II. Indicators (Vector) EDA"
 output: html_notebook
 ---
 
@@ -20,7 +20,7 @@ suppressMessages(library(stringr))
 suppressMessages(library(lubridate))
 library(reshape2)
 library(tidyr)
-source("../src/utils.R")
+source("../../src/utils.R")
 ```
 
 ## Step 1: Data Retrieval
@@ -313,12 +313,13 @@ Looking at the percentage change.
 ```{r}
 percentage_change <- function(vector) {
   vector[1] <- 0
-  vector[2:length(vector)] <- (vector[2:seq_len(vector)] -
-    vector[1:seq_len(vector) - 1]) /
-    vector[1:seq_len(vector) - 1]
+  vector[2:length(vector)] <- (vector[2:length(vector)] -
+    vector[1:length(vector) - 1]) /
+    vector[1:length(vector) - 1]
   vector
 }
 ```
+
 
 ```{r}
 indicators_perc <- data.frame(apply(

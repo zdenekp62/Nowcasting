@@ -1,0 +1,248 @@
+---
+title: "III. Indicator Retail Sales"
+output: html_notebook
+---
+
+### Goals
+
+* More detailed analysis of  retail sales time series
+* Look into correlation with other series
+
+### Comments
+
+```{r}
+suppressMessages(library(cansim))
+suppressMessages(library(ggplot2))
+suppressMessages(library(dplyr))
+suppressMessages(library(plotly))
+suppressMessages(library(stringr))
+suppressMessages(library(lubridate))
+suppressMessages(library(forecast))
+library(reshape2)
+library(tidyr)
+source("../../src/utils.R")
+```
+
+## Step 1: Data Retrieval and preprocessing
+
+```{r}
+vector_names <- c(
+  "v65201210", "v41690973", "v2062809", "v1001827265",
+  "v1001826653", "v52367097", "v4391505", "v800450",
+  "v32858858", "v32858865", "v32858872", "v74869", "v129449",
+  "v129460", "v129472", "v129482"
+)
+length(vector_names)
+```
+```{r}
+vector_descr <- c(
+  "RealGDP", "CPI", "Employment [pers]", "Int. merchendise trade Exp. [$]",
+  "Int. merchendise trade Imp. [$]", "Retail Sales [$]", "hours worked",
+  "Manufact. sales [$]", "Aircraft domestic [#]", "Aircraft transborder [#]",
+  "Aircraft int other [#]", "Railway carloads [tons]", "Travelers US [pers]",
+  "Travelers other country [pers]", "CA resident US [pers]",
+  "CAresident other country [pers]"
+)
+vector_descr_diff <- c(
+  "RealGDP", "CPI", "Employment", "Int. merchendise trade Exp.",
+  "Int. merchendise trade Imp.", "Retail Sales", "hours worked",
+  "Manufact. sales", "Aircraft domestic", "Aircraft transborder",
+  "Aircraft int other", "Railway carloads", "Travelers US",
+  "Travelers other country", "CA resident US",
+  "CAresident other country"
+)
+names(vector_descr) <- vector_names
+names(vector_descr_diff) <- vector_names
+```
+
+
+I expect this date to be before the start of all time series/vectors.
+```{r}
+start_date <- "1900-01-01"
+```
+
+Retrieve all vectors. They are concatunated along axis 0.
+```{r}
+vectors <- get_cansim_vector(vector_names, start_date)
+dim(vectors)
+```
+
+Pivot table to allow each vector in separate column
+```{r}
+indicators <- pivot_wider(vectors, names_from = VECTOR, values_from = VALUE)
+indicators <- indicators %>%
+  group_by(REF_DATE) %>%
+  summarise_at(vector_names, sum, na.rm = TRUE)
+
+indicators$REF_YEAR <- format(as.Date(indicators$REF_DATE,
+  format = "%Y-%m-%d"
+), "%Y")
+indicators$REF_MONTH <- format(as.Date(indicators$REF_DATE,
+  format = "%Y-%m-%d"
+), "%m")
+indicators$REF_DAY <- format(as.Date(indicators$REF_DATE,
+  format = "%Y-%m-%d"
+), "%d")
+
+indicators[indicators == 0] <- NA
+head(indicators)
+```
+
+
+> I remove all values before the start of the retail series 1991-01-01.
+
+```{r}
+vectors <- subset(vectors, as.Date(vectors$REF_DATE) >=
+  as.Date("1991-01-01"))
+indicators <- subset(indicators, as.Date(indicators$REF_DATE) >=
+  as.Date("1991-01-01"))
+```
+
+Create a v-vector id to vector desription mapping.
+```{r}
+vectors$descr <- sapply(vectors$VECTOR, function(x) {
+  vector_descr[x][[1]]
+})
+# allow fixed order of indicator variables from here on
+vectors$descr <- factor(vectors$descr, levels = rev(vector_descr))
+```
+
+Retail sales exhibit strong trend and are not stationary.
+```{r}
+p <- ggplot(data = filter(vectors, descr=='Retail Sales [$]'), aes(x = as.Date(REF_DATE), y = VALUE)) +
+  geom_line()
+p + facet_wrap(~descr, scales = "free_y", ncol = 1, as.table = FALSE)
+```
+
+
+Transform the time series via first difference to observe if mean and variance are stabilized.
+
+```{r}
+log_first_diff <- function(vector) {
+  vector_log <- log(vector)
+  vector_log[2:length(vector)] <- vector_log[2:length(vector_log)] -
+    vector_log[1:length(vector_log) - 1]
+  vector_log[1] <- 0
+  vector_log
+}
+```
+
+
+```{r}
+indicators_lfdiff <- data.frame(apply(
+  select(indicators, vector_names), 2,
+  log_first_diff
+))
+indicators_lfdiff$REF_DATE <- as.Date(indicators$REF_DATE)
+# remove first line/date for which differencing values are not available
+indicators_lfdiff <- indicators_lfdiff[-1, ]
+
+vectors_lfdiff <- melt(indicators_lfdiff,
+  id = "REF_DATE", na.rm = TRUE,
+  variable.name = "VECTOR", value.name = "VALUE"
+)
+vectors_lfdiff$descr <- sapply(vectors_lfdiff$VECTOR, function(x) {
+  vector_descr_diff[x][[1]]
+})
+# allow fixed order of indicator variables from here on
+vectors_lfdiff$descr <- factor(vectors_lfdiff$descr, levels = rev(vector_descr_diff))
+```
+
+```{r}
+filter(vectors_lfdiff, descr=='Retail Sales')
+```
+
+
+```{r}
+p <- ggplot(data = filter(vectors_lfdiff, descr=='Retail Sales'), aes(x = as.Date(REF_DATE), y = VALUE)) +
+  geom_line()
+p <- p + facet_wrap(~descr, scales = "free_y", ncol = 1, as.table = FALSE) + labs(y='log diff')
+ggplotly(p)
+```
+
+Distribution skew to left due to the Covid-19 crisis.
+```{r}
+p <- ggplot(data = filter(vectors_lfdiff, descr=='Retail Sales'), aes(x = VALUE)) +
+  geom_histogram()
+p + facet_wrap(~descr, scales = "free", ncol = 2, as.table = FALSE)
+```
+
+### Check for Stationarity/Variability
+
+Non-stationarity cannot be rejected:
+```{r}
+tseries::adf.test(filter(vectors_lfdiff, descr=='Retail Sales')$VALUE)
+```
+
+If we exclude the outliers due to the crisis we can infer stationarity for I(1)
+```{r}
+tseries::adf.test(filter(vectors_lfdiff, descr=='Retail Sales', 
+                         VALUE>-0.1)$VALUE)
+```
+
+
+### Auto-correlations of time series
+
+ACF  of the log of the retail sales. Random walk-like pattern?
+```{r, fig.height=4}
+par(mar=c(5,4,4,2)) 
+co2.acf <- acf(log(filter(vectors, descr=='Retail Sales [$]')$VALUE),
+  lag.max = 60, na.action = na.pass, ylab = "auto-correlation function",
+  main = 'Retail Sales [$]'
+)
+```
+
+```{r, fig.height=4}
+par(mar=c(5,4,4,2)) 
+co2.acf <- pacf(filter(vectors, descr=='Retail Sales [$]')$VALUE,
+  lag.max = 12, na.action = na.pass, ylab = "auto-correlation function",
+  main = 'Retail Sales [$]'
+)
+```
+
+
+ACF shows lag a slight lag of 1 month. Then drops quickly to zero, 
+indicating that the series is (almost) stationary.
+```{r, fig.height=4}
+par(mar=c(5,4,4,2)) 
+co2.acf <- acf(filter(vectors_lfdiff, descr=='Retail Sales')$VALUE,
+  lag.max = 12, na.action = na.pass, ylab = "auto-correlation function",
+  main = 'Retail Sales'
+)
+```
+
+No lags having high autocrrelation.
+```{r, fig.height=4}
+par(mar=c(5,4,4,2)) 
+co2.acf <- pacf(filter(vectors_lfdiff, descr=='Retail Sales')$VALUE,
+  lag.max = 12, na.action = na.pass, ylab = "auto-correlation function",
+  main = 'Retail Sales'
+)
+```
+
+
+## Correlation between Retail Sales and other short-publication-lagged variables
+
+
+sample cross-correlation function for which we consider retail sales as predictor variable (see its long publication lag) and hours worked as a dependet variable. I find that when retail sales are high, then 1 month before the hours worked are high. Further correlations beyond 95% CI are not visible.
+```{r, fig.height=4}
+par(mar=c(5,4,4,2)) 
+ccf(filter(vectors_lfdiff, descr=='Retail Sales')$VALUE, filter(vectors_lfdiff, descr=='hours worked')$VALUE,
+  lag.max = 12, type = c("correlation"),
+  plot = TRUE, na.action = na.pass, ylab = "cross-correlation function",
+  main='Retail Sales ~ hours worked'
+)
+```
+
+sample cross-correlation function for manufacturing sales and retail sales.
+Significant lags are not visible within a short horizon.
+```{r, fig.height=4}
+par(mar=c(5,4,4,2)) 
+ccf(filter(vectors_lfdiff, descr=='Retail Sales')$VALUE, filter(vectors_lfdiff, descr=='Manufact. sales')$VALUE, lag.max = 12, type = c("correlation"),
+  plot = TRUE, na.action = na.pass, ylab = "cross-correlation function",
+  main = 'Retail Sales ~ Manufact. sales'
+)
+```
+
+
+

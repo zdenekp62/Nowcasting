@@ -1,0 +1,196 @@
+---
+title: "R Notebook"
+output: html_notebook
+---
+
+# Google Trends EDA
+
+### Goals
+
+
+### Comments
+
+
+```{r}
+suppressMessages(library(dplyr))
+suppressMessages(library(purrr))
+suppressMessages(library(cansim))
+suppressMessages(library(cowplot))
+suppressMessages(library(ggplot2))
+library(scales)
+```
+
+
+
+```{r}
+data_path = '../../../data/GoogleTrends'
+google_index_files = c('multiTimeline_unemployment1_01_07_20.csv', 
+                       'multiTimeline_unemployment2_01_07_20.csv',
+                       'multiTimeline_unemployment3_01_07_20.csv',
+                       'multiTimeline_unemployment4_01_07_20.csv',
+                       'multiTimeline_unemployment5_01_07_20.csv',
+                       'multiTimeline_unemployment6_01_07_20.csv'
+                       )
+```
+
+```{r}
+file_contents <- lapply(google_index_files, FUN = function (file) {
+  g_group <- read.csv(paste0(data_path,'/',file), skip=2)})
+g_index <- file_contents %>% reduce(left_join, by = "Month")
+```
+
+
+Retrieve vector with employment numbers: Employment [pers]
+```{r}
+employment <- get_cansim_vector('v2062809', "1900-01-01")
+dim(employment)
+```
+
+```{r}
+employment <- select(employment, 'REF_DATE', 'VALUE')
+colnames(employment) <- c('date', 'employment')
+employment$employment <- employment$employment/1000. # units in 1M
+head(employment) #$unemployment <- as.Date(unemployment$unemployment)
+```
+
+
+```{r}
+head(g_index)
+```
+
+21 time series are available, each series corresponding to a keyword
+```{r}
+dim(g_index)
+```
+
+
+```{r}
+colnames(g_index) <- lapply(colnames(g_index), function (name) {strsplit(name,'\\.\\.\\.')[[1]][1]})
+```
+
+```{r}
+colnames(g_index)
+```
+
+No duplicate columns.
+```{r}
+sum(duplicated(colnames(g_index)))
+```
+
+
+
+```{r}
+g_index_rows <- melt(g_index,
+  id = "Month", na.rm = TRUE,
+  variable.name = "keyword", value.name = "index"
+)
+```
+
+```{r}
+g_index_rows$year <- sapply(as.character(g_index_rows$Month), FUN=function (par_date) {strsplit(par_date, "-")[[1]][1]})
+g_index_rows$month <- sapply(as.character(g_index_rows$Month), FUN=function (par_date) {strsplit(par_date, "-")[[1]][2]})
+g_index_rows$date <- as.Date(paste(g_index_rows$Month ,"-01",sep=""))
+```
+
+
+```{r}
+g_index_rows$index_num <- as.numeric(g_index_rows$index)
+```
+
+```{r}
+sum(is.na(g_index_rows$index_num))
+```
+
+All 363 index values are given as '<1' hence index was not treated as numeric.
+For these values the index value is below 1 and could be treated as 0. One
+option is to treat them as 0 which I am doing.
+```{r}
+table(g_index_rows[is.na(g_index_rows$index_num),'index'])
+```
+
+```{r}
+g_index_rows[is.na(g_index_rows$index_num),'index_num'] <- 0.
+```
+
+Date information appears to be  complete.
+```{r}
+table(g_index_rows$month)
+table(g_index_rows$year)
+```
+
+Are there still other missing values? No.
+```{r}
+sum(is.na(g_index_rows))
+```
+
+using index moving forward and replace character values.
+```{r}
+g_index_rows$index <- g_index_rows$index_num
+```
+
+
+
+```{r}
+g_index_rows <- g_index_rows[order(g_index_rows$date),]
+```
+
+
+```{r}
+head(g_index_rows)
+```
+
+
+# monthly_avg <- c('10-100k','10k-100k','10k-100k', '10k-100k', '1k-10k', '1k-10k', 
+#    '1k-10k', '1k-10k', '1k-10k', '1k - 10k') ei benefits
+    
+* Note that the maximum are not all 100 and instead only 6 keywords have 100
+values. Those correspond to the 6 files, as for each file/extraction
+one time series/keyword was chosen to be normalized (by Google). One
+could extract each series individually which would result in EACH series
+covering the range 0 - 100. For curret modeling purpose I go without
+extraction of individual series and continue as is.
+* All series are available for the whole time range.
+```{r, rows.print=24}
+g_index_rows %>% group_by(keyword) %>% summarise(date_min = min(date), date_max = max(date), index_min = min(index), index_max=max(index))
+```
+
+```{r}
+head(employment)
+```
+
+Looking at the percentage change.
+```{r}
+percentage_change <- function(vector) {
+  vector[1] <- 0
+  vector[2:length(vector)] <- (vector[2:length(vector)] -
+    vector[1:length(vector) - 1]) /
+    vector[1:length(vector) - 1]
+  vector
+}
+```
+
+```{r}
+employment$e_diff <- percentage_change(employment$employment)
+fixed_labour_force <- 20.283500 #Jan 2020	
+employment$ue_perc <- 1. - (employment$employment/fixed_labour_force)
+```
+
+
+```{r}
+
+p1 <- ggplot() + geom_line(data=filter(g_index_rows, keyword=='unemployment'), aes(x=date, y=index, group=keyword)) + scale_x_date(date_breaks = "2 year", 
+                 labels=date_format("%Y"),
+                 limits = as.Date(c('2004-01-01','2020-05-01')))
+p2 <- ggplot() + geom_line(data=employment, aes(x=as.Date(date), y=ue_perc)) + scale_x_date(date_breaks = "2 year", 
+                 labels=date_format("%Y"),
+                 limits = as.Date(c('2004-01-01','2020-05-01')))
+plot_grid(p1, p2, labels = c('', ''), label_size = 12, ncol=1)
+```
+
+Note that a comparison of keyword time series values does not make sense due
+to the normalization.
+```{r}
+ggplot(g_index_rows, aes(x=date, y=index)) + geom_line(aes(group=keyword, alpha=0.1))
+```
+
+

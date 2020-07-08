@@ -1774,20 +1774,68 @@ summary {
 <div id="comments" class="section level3">
 <h3>Comments</h3>
 <ul>
-<li>Attributes of Data Source:
+<li><p>Attributes of Data Source:</p>
 <ul>
 <li>Time series are ‘Interest over time’: ‘Numbers represent search interest relative to the highest point on the chart for the given region and time. A value of 100 is the peak popularity for the term. A value of 50 means that the term is half as popular. A score of 0 means there was not enough data for this term.’</li>
+<li>This is a problem as this relative curve can change when a new peak popularity changes. A change in peak popularity will lead to a vertical shift of the curve.</li>
+<li></li>
 <li>Has multiple categories and sub-categories one can choose. This results in a lot of time series data</li>
 <li>Has categories Google Shopping (retail useful) and Web Search.</li>
 <li>Data seems to go back to 2008/01/01</li>
-<li>There is no official Trends API, so download will need to happen through inofficial packages. Is this a no-go then? .</li>
-</ul></li>
+<li>There is no official Trends API, so download will need to happen through inofficial packages. Is this a no-go then?</li>
 </ul>
+<p>.</p></li>
+<li><p>Choice of search terms for Google Trends with help of Google Ads (<a href="https://ads.google.com/aw/keywordplanner/ideas" class="uri">https://ads.google.com/aw/keywordplanner/ideas</a>)</p>
+<ul>
+<li>For unemployemnt I find 316 keyword ideas from which I choose 14 indicators which are most frequent on the monthly average. The monthly average of the searched keyword is calculated from June 2016 - May 2020 and provided by Google Ads.
+<ul>
+<li>‘unemployment’: 10-100k average searches per month (June 2016 - May 2020)</li>
+<li>‘employment insurance’: 10k-100k</li>
+<li>‘unemployment insurance’: 10k-100k</li>
+<li>‘canadian unemployment rate’ : 10k-100k</li>
+<li>‘unemployment office’: 1k-10k</li>
+<li>‘unemployment rate’ : 1k-10k</li>
+<li>‘structural unemployment’ 1k-10k</li>
+<li>‘frictional unemployment’: 1k-10k</li>
+<li>‘apply for unemployment’: 1k-10k</li>
+<li>‘ei benefits’: 1k - 10k</li>
+<li>‘apply for ei online’ 1k-10k</li>
+<li>‘ei insurance’: 1k -10k</li>
+<li>’ei application status; 1k-10k</li>
+<li>‘service canada ei application’ 1k-10k</li>
+</ul></li>
+<li>Plus these are keywords from Tuhkuri16 which either appear in the keyword ideas or do not (NA label):
+<ul>
+<li>‘unemployment benefits’ 100-1k</li>
+<li>‘unemployment claim’: 100-1k</li>
+<li>‘unemployment compensation’ - NA</li>
+<li>‘applying for unemployment’ -NA</li>
+<li>‘filing for unemployment’ -NA</li>
+<li>‘unemployment online’ 100-1k</li>
+<li>‘unemployment office locations’ -NA</li>
+<li>‘unemployment eligibility’ 10-100</li>
+<li>‘ui benefits’ - 100-1k</li>
+<li>‘unemployment benefit’ -NA</li>
+</ul></li>
+</ul></li>
+<li><p>Extracted through manual downloading the time series for all keywords listed above on 01/07/20.</p></li>
+</ul>
+<!-- rnb-text-end -->
+<!-- rnb-chunk-begin -->
+<!-- rnb-source-begin eyJkYXRhIjoiYGBgclxudGVzdF9zZXJpZXMgPC0gcmVhZC5jc3YoJy4uLy4uLy4uL2RhdGEvR29vZ2xlVHJlbmRzL211bHRpVGltZWxpbmUuY3N2JylcbmBgYCJ9 -->
+<pre class="r"><code>test_series &lt;- read.csv(&#39;../../../data/GoogleTrends/multiTimeline.csv&#39;)</code></pre>
+<!-- rnb-source-end -->
+<!-- rnb-output-begin eyJkYXRhIjoiRXJyb3IgaW4gcmVhZC50YWJsZShmaWxlID0gZmlsZSwgaGVhZGVyID0gaGVhZGVyLCBzZXAgPSBzZXAsIHF1b3RlID0gcXVvdGUsICA6IFxuICBtb3JlIGNvbHVtbnMgdGhhbiBjb2x1bW4gbmFtZXNcbiJ9 -->
+<pre><code>Error in read.table(file = file, header = header, sep = sep, quote = quote,  : 
+  more columns than column names</code></pre>
+<!-- rnb-output-end -->
+<!-- rnb-chunk-end -->
+<!-- rnb-text-begin -->
 <!-- rnb-text-end -->
 </div>
 </div>
 
-<div id="rmd-source-code">LS0tCnRpdGxlOiAiUiBOb3RlYm9vayIKb3V0cHV0OiBodG1sX25vdGVib29rCi0tLQoKIyBFeHRyYWN0aW9uIG9mIEdvb2dsZVRyZW5kcyBEYXRhCgpodHRwczovL3RyZW5kcy5nb29nbGUuY29tL3RyZW5kcy9leHBsb3JlP2RhdGU9MjAwOC0wMS0wMSUyMDIwMjAtMDYtMjgmZ2VvPUNBJnE9am9iCgoKClVub2ZmaWNpYWwgQVBJIGF2YWlsYWJsZSB0aHJvdWdoIG1vZHVsZTogaHR0cHM6Ly9naXRodWIuY29tL0dlbmVyYWxNaWxscy9weXRyZW5kcwpIb3dldmVyIGl0IGNvdWxkIGRpc2FwcGVhciBhbnkgdGltZS4KSXMgdGhlcmUgYW4gUiBwYWNrYWdlPwoKKiBodHRwOi8vdGVjaHNsaWRlcy5jb20vaGFja2luZy10aGUtZ29vZ2xlLXRyZW5kcy1hcGkKKiAKCiogV2hpY2ggc2VhcmNoIHRlYXJtcyB0byB1c2U/CgojIyMgQ29tbWVudHMKCiogQXR0cmlidXRlcyBvZiBEYXRhIFNvdXJjZToKICAqIFRpbWUgc2VyaWVzIGFyZSAnSW50ZXJlc3Qgb3ZlciB0aW1lJzogJ051bWJlcnMgcmVwcmVzZW50IHNlYXJjaCBpbnRlcmVzdCByZWxhdGl2ZSB0byB0aGUgaGlnaGVzdCBwb2ludCBvbiB0aGUgY2hhcnQgZm9yIHRoZSBnaXZlbiByZWdpb24gYW5kIHRpbWUuIEEgdmFsdWUgb2YgMTAwIGlzIHRoZSBwZWFrIHBvcHVsYXJpdHkgZm9yIHRoZSB0ZXJtLiBBIHZhbHVlIG9mIDUwIG1lYW5zIHRoYXQgdGhlIHRlcm0gaXMgaGFsZiBhcyBwb3B1bGFyLiBBIHNjb3JlIG9mIDAgbWVhbnMgdGhlcmUgd2FzIG5vdCBlbm91Z2ggZGF0YSBmb3IgdGhpcyB0ZXJtLicKICAqIEhhcyBtdWx0aXBsZSBjYXRlZ29yaWVzIGFuZCBzdWItY2F0ZWdvcmllcyBvbmUgY2FuIGNob29zZS4gVGhpcyByZXN1bHRzIGluIGEgbG90IG9mIHRpbWUgc2VyaWVzIGRhdGEKICAqIEhhcyBjYXRlZ29yaWVzIEdvb2dsZSBTaG9wcGluZyAocmV0YWlsIHVzZWZ1bCkgYW5kIFdlYiBTZWFyY2guCiAgKiBEYXRhIHNlZW1zIHRvIGdvIGJhY2sgdG8gMjAwOC8wMS8wMQogICogVGhlcmUgaXMgbm8gb2ZmaWNpYWwgVHJlbmRzIEFQSSwgc28gZG93bmxvYWQgd2lsbCBuZWVkIHRvIGhhcHBlbiB0aHJvdWdoIGlub2ZmaWNpYWwgcGFja2FnZXMuIElzIHRoaXMgYSBuby1nbyB0aGVuPwogIC4KICAKICAKCgo=</div>
+<div id="rmd-source-code">LS0tCnRpdGxlOiAiUiBOb3RlYm9vayIKb3V0cHV0OiBodG1sX25vdGVib29rCi0tLQoKIyBFeHRyYWN0aW9uIG9mIEdvb2dsZVRyZW5kcyBEYXRhCgpodHRwczovL3RyZW5kcy5nb29nbGUuY29tL3RyZW5kcy9leHBsb3JlP2RhdGU9MjAwOC0wMS0wMSUyMDIwMjAtMDYtMjgmZ2VvPUNBJnE9am9iCgoKClVub2ZmaWNpYWwgQVBJIGF2YWlsYWJsZSB0aHJvdWdoIG1vZHVsZTogaHR0cHM6Ly9naXRodWIuY29tL0dlbmVyYWxNaWxscy9weXRyZW5kcwpIb3dldmVyIGl0IGNvdWxkIGRpc2FwcGVhciBhbnkgdGltZS4KSXMgdGhlcmUgYW4gUiBwYWNrYWdlPwoKKiBodHRwOi8vdGVjaHNsaWRlcy5jb20vaGFja2luZy10aGUtZ29vZ2xlLXRyZW5kcy1hcGkKKiAKCiogV2hpY2ggc2VhcmNoIHRlYXJtcyB0byB1c2U/CgojIyMgQ29tbWVudHMKCiogQXR0cmlidXRlcyBvZiBEYXRhIFNvdXJjZToKICAqIFRpbWUgc2VyaWVzIGFyZSAnSW50ZXJlc3Qgb3ZlciB0aW1lJzogJ051bWJlcnMgcmVwcmVzZW50IHNlYXJjaCBpbnRlcmVzdCByZWxhdGl2ZSB0byB0aGUgaGlnaGVzdCBwb2ludCBvbiB0aGUgY2hhcnQgZm9yIHRoZSBnaXZlbiByZWdpb24gYW5kIHRpbWUuIEEgdmFsdWUgb2YgMTAwIGlzIHRoZSBwZWFrIHBvcHVsYXJpdHkgZm9yIHRoZSB0ZXJtLiBBIHZhbHVlIG9mIDUwIG1lYW5zIHRoYXQgdGhlIHRlcm0gaXMgaGFsZiBhcyBwb3B1bGFyLiBBIHNjb3JlIG9mIDAgbWVhbnMgdGhlcmUgd2FzIG5vdCBlbm91Z2ggZGF0YSBmb3IgdGhpcyB0ZXJtLicKICAqIFRoaXMgaXMgYSBwcm9ibGVtIGFzIHRoaXMgcmVsYXRpdmUgY3VydmUgY2FuIGNoYW5nZSB3aGVuIGEgbmV3IHBlYWsgcG9wdWxhcml0eSBjaGFuZ2VzLiBBIGNoYW5nZSBpbiBwZWFrIHBvcHVsYXJpdHkgd2lsbCBsZWFkIHRvIGEgdmVydGljYWwgc2hpZnQgb2YgdGhlIGN1cnZlLgogICogCiAgKiBIYXMgbXVsdGlwbGUgY2F0ZWdvcmllcyBhbmQgc3ViLWNhdGVnb3JpZXMgb25lIGNhbiBjaG9vc2UuIFRoaXMgcmVzdWx0cyBpbiBhIGxvdCBvZiB0aW1lIHNlcmllcyBkYXRhCiAgKiBIYXMgY2F0ZWdvcmllcyBHb29nbGUgU2hvcHBpbmcgKHJldGFpbCB1c2VmdWwpIGFuZCBXZWIgU2VhcmNoLgogICogRGF0YSBzZWVtcyB0byBnbyBiYWNrIHRvIDIwMDgvMDEvMDEKICAqIFRoZXJlIGlzIG5vIG9mZmljaWFsIFRyZW5kcyBBUEksIHNvIGRvd25sb2FkIHdpbGwgbmVlZCB0byBoYXBwZW4gdGhyb3VnaCBpbm9mZmljaWFsIHBhY2thZ2VzLiBJcyB0aGlzIGEgbm8tZ28gdGhlbj8KICAKICAuCgoqIENob2ljZSBvZiBzZWFyY2ggdGVybXMgZm9yIEdvb2dsZSBUcmVuZHMgd2l0aCBoZWxwIG9mIEdvb2dsZSBBZHMgKGh0dHBzOi8vYWRzLmdvb2dsZS5jb20vYXcva2V5d29yZHBsYW5uZXIvaWRlYXMpCiAgKiBGb3IgdW5lbXBsb3llbW50IEkgZmluZCAzMTYga2V5d29yZCBpZGVhcyBmcm9tIHdoaWNoIEkgY2hvb3NlIDE0IGluZGljYXRvcnMgd2hpY2ggYXJlIG1vc3QgZnJlcXVlbnQgb24gdGhlIG1vbnRobHkgYXZlcmFnZS4gVGhlIG1vbnRobHkgYXZlcmFnZSBvZiB0aGUgc2VhcmNoZWQga2V5d29yZCBpcyBjYWxjdWxhdGVkIGZyb20gSnVuZSAyMDE2IC0gTWF5IDIwMjAgYW5kIHByb3ZpZGVkIGJ5IEdvb2dsZSBBZHMuCiAgICAqICd1bmVtcGxveW1lbnQnOiAxMC0xMDBrIGF2ZXJhZ2Ugc2VhcmNoZXMgcGVyIG1vbnRoIChKdW5lIDIwMTYgLSBNYXkgMjAyMCkKICAgICogJ2VtcGxveW1lbnQgaW5zdXJhbmNlJzogMTBrLTEwMGsKICAgICogJ3VuZW1wbG95bWVudCBpbnN1cmFuY2UnOiAxMGstMTAwawogICAgKiAnY2FuYWRpYW4gdW5lbXBsb3ltZW50IHJhdGUnIDogMTBrLTEwMGsKICAgICogJ3VuZW1wbG95bWVudCBvZmZpY2UnOiAxay0xMGsKICAgICogJ3VuZW1wbG95bWVudCByYXRlJyA6IDFrLTEwawogICAgKiAnc3RydWN0dXJhbCB1bmVtcGxveW1lbnQnIDFrLTEwawogICAgKiAnZnJpY3Rpb25hbCB1bmVtcGxveW1lbnQnOiAxay0xMGsKICAgICogJ2FwcGx5IGZvciB1bmVtcGxveW1lbnQnOiAxay0xMGsKICAgICogJ2VpIGJlbmVmaXRzJzogMWsgLSAxMGsKICAgICogJ2FwcGx5IGZvciBlaSBvbmxpbmUnIDFrLTEwawogICAgKiAnZWkgaW5zdXJhbmNlJzogMWsgLTEwawogICAgKiAnZWkgYXBwbGljYXRpb24gc3RhdHVzOyAxay0xMGsKICAgICogJ3NlcnZpY2UgY2FuYWRhIGVpIGFwcGxpY2F0aW9uJyAxay0xMGsKICAqIFBsdXMgdGhlc2UgYXJlIGtleXdvcmRzIGZyb20gVHVoa3VyaTE2IHdoaWNoIGVpdGhlciBhcHBlYXIgaW4gdGhlIGtleXdvcmQgaWRlYXMgb3IgZG8gbm90IChOQSBsYWJlbCk6CiAgICAqICd1bmVtcGxveW1lbnQgYmVuZWZpdHMnIDEwMC0xawogICAgKiAndW5lbXBsb3ltZW50IGNsYWltJzogMTAwLTFrCiAgICAqICd1bmVtcGxveW1lbnQgY29tcGVuc2F0aW9uJyAtIE5BCiAgICAqICdhcHBseWluZyBmb3IgdW5lbXBsb3ltZW50JyAtTkEKICAgICogJ2ZpbGluZyBmb3IgdW5lbXBsb3ltZW50JyAtTkEKICAgICogJ3VuZW1wbG95bWVudCBvbmxpbmUnIDEwMC0xawogICAgKiAndW5lbXBsb3ltZW50IG9mZmljZSBsb2NhdGlvbnMnIC1OQQogICAgKiAndW5lbXBsb3ltZW50IGVsaWdpYmlsaXR5JyAxMC0xMDAKICAgICogJ3VpIGJlbmVmaXRzJyAtIDEwMC0xawogICAgKiAndW5lbXBsb3ltZW50IGJlbmVmaXQnIC1OQQogICAgCiogRXh0cmFjdGVkIHRocm91Z2ggbWFudWFsIGRvd25sb2FkaW5nIHRoZSB0aW1lIHNlcmllcyBmb3IgYWxsIGtleXdvcmRzIGxpc3RlZCBhYm92ZSBvbiAwMS8wNy8yMC4KICAKYGBge3J9CnRlc3Rfc2VyaWVzIDwtIHJlYWQuY3N2KCcuLi8uLi8uLi9kYXRhL0dvb2dsZVRyZW5kcy9tdWx0aVRpbWVsaW5lLmNzdicpCmBgYAoKCg==</div>
 
 
 

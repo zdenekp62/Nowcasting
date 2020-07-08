@@ -17,6 +17,7 @@ associated with the station we are interested in.
 
 
 ```{r}
+suppressMessages(library(tidyverse))
 suppressMessages(library(weathercan))
 suppressMessages(library(ggplot2))
 ```
@@ -30,15 +31,51 @@ glimpse(stations)
 ```
 
 ```{r}
+str(stations)
+```
+
+```{r}
+summary(stations)
+```
+
+```{r}
 stations_search("Toronto City", interval = "day")
 ```
 
 ```{r}
-toronto <- weather_dl(station_ids = 31688, start = "2018-02-01", end = "2018-04-15", interval = "day")
+toronto_city <- weather_dl(station_ids = 31688, start = "2020-02-01", end = "2020-04-15", interval = "day")
 ```
 
 ```{r}
-View(toronto)
+dim(toronto_city)
+```
+
+```{r}
+colnames(toronto_city)
+```
+
+```{r}
+glimpse(toronto_city)
+```
+
+```{r}
+summary(toronto_city)
+```
+
+
+```{r}
+toronto_city %>%
+  with(hist(mean_temp))
+```
+
+```{r}
+toronto_city %>%
+  with(hist(total_precip))
+```
+
+```{r}
+toronto_city %>%
+  with(hist(snow_grnd))
 ```
 
 ```{r}
@@ -47,4 +84,36 @@ ggplot(data = toronto, aes(x = date, y = mean_temp, group = station_name, colour
   geom_line()
 ```
 
+
 ```{r}
+ggplot(data = toronto, aes(x = date, y = snow_grnd, group = station_name, colour = station_name)) +
+  theme_minimal() + 
+  geom_line()
+```
+
+```{r}
+ggplot(data = toronto, aes(x = date, y = total_precip, group = station_name, colour = station_name)) +
+  theme_minimal() + 
+  geom_line()
+```
+
+### Climate Normals
+To access climate normals, we first need to know the `climate_id` associated with the station we are interested in.
+
+```{r}
+stations_search("Toronto", normals_only = TRUE)
+```
+
+```{r}
+toronto_city_normal <- normals_dl("6158733")
+```
+
+There are two parts to the normals data, average weather measurements and average frost dates.
+
+```{r}
+unnest(toronto_city_normal, normals)
+```
+
+```{r}
+unnest(toronto_city_normal, frost)
+```

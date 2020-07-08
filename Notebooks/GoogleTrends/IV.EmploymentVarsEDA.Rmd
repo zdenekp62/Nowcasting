@@ -1,0 +1,73 @@
+---
+title: "R Notebook"
+output: html_notebook
+---
+
+
+# Analysis of Employment - Unemployment Relation
+
+### Goals
+
+* Understand behavior of employment and unemployment
+* Understand relation
+
+### Comments
+
+```{r}
+library(cansim)
+library(stringr)
+library(ggplot2)
+```
+
+## Retrieval of the individual vectors separately
+
+```{r}
+start_date <- "1900-01-01"
+```
+
+```{r}
+labour_force <- get_cansim_vector('v2062810', start_date)
+unemployed <- get_cansim_vector("v2062814", start_date)
+unemployment_rate <- get_cansim_vector("v2062815", start_date)
+dim(labour_force)
+```
+
+All 3 series span the same time range, as expected.
+```{r}
+summary(as.Date(labour_force$REF_DATE))
+summary(as.Date(unemployed$REF_DATE))
+summary(as.Date(unemployment_rate$REF_DATE))
+```
+
+
+
+
+## Analysis of Time series
+
+
+```{r}
+unemployment_rate$VALUE_MANUAL <- 100.*unemployed$VALUE/labour_force$VALUE
+```
+
+
+Employment reaches new hight, never recorded before! Also, I was able to 
+reproduce the unemployment rate from the unemployment numbers and labour force.
+```{r}
+ggplot(unemployment_rate, aes(x=as.Date(REF_DATE), y=VALUE)) + geom_line() +
+  labs(x='reference date', y='unemployment rate') +
+  geom_line(aes(x=as.Date(REF_DATE), y=VALUE_MANUAL, color='red'))
+```
+
+Interestingly, the labour force, the amount of people who could work, dropped
+significantly during Covid-19.
+```{r}
+ggplot(labour_force, aes(x=as.Date(REF_DATE), y=VALUE)) + geom_line() +
+  labs(x='reference date', y='labour force')
+```
+
+```{r}
+ggplot(unemployed, aes(x=as.Date(REF_DATE), y=VALUE)) + geom_line() +
+  labs(x='reference date', y='unemployed persons')
+```
+
+

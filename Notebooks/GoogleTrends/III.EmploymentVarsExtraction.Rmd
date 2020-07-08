@@ -1,0 +1,98 @@
+---
+title: "R Notebook"
+output: html_notebook
+---
+
+# Extraction of Employment Variables
+
+### Goals
+
+* Identify necessary employment-related variables
+* Identify vectors related to these variables
+
+### Comments
+
+* Unemployment - Employment relation
+  * The unemployment rate is the number of unemployed persons expressed as a 
+  percentage of the labour force.
+  * The labour force are estimates are provided every month
+* LFS data are used to produce the well-known unemployment rate
+* Hence forecasting the unemployment rate will not be sufficient to derive the
+employment in person as in the economic indicator. One would also approximate
+the labour force?
+* employment table
+
+```{r}
+library(cansim)
+library(stringr)
+```
+
+## Identification of employment-related data vectors
+
+```{r}
+dashboard_table <- get_cansim('14-10-0287-01')
+```
+
+Replace spaces in variable names with underscore for better processing. Search through tables and identify correct vectors for dashboard. List of vectors in D.
+```{r}
+
+colnames(dashboard_table) <- str_replace_all(colnames(dashboard_table), 
+                                             c(" " = "_", 
+                                               "\\(" = "_", "\\)" = "_"))
+```
+
+
+```{r}
+head(dashboard_table)
+```
+
+```{r}
+table(dashboard_table$Labour_force_characteristics)
+```
+
+```{r}
+colnames(dashboard_table)
+```
+
+```{r}
+class(dashboard_table)
+```
+
+### Retrieving the labour force vector.
+```{r}
+head(dashboard_table[
+                  (dashboard_table$Labour_force_characteristics=='Labour force') 
+                & (dashboard_table$Data_type=='Seasonally adjusted')
+                & (dashboard_table$Age_group=='15 years and over'),])
+                #& (dashboard_table$Statistics=='Estimate'),])
+```
+
+Estimate of the labour force vector is `v2062810`. There is also a 
+standard error of this estimate which is the vector `v101884808`.
+
+### Retrieving the number of unemployed persons
+```{r}
+head(dashboard_table[
+                  (dashboard_table$Labour_force_characteristics=='Unemployment') 
+                & (dashboard_table$Data_type=='Seasonally adjusted')
+                & (dashboard_table$Age_group=='15 years and over'),])
+```
+
+The estimate of the unemployed persons is `v2062814`. The standard error is
+`v101885096`.
+
+### Retrieving the unemployment rate
+```{r}
+head(dashboard_table[
+                  (dashboard_table$Labour_force_characteristics==
+                     'Unemployment rate') 
+                & (dashboard_table$Data_type=='Seasonally adjusted')
+                & (dashboard_table$Age_group=='15 years and over'),])
+```
+
+The vector for the unemployment rate is `v2062815`, the standard error is 
+`v101885192`.
+
+
+
+
