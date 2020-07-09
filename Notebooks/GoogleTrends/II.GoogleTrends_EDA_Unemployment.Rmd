@@ -17,6 +17,8 @@ suppressMessages(library(purrr))
 suppressMessages(library(cansim))
 suppressMessages(library(cowplot))
 suppressMessages(library(ggplot2))
+library(e1071)
+library(reshape2)
 library(scales)
 ```
 
@@ -43,6 +45,7 @@ g_index <- file_contents %>% reduce(left_join, by = "Month")
 Retrieve vector with employment numbers: Employment [pers]
 ```{r}
 employment <- get_cansim_vector('v2062809', "1900-01-01")
+unemployment_rate <- get_cansim_vector("v2062815", start_date)
 dim(employment)
 ```
 
@@ -50,6 +53,10 @@ dim(employment)
 employment <- select(employment, 'REF_DATE', 'VALUE')
 colnames(employment) <- c('date', 'employment')
 employment$employment <- employment$employment/1000. # units in 1M
+
+unemployment_rate <- select(unemployment_rate, 'REF_DATE', 'VALUE')
+colnames(unemployment_rate) <- c('date', 'unemployment_rate')
+
 head(employment) #$unemployment <- as.Date(unemployment$unemployment)
 ```
 
@@ -140,8 +147,8 @@ head(g_index_rows)
 ```
 
 
-# monthly_avg <- c('10-100k','10k-100k','10k-100k', '10k-100k', '1k-10k', '1k-10k', 
-#    '1k-10k', '1k-10k', '1k-10k', '1k - 10k') ei benefits
+ monthly_avg <- c('10-100k','10k-100k','10k-100k', '10k-100k', '1k-10k', '1k-10k', 
+    '1k-10k', '1k-10k', '1k-10k', '1k - 10k') ei benefits
     
 * Note that the maximum are not all 100 and instead only 6 keywords have 100
 values. Those correspond to the 6 files, as for each file/extraction
@@ -155,7 +162,7 @@ g_index_rows %>% group_by(keyword) %>% summarise(date_min = min(date), date_max 
 ```
 
 ```{r}
-head(employment)
+head(unemployment_rate)
 ```
 
 Looking at the percentage change.
@@ -175,22 +182,154 @@ fixed_labour_force <- 20.283500 #Jan 2020
 employment$ue_perc <- 1. - (employment$employment/fixed_labour_force)
 ```
 
+Comparison of the google index based on the keyword 'unemployment' in
+comparison with the unemployment rate.
 
 ```{r}
+unemployment_rate <- filter(unemployment_rate, date>=as.Date('2004-01-01'))
+```
 
-p1 <- ggplot() + geom_line(data=filter(g_index_rows, keyword=='unemployment'), aes(x=date, y=index, group=keyword)) + scale_x_date(date_breaks = "2 year", 
+```{r}
+tail(filter(unemployment_rate, date>=as.Date('2004-01-01'),
+))
+```
+
+## Google indices
+
+Definition of the recession 08/09 and the Covid-19 related recession starting
+in May 2020.
+```{r}
+recession_years <- as.Date(c('2008-01-01','2009-12-31', '2020-04-01', 
+                             '2020-06-01'))
+```
+
+
+
+Note that a quantitative comparison of keyword time series values does not make sense due
+to the normalization involved for each time series. However qualitative agreements can be found
+for many series in the peaks.
+```{r}
+ggplot(g_index_rows, aes(x=date, y=index)) + 
+    geom_rect(aes(xmin=recession_years[1], xmax=recession_years[2], ymin=0, 
+                ymax=100), alpha=0.003, color='grey') +
+    geom_rect(aes(xmin=recession_years[3], xmax=recession_years[4], ymin=0, 
+                ymax=100), alpha=0.003, color='grey') +
+  geom_line(aes(group=keyword, alpha=0.1)) + labs(y='google indices') 
+```
+
+```{r}
+ggplot(g_index_rows, aes(x=date, y=index)) + 
+    geom_rect(aes(xmin=recession_years[3], xmax=recession_years[4], ymin=0, 
+                ymax=100), alpha=0.003, color='grey') +
+  geom_line(aes(group=keyword, alpha=0.1)) + labs(y='google indices') +
+  scale_x_date(date_breaks = "1 month", 
+                 labels=date_format("%m-%Y"),
+                 limits = as.Date(c('2020-01-01','2020-07-01'))) +
+  guides(alpha = FALSE)
+
+```
+
+## Investigation of the unemployment keyword in relation to unemployment rate
+
+Due to the lag in the unemployment data available only for 05-20.
+```{r}
+g_index_unempl <- filter(g_index_rows, keyword=='unemployment', 
+                         date<as.Date('2020-06-01'))
+```
+
+### Summary Statistics
+
+* Why are they have different length?
+* mu values are similar to the US values in Tuhkuri16 Table 2.1
+* Variance and deviation from the mean are less than in Tuhkuri16
+* Skew sk: There is a highly positive skewed due to the Covid-19 pandemic which leads to
+and increase of positive skew from 0.3 to 2.72. Note that the skewness is calculated as the Pearson's moment coefficient 
+of skewness. The value of 0.3 is similar to Tuhkuri16.
+* Kurtosis k: Strong indicators of outliers, in particular for the unemployment
+rate. Note that measured is the excess kurtosis.
+* Min: Close to equal of Google Index and unemployment as in Tuhkur16.
+* Max: Unemployment differences to Tuhkur16. are affected by the covid-19 cris
+Max google index value due to index normalization.
+
+```{r}
+data.frame(
+  variable = c("Unemployment (%)", "Google Index"),
+  n = c(nrow(unemployment_rate), nrow(g_index_unempl)),
+  mu = c(mean(unemployment_rate$unemployment_rate), mean(g_index_unempl$index)),
+  sigma = c(sd(unemployment_rate$unemployment_rate), sd(g_index_unempl$index)),
+  var = c(var(unemployment_rate$unemployment_rate), var(g_index_unempl$index)),
+  sk = c(skewness(unemployment_rate$unemployment_rate),
+         skewness(g_index_unempl$index)),
+  k = c(kurtosis(unemployment_rate$unemployment_rate),
+         kurtosis(g_index_unempl$index)),
+  min = c(min(unemployment_rate$unemployment_rate), min(g_index_unempl$index)),
+  max = c(max(unemployment_rate$unemployment_rate), max(g_index_unempl$index))
+)
+```
+
+Comparison reveals the a similar behavior of the google index for recessions.
+Boxes reveal the periods of recessions. 
+```{r}
+
+p1 <- ggplot() + 
+      geom_rect(aes(xmin=recession_years[1], xmax=recession_years[2], ymin=0, 
+                ymax=100), alpha=0.003, color='grey') +
+    geom_rect(aes(xmin=recession_years[3], xmax=as.Date('2020-05-01'), ymin=0, 
+                ymax=100), alpha=0.003, color='grey') +
+  geom_line(data=filter(g_index_rows, keyword=='unemployment'), aes(x=date, y=index, group=keyword)) + scale_x_date(date_breaks = "2 year", 
                  labels=date_format("%Y"),
-                 limits = as.Date(c('2004-01-01','2020-05-01')))
-p2 <- ggplot() + geom_line(data=employment, aes(x=as.Date(date), y=ue_perc)) + scale_x_date(date_breaks = "2 year", 
+                 limits = as.Date(c('2004-01-01','2020-05-01'))) +  labs(x='reference date', y='google index')
+p2 <- ggplot() +     geom_rect(aes(xmin=recession_years[1], xmax=recession_years[2], ymin=5, 
+                ymax=14), alpha=0.003, color='grey') +
+    geom_rect(aes(xmin=recession_years[3], xmax=as.Date('2020-05-01'), ymin=5, 
+                ymax=14), alpha=0.003, color='grey') +
+  geom_line(data=unemployment_rate, aes(x=as.Date(date), y=unemployment_rate)) + scale_x_date(date_breaks = "2 year", 
                  labels=date_format("%Y"),
-                 limits = as.Date(c('2004-01-01','2020-05-01')))
+                 limits = as.Date(c('2004-01-01','2020-05-01'))) + labs(x='reference date', y='unemployment rate')
 plot_grid(p1, p2, labels = c('', ''), label_size = 12, ncol=1)
 ```
+### Cross-correlation
 
-Note that a comparison of keyword time series values does not make sense due
-to the normalization.
+Calculation of the sample cross-correlation
+
 ```{r}
-ggplot(g_index_rows, aes(x=date, y=index)) + geom_line(aes(group=keyword, alpha=0.1))
+par(mar=c(5.1, 4.1, 4.6, 2.1))
+ccf(unemployment_rate$unemployment_rate, filter(g_index_rows, 
+                                     keyword=='unemployment')$index,
+  lag.max = 12, type = c("correlation"),
+  plot = TRUE, na.action = na.pass, ylab = "cross-correlation function"
+)
 ```
+
+### Granger-Causality Test
+
+To perform the test we first ensure stationarity of the series through
+differencing.
+
+I use the augmented dicky-fuller hypothesis test to check for the existence of
+unit-roots to check for non-stationarity. H0 cannot be rejected and there exists
+at least one unit root.
+```{r}
+tseries::adf.test(filter(g_index_rows, keyword=='unemployment')$index)
+```
+
+
+```{r}
+tseries::adf.test(filter(g_index_rows, keyword=='unemployment')$index)
+```
+
+```{r}
+x <- rnorm(1000)  # no unit-root
+tseries::adf.test(x)
+
+y <- diffinv(x)   # contains a unit-root
+tseries::adf.test(y)
+```
+
+
+
+
+
+
 
 

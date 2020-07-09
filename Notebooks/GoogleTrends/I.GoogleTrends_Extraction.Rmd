@@ -34,6 +34,7 @@ https://trends.google.com/trends/explore?date=2008-01-01%202020-06-28&geo=CA&q=j
     * 01/01/2011: improvement of geographical assignment
     * 01/01/2016: improvement of data collection process
   * One can extract a time series for multiple terms, 'separated by a '+' sign. A maximum of 4 terms (containing multiple words per term) are allowed (https://support.google.com/trends/answer/4359582?hl=en&ref_topic=4365599)
+  * Trends data is already available within the reference month. Google notes that values of the within-reference month extracted data have partial/incomplete data available. Worth discussing.
 
 
 * Choice of search terms for Google Trends with help of Google Ads (https://ads.google.com/aw/keywordplanner/ideas)
@@ -64,6 +65,6 @@ https://trends.google.com/trends/explore?date=2008-01-01%202020-06-28&geo=CA&q=j
     * 'ui benefits' - 100-1k
     * 'unemployment benefit' -NA
     
-* Extracted through manual downloading the time series for all keywords listed above on 01/07/20.
+* Extracted through manual downloading the time series for all keywords listed above on 01/07/20. As the extraction of the data happened at the first day of the new month, the data for 06/20 is complete (see comment about incomplete data above).
 
 
