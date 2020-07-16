@@ -23,6 +23,8 @@ library(scales)
 ```
 
 
+## I. Data Preparation
+
 
 ```{r}
 data_path = '../../../data/GoogleTrends'
@@ -194,7 +196,7 @@ tail(filter(unemployment_rate, date>=as.Date('2004-01-01'),
 ))
 ```
 
-## Google indices
+## II. Google indices
 
 Definition of the recession 08/09 and the Covid-19 related recession starting
 in May 2020.
@@ -229,7 +231,11 @@ ggplot(g_index_rows, aes(x=date, y=index)) +
 
 ```
 
-## Investigation of the unemployment keyword in relation to unemployment rate
+## III. Investigation of the unemployment keyword time series in relation to unemployment rate
+I pick the time series based on the frequency of the 'unemployment' keyword
+for further anlaysis in this section III.
+
+
 
 Due to the lag in the unemployment data available only for 05-20.
 ```{r}
@@ -276,7 +282,7 @@ p1 <- ggplot() +
                 ymax=100), alpha=0.003, color='grey') +
     geom_rect(aes(xmin=recession_years[3], xmax=as.Date('2020-05-01'), ymin=0, 
                 ymax=100), alpha=0.003, color='grey') +
-  geom_line(data=filter(g_index_rows, keyword=='unemployment'), aes(x=date, y=index, group=keyword)) + scale_x_date(date_breaks = "2 year", 
+  geom_line(data=g_index_unempl, aes(x=date, y=index, group=keyword)) + scale_x_date(date_breaks = "2 year", 
                  labels=date_format("%Y"),
                  limits = as.Date(c('2004-01-01','2020-05-01'))) +  labs(x='reference date', y='google index')
 p2 <- ggplot() +     geom_rect(aes(xmin=recession_years[1], xmax=recession_years[2], ymin=5, 
@@ -288,47 +294,68 @@ p2 <- ggplot() +     geom_rect(aes(xmin=recession_years[1], xmax=recession_years
                  limits = as.Date(c('2004-01-01','2020-05-01'))) + labs(x='reference date', y='unemployment rate')
 plot_grid(p1, p2, labels = c('', ''), label_size = 12, ncol=1)
 ```
-### Cross-correlation
+
+### Cross-correlation between time series
 
 Calculation of the sample cross-correlation
 
+Unemployment at time t correlation with with lagging value of google index with 
+lag t-k. Google index is anticipating better the unemployment than the other way 
+around. Note I do not find the strongest effect 6 months ahead as in Tuhkuri16
+but rather at short time horizons.
 ```{r}
 par(mar=c(5.1, 4.1, 4.6, 2.1))
-ccf(unemployment_rate$unemployment_rate, filter(g_index_rows, 
-                                     keyword=='unemployment')$index,
-  lag.max = 12, type = c("correlation"),
-  plot = TRUE, na.action = na.pass, ylab = "cross-correlation function"
+ccf(unemployment_rate$unemployment_rate, g_index_unempl$index, lag.max = 12, type = c("correlation"), plot = TRUE, na.action = na.pass, ylab = "cross-correlation function"
+)
+```
+
+```{r}
+ccf(unemployment_rate$unemployment_rate, g_index_unempl$index, lag.max = 12, type = c("correlation"), plot = FALSE, na.action = na.pass, ylab = "cross-correlation function"
 )
 ```
 
 ### Granger-Causality Test
 
-To perform the test we first ensure stationarity of the series through
-differencing.
 
-I use the augmented dicky-fuller hypothesis test to check for the existence of
-unit-roots to check for non-stationarity. H0 cannot be rejected and there exists
-at least one unit root.
 ```{r}
-tseries::adf.test(filter(g_index_rows, keyword=='unemployment')$index)
+library(lmtest)
 ```
 
 
+I do not make the effort to use stationary time due to the negative effects
+reported in Maziarz15 as the transformations impact the Granger-Causality test.
+
+The Wald test compares a model without Google Index (Model 2) with the model
+with Google Index with lags. It is an F-test for explanatory power. I include
+up to the order of 3 in lags for both, employment and Google Index but
+one could also use the AIC criterion to identify the optimal model and then lag,
+as alternative methodology. Since I plan to do 2 hypothesis tests to test 
+the granger-test in two directions I apply the bonferroni correction and 
+use p=0.025 as the theoretical signficance level. The result implies that I can
+reject the H0 hypothesis and find granger-causality.
 ```{r}
-tseries::adf.test(filter(g_index_rows, keyword=='unemployment')$index)
+grangertest(unemployment_rate$unemployment_rate ~ g_index_unempl$index, 
+            order = 3)
 ```
 
+
+We could consider Granger-causal dependency assuming that
+* no confounding variables exist. Confounding variable is Covid-19?
+* time-series co-integration
+* there is no instant causality
+
+The Granger-causality test in the inverse direction indicates 
+a bi-directional causality. We can reject the H0 hypothesis 2.5% level and I
+do not find granger-causality.
+Google searches are not granger-causal affecting the employment rate as one
+would expect for causility. Finding uni-directional causality supports the
+argument that no bi-directional instant Granger-causality.
+The finding of single-direction granger causality is as in Tuhkuri16.
+
 ```{r}
-x <- rnorm(1000)  # no unit-root
-tseries::adf.test(x)
-
-y <- diffinv(x)   # contains a unit-root
-tseries::adf.test(y)
+grangertest(g_index_unempl$index ~ unemployment_rate$unemployment_rate, 
+            order = 3)
 ```
-
-
-
-
 
 
 

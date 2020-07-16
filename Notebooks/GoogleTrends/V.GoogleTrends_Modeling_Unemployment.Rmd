@@ -1,0 +1,176 @@
+---
+title: "R Notebook"
+output: html_notebook
+---
+
+# Google Trends EDA
+
+### Goals
+
+
+### Comments
+
+
+```{r}
+suppressMessages(library(dplyr))
+suppressMessages(library(purrr))
+suppressMessages(library(cansim))
+suppressMessages(library(cowplot))
+suppressMessages(library(ggplot2))
+library(e1071)
+library(reshape2)
+library(scales)
+```
+
+
+## I. Data Preparation
+
+
+```{r}
+data_path = '../../../data/GoogleTrends'
+google_index_files = c('multiTimeline_unemployment1_01_07_20.csv', 
+                       'multiTimeline_unemployment2_01_07_20.csv',
+                       'multiTimeline_unemployment3_01_07_20.csv',
+                       'multiTimeline_unemployment4_01_07_20.csv',
+                       'multiTimeline_unemployment5_01_07_20.csv',
+                       'multiTimeline_unemployment6_01_07_20.csv'
+                       )
+```
+
+```{r}
+file_contents <- lapply(google_index_files, FUN = function (file) {
+  g_group <- read.csv(paste0(data_path,'/',file), skip=2)})
+g_index <- file_contents %>% reduce(left_join, by = "Month")
+```
+
+
+Retrieve vector with employment numbers: Employment [pers]
+```{r}
+employment <- get_cansim_vector('v2062809', "1900-01-01")
+unemployment_rate <- get_cansim_vector("v2062815", start_date)
+dim(employment)
+```
+
+```{r}
+employment <- select(employment, 'REF_DATE', 'VALUE')
+colnames(employment) <- c('date', 'employment')
+employment$employment <- employment$employment/1000. # units in 1M
+
+unemployment_rate <- select(unemployment_rate, 'REF_DATE', 'VALUE')
+colnames(unemployment_rate) <- c('date', 'unemployment_rate')
+
+```
+
+
+```{r}
+colnames(g_index) <- lapply(colnames(g_index), function (name) {strsplit(name,'\\.\\.\\.')[[1]][1]})
+```
+
+
+```{r}
+g_index_rows <- melt(g_index,
+  id = "Month", na.rm = TRUE,
+  variable.name = "keyword", value.name = "index"
+)
+```
+
+```{r}
+g_index_rows$year <- sapply(as.character(g_index_rows$Month), FUN=function (par_date) {strsplit(par_date, "-")[[1]][1]})
+g_index_rows$month <- sapply(as.character(g_index_rows$Month), FUN=function (par_date) {strsplit(par_date, "-")[[1]][2]})
+g_index_rows$date <- as.Date(paste(g_index_rows$Month ,"-01",sep=""))
+```
+
+
+```{r}
+g_index_rows$index_num <- as.numeric(g_index_rows$index)
+g_index_rows[is.na(g_index_rows$index_num),'index_num'] <- 0.
+g_index_rows$index <- g_index_rows$index_num
+g_index_rows <- g_index_rows[order(g_index_rows$date),]
+```
+
+```{r}
+unemployment_rate <- filter(unemployment_rate, date>=as.Date('2004-01-01'))
+```
+
+## II. Modeling with unemployment keyword time series
+
+I pick the time series based on the frequency of the 'unemployment' keyword
+for further anlaysis.
+
+* Linear Regression model sensitive to outliers, such as those from the recession.
+* Effect of non-stationarity on regression models: non-statinary time series
+can lead to spurious regression.
+
+
+Definition of the recession 08/09 and the Covid-19 related recession starting
+in May 2020.
+```{r}
+recession_years <- as.Date(c('2008-01-01','2009-12-31', '2020-04-01', 
+                             '2020-06-01'))
+```
+
+
+Limit the data to only include time points until including 2020-05-01.
+```{r}
+g_index_unempl <- filter(g_index_rows, keyword=='unemployment', 
+                         date<as.Date('2020-06-01'))
+unemployment_rate <- filter(unemployment_rate, 
+                         date<as.Date('2020-06-01'))
+```
+
+
+
+```{r}
+unemployment_rate$uer_log <- log(unemployment_rate$unemployment_rate)
+```
+
+
+
+
+Test with seasonal AR(1) model, as Model 0.0 in Tuhkuri16
+
+```{r}
+model0 <- Arima(unemployment_rate$uer_log, order=c(1,0,0), seasonal=c(1,0,0))
+model0
+```
+
+There is still some autocorrelation in the residuals, at lags 1 and 2 but
+disappears at higher lag. As
+in Tuhkuri16  A.2 I have PACF has two lags beyond above 5%.
+```{r}
+model0 %>% residuals() %>% ggtsdisplay()
+```
+
+To check for autocorrelation in the residuals I use the Ljung–Box test statistic. We
+can reject that H0 hypothesis that the data comes from a white noise distribution and
+hence there is still autocorrelation present..
+```{r}
+model0 %>% residuals() %>% Box.test(lag=12, fitdf=1, type="Lj")
+```
+
+```{r}
+length(unemployment_rate$unemployment_rate)
+length(g_index_unempl$index)
+```
+
+Model 1.0
+```{r}
+model1 <- Arima(unemployment_rate$uer_log, order=c(1,0,0), seasonal=c(1,0,0),
+                xreg = g_index_unempl$index, method="ML")
+model1
+```
+
+```{r}
+checkresiduals(model1)
+```
+
+```{r}
+fcast <- forecast(model1, xreg=g_index_unempl$index, h)
+```
+
+
+```{r}
+accuracy(fcast, unemployment_rate$uer_log)
+```
+
+
