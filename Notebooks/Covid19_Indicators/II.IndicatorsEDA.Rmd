@@ -68,6 +68,12 @@ dim(vectors)
   * numeric, continous: 
   * time: REF_DATE, releaseTime
 
+
+```{r}
+colnames(vectors) <- sapply(colnames(vectors), tolower)
+colnames(vectors)
+```
+
 ```{r}
 head(vectors)
 ```
@@ -121,18 +127,18 @@ Analysis of economic variables and their meaning:
 
 Pivot table to allow each vector in separate column
 ```{r}
-indicators <- pivot_wider(vectors, names_from = VECTOR, values_from = VALUE)
+indicators <- pivot_wider(vectors, names_from = vector, values_from = value)
 indicators <- indicators %>%
-  group_by(REF_DATE) %>%
+  group_by(ref_date) %>%
   summarise_at(vector_names, sum, na.rm = TRUE)
 
-indicators$REF_YEAR <- format(as.Date(indicators$REF_DATE,
+indicators$ref_year <- format(as.Date(indicators$ref_date,
   format = "%Y-%m-%d"
 ), "%Y")
-indicators$REF_MONTH <- format(as.Date(indicators$REF_DATE,
+indicators$ref_month <- format(as.Date(indicators$ref_date,
   format = "%Y-%m-%d"
 ), "%m")
-indicators$REF_DAY <- format(as.Date(indicators$REF_DATE,
+indicators$ref_day <- format(as.Date(indicators$ref_date,
   format = "%Y-%m-%d"
 ), "%d")
 

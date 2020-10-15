@@ -245,4 +245,3 @@ ccf(filter(vectors_lfdiff, descr=='Retail Sales')$VALUE, filter(vectors_lfdiff, 
 ```
 
 
-
