@@ -130,4 +130,3 @@ p <- ggplot(indicators, aes(x = ref_date, y = value_index)) +
 ggplotly(p)
 ```
 
-

@@ -1,0 +1,32 @@
+---
+title: "R Notebook"
+output: html_notebook
+---
+
+# Investigate CMHC Housing Market Indicators
+
+### Goal
+
+* EDA
+
+### Comments
+
+* https://www.cmhc-schl.gc.ca/en/data-and-research/data-tables/housing-market-indicators
+
+
+```{r}
+suppressMessages(library(zoo))
+suppressMessages(library(dplyr))
+```
+
+# Step I: Data Extraction
+
+```{r}
+
+https://assets.cmhc-schl.gc.ca/sf/project/cmhc/pubsandreports/excel/housing-market-indicators-canada-1990-2016.xls?rev=1e85025f-0f50-49c5-af49-f4143b18887a
+
+
+
+```
+
+

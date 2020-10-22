@@ -7,21 +7,306 @@ output: html_notebook
 
 ### Goals
 
+* Exploration of the Investment in Buildign Construction Table
+* Identify 
+
 ### Comments
+
 
 
 ```{r}
 suppressMessages(library(cansim))
+suppressMessages(library(stringr))
+suppressMessages(library(ggplot2))
+suppressMessages(library(zoo))
+suppressMessages(library(dplyr))
+suppressMessages(library(plotly))
 ```
+
 ```{r}
 options(cansim.cache_path = "/home/jovyan/data")
 ```
 
+# Step I: Data Extraction
+
 Investment in building construction table [here](https://www150.statcan.gc.ca/t1/tbl1/en/tv.action?pid=3410017501&pickMembers%5B0%5D=4.1&cubeTimeFrame.startMonth=04&cubeTimeFrame.startYear=2010&cubeTimeFrame.endMonth=08&cubeTimeFrame.endYear=2020&referencePeriods=20100401%2C20200801)
 
-```{r}
-investment_table <- get_cansim('34-10-0175-01')
+```{r results='hide'}
+investment_table <- get_cansim("34-10-0175-01")
 ```
+
+# Step II: Meet and greet the data
+
+```{r}
+head(investment_table)
+```
+
+```{r}
+nrow(investment_table)
+```
+
+
+rename columns for conformity
+```{r}
+colnames(investment_table) <- str_replace_all(
+    colnames(investment_table), c(" " = "_", "\\(" = "_", "\\)" = "_"))
+  colnames(investment_table) <- sapply(colnames(investment_table),
+                                            tolower)
+```
+
+```{r}
+colnames(investment_table)
+```
+
+
+Subselect the relevant columns for further analysis:
+```{r}
+relevant_columns <- c("type_of_structure", "type_of_work", "investment_value",
+                      "vector", "coordinate", "geo", "ref_date",
+                      "value",  "uom")
+investment <- investment_table[, relevant_columns]
+head(investment)
+```
+
+### Missing values
+
+```{r}
+sapply(investment, function(x) sum(is.na(x)))
+```
+
+```{r}
+nrow(investment)
+```
+
+
+```{r}
+missing_values <- investment[is.na(investment$value), ]
+```
+
+```{r}
+head(missing_values)
+```
+
+```{r}
+set.seed(123)
+dplyr::sample_n(missing_values, 10)
+```
+
+
+# Step III: Univariate Distributions
+
+### Type of Structure
+
+Important categories: "Total residential and non-residential", 
+"Total residential", "Total commercial"
+```{r}
+unique(investment$type_of_structure)
+```
+
+
+```{r}
+table(investment$type_of_structure)
+```
+
+All 3 important time series have the same length.
+```{r}
+investment %>% 
+  select(type_of_structure) %>%
+  filter(type_of_structure %in% c("Total residential and non-residential",
+                        "Total residential", "Total commercial")) %>%
+  table()
+```
+
+### Type of Work
+
+Important category: "Types of work, total"
+```{r}
+unique(investment$type_of_work)
+```
+
+```{r}
+table(investment$type_of_work)
+```
+
+```{r}
+lapply(table(investment$type_of_work),
+       function(x) x / as.numeric(nrow(investment)))
+```
+
+### Investment Value
+
+Distinguishes between seasonal adjusted and unajusted, constant and current. 
+On the StatCan website defines the difference:
+"Deflation: The methodology of transforming current dollar values to constant dollar values (deflation process) has been updated from 2007=100 to 2012=100." 
+Steve's comment is to use current dollars for now as we can transform them
+into constant dollars later.
+
+
+```{r}
+unique(investment$investment_value)
+```
+
+```{r}
+lapply(table(investment$investment_value),
+       function(x) x / as.numeric(nrow(investment)))
+```
+
+
+### Time Span
+
+Time span available is from 1/2010 to 8/2020. 8/2020 is expected due to the publication lag of two months. Same number of data points per month for the whole time span.
+
+```{r}
+table(investment$ref_date)
+```
+
+```{r}
+unique(table(investment$ref_date))
+```
+
+### Geographic Information
+
+Geographic information is avialable on the country level ("Canada"), on the province level and on some cases, the city areas.
+```{r}
+unique(investment$geo)
+```
+
+Available provinces extracted from the above list:
+```{r}
+province_names <- c("British Columbia", "Nova Scotia", "Nunavut", "Quebec",
+                    "Saskatchewan",
+                    "Alberta", "Manitoba", "New Brunswick",
+                    "Newfoundland and Labrador", "Northwest Territories",
+                    "Ontario", "Prince Edward Island", "Yukon")
+length(province_names)
+```
+
+> All 13 provinces and territories available.
+
+### Units
+
+All data is in dollars.
+```{r}
+unique(investment$uom)
+```
+
+### Vector and Coordinates
+
+Both are used to subset the data to create series of data. Vectors allow to choose the right time series for our purposes
+
+```{r}
+length(unique(investment$vector))
+```
+
+## Step IV: Multivariate Analysis
+
+Subselect relevant data and compare time series by categories.
+
+
+### Total 
+
+```{r}
+total <- investment %>%
+  filter(type_of_structure == "Total residential and non-residential") %>%
+    filter(type_of_work == "Types of work, total") %>%
+      filter(investment_value == "Unadjusted - current") %>%
+        filter(geo == "Canada")
+```
+
+```{r}
+nrow(total)
+```
+
+time series `total` corresponds to one datapoint per month.
+```{r}
+lapply(total, unique)
+```
+
+
+No missing values.
+```{r}
+sum(is.na(total))
+```
+
+
+Findings of total time series
+* Time series reveals clear trend and seasonal effects. 
+* Extreme drop due to Covid-19.
+* Peaks pronounced in July/August, with a second weak peak around November
+* The august value is clearly higher than what one can infer from the trend 
+of previous years
+
+
+```{r}
+total$type_of_structure <- "Total"
+```
+
+
+
+
+```{r}
+p <- ggplot(data=total, aes(x=as.yearmon(ref_date), y=value)) + geom_line() +
+              labs(title = "Total Investment", 
+                   x = "reference month", y = "value (dollars)")
+ggplotly(p)
+```
+
+
+### Comparing Residential and Non-Residential
+
+```{r}
+total_res_com <- investment %>%
+  filter(type_of_structure %in% c("Total residential", "Total commercial")) %>%
+    filter(type_of_work == "Types of work, total") %>%
+      filter(investment_value == "Unadjusted - current") %>%
+        filter(geo == "Canada")
+```
+
+
+```{r}
+lapply(total_res_com, unique)[c(1,2,3,4,5,6)]
+```
+
+```{r}
+p <- ggplot(data=total_res_com) + geom_line(aes(x=as.yearmon(ref_date), y=value, 
+                      group=type_of_structure, linetype=type_of_structure)) +
+              geom_line(data=total, aes(x=as.yearmon(ref_date), y=value, linetype=type_of_structure, alpha=0.1)) +
+              labs(title = "Comparison Residential - Commerical", x = "reference month", y = "value (dollars)",
+                   alpha= "", linetype= "Type of Structure")
+ggplotly(p, width=800)
+```
+
+
+
+### Comparison Total by Geography
+
+```{r}
+total_by_geo <- investment %>%
+  filter(type_of_structure == "Total residential and non-residential") %>%
+    filter(type_of_work == "Types of work, total") %>%
+      filter(investment_value == "Unadjusted - current") %>%
+        filter(geo %in% province_names)
+```
+
+```{r}
+lapply(total_by_geo, unique)[c(1,2,3,4,5,6)]
+```
+
+* Ontario has by far the most investment, compared to other provinces
+* 
+
+```{r, fig.height=7}
+p <- ggplot(data=total_by_geo) + geom_line(aes(x=as.yearmon(ref_date),
+                        y=value, group=geo, color=geo)) +
+            geom_line(data=total, aes(x=as.yearmon(ref_date), y=value, 
+                                      color=geo, alpha=0.1)) +
+              labs(title = "Comparison Total by Geography",
+                   x = "reference month", y = "value (dollars)", 
+                            alpha= "", color= "Province/Country") +
+            scale_y_continuous(trans='log10')
+ggplotly(p, width=800, height=490)
+```
+
 
 
 
