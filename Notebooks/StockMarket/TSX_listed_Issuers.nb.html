@@ -1762,553 +1762,257 @@ summary {
 
 
 <!-- rnb-text-begin -->
-<div id="investment-in-building-construction-eda" class="section level1">
-<h1>Investment in Building Construction EDA</h1>
+<div id="list-of-tsx-issuers" class="section level1">
+<h1>List of TSX Issuers</h1>
 <div id="goals" class="section level3">
 <h3>Goals</h3>
 <ul>
-<li>Exploration of the Investment in Buildign Construction Table</li>
-<li>Identify</li>
+<li>Analyse composition of TSX Issuers related to Construction and Real Estate</li>
 </ul>
 </div>
-<div id="comments" class="section level3">
-<h3>Comments</h3>
-<!-- rnb-text-end -->
-<!-- rnb-chunk-begin -->
-<!-- rnb-source-begin eyJkYXRhIjoiYGBgclxuc3VwcHJlc3NNZXNzYWdlcyhsaWJyYXJ5KGNhbnNpbSkpXG5zdXBwcmVzc01lc3NhZ2VzKGxpYnJhcnkoc3RyaW5ncikpXG5zdXBwcmVzc01lc3NhZ2VzKGxpYnJhcnkoZ2dwbG90MikpXG5zdXBwcmVzc01lc3NhZ2VzKGxpYnJhcnkoem9vKSlcbnN1cHByZXNzTWVzc2FnZXMobGlicmFyeShkcGx5cikpXG5zdXBwcmVzc01lc3NhZ2VzKGxpYnJhcnkocGxvdGx5KSlcbmBgYCJ9 -->
-<pre class="r"><code>suppressMessages(library(cansim))
-suppressMessages(library(stringr))
-suppressMessages(library(ggplot2))
-suppressMessages(library(zoo))
-suppressMessages(library(dplyr))
-suppressMessages(library(plotly))</code></pre>
-<!-- rnb-source-end -->
-<!-- rnb-chunk-end -->
-<!-- rnb-text-begin -->
-<!-- rnb-text-end -->
-<!-- rnb-chunk-begin -->
-<!-- rnb-source-begin eyJkYXRhIjoiYGBgclxub3B0aW9ucyhjYW5zaW0uY2FjaGVfcGF0aCA9IFwiL2hvbWUvam92eWFuL2RhdGFcIilcbmBgYCJ9 -->
-<pre class="r"><code>options(cansim.cache_path = &quot;/home/jovyan/data&quot;)</code></pre>
-<!-- rnb-source-end -->
-<!-- rnb-chunk-end -->
-<!-- rnb-text-begin -->
-</div>
-</div>
-<div id="step-i-data-extraction" class="section level1">
-<h1>Step I: Data Extraction</h1>
-<p>Investment in building construction table <a href="https://www150.statcan.gc.ca/t1/tbl1/en/tv.action?pid=3410017501&amp;pickMembers%5B0%5D=4.1&amp;cubeTimeFrame.startMonth=04&amp;cubeTimeFrame.startYear=2010&amp;cubeTimeFrame.endMonth=08&amp;cubeTimeFrame.endYear=2020&amp;referencePeriods=20100401%2C20200801">here</a></p>
-<!-- rnb-text-end -->
-<!-- rnb-chunk-begin -->
-<!-- rnb-source-begin eyJkYXRhIjoiYGBgclxuaW52ZXN0bWVudF90YWJsZSA8LSBnZXRfY2Fuc2ltKFwiMzQtMTAtMDE3NS0wMVwiKVxuYGBgIn0= -->
-<pre class="r"><code>investment_table &lt;- get_cansim(&quot;34-10-0175-01&quot;)</code></pre>
-<!-- rnb-source-end -->
-<!-- rnb-chunk-end -->
-<!-- rnb-text-begin -->
-</div>
-<div id="step-ii-meet-and-greet-the-data" class="section level1">
-<h1>Step II: Meet and greet the data</h1>
-<!-- rnb-text-end -->
-<!-- rnb-chunk-begin -->
-<!-- rnb-source-begin eyJkYXRhIjoiYGBgclxuaGVhZChpbnZlc3RtZW50X3RhYmxlKVxuYGBgIn0= -->
-<pre class="r"><code>head(investment_table)</code></pre>
-<!-- rnb-source-end -->
-<!-- rnb-frame-begin eyJtZXRhZGF0YSI6eyJjbGFzc2VzIjpbInRibF9kZiIsInRibCIsImRhdGEuZnJhbWUiXSwibmNvbCI6MjQsIm5yb3ciOjZ9LCJyZGYiOiJVa1JZTXdwWUNnQUFBQU1BQXdZREFBTUZBQUFBQUFWVlZFWXRPQUFBQkFJQUFBQUJBQVFBQ1FBQUFBRjRBQUFERXdBQUFCZ0FBQUFRQUFBQUJnQUVBQWtBQUFBSE1qQXhNQzB3TVFBRUFBa0FBQUFITWpBeE1DMHdNUUFFQUFrQUFBQUhNakF4TUMwd01RQUVBQWtBQUFBSE1qQXhNQzB3TVFBRUFBa0FBQUFITWpBeE1DMHdNUUFFQUFrQUFBQUhNakF4TUMwd01RQUFBQkFBQUFBR0FBUUFDUUFBQUFaRFlXNWhaR0VBQkFBSkFBQUFCa05oYm1Ga1lRQUVBQWtBQUFBR1EyRnVZV1JoQUFRQUNRQUFBQVpEWVc1aFpHRUFCQUFKQUFBQUJrTmhibUZrWVFBRUFBa0FBQUFHUTJGdVlXUmhBQUFBRUFBQUFBWUFCQUFKQUFBQURqSXdNVFpCTURBd01ERXhNVEkwQUFRQUNRQUFBQTR5TURFMlFUQXdNREF4TVRFeU5BQUVBQWtBQUFBT01qQXhOa0V3TURBd01URXhNalFBQkFBSkFBQUFEakl3TVRaQk1EQXdNREV4TVRJMEFBUUFDUUFBQUE0eU1ERTJRVEF3TURBeE1URXlOQUFFQUFrQUFBQU9NakF4TmtFd01EQXdNVEV4TWpRQUFBQVFBQUFBQmdBRUFBa0FBQUFsVkc5MFlXd2djbVZ6YVdSbGJuUnBZV3dnWVc1a0lHNXZiaTF5WlhOcFpHVnVkR2xoYkFBRUFBa0FBQUFsVkc5MFlXd2djbVZ6YVdSbGJuUnBZV3dnWVc1a0lHNXZiaTF5WlhOcFpHVnVkR2xoYkFBRUFBa0FBQUFsVkc5MFlXd2djbVZ6YVdSbGJuUnBZV3dnWVc1a0lHNXZiaTF5WlhOcFpHVnVkR2xoYkFBRUFBa0FBQUFsVkc5MFlXd2djbVZ6YVdSbGJuUnBZV3dnWVc1a0lHNXZiaTF5WlhOcFpHVnVkR2xoYkFBRUFBa0FBQUFsVkc5MFlXd2djbVZ6YVdSbGJuUnBZV3dnWVc1a0lHNXZiaTF5WlhOcFpHVnVkR2xoYkFBRUFBa0FBQUFsVkc5MFlXd2djbVZ6YVdSbGJuUnBZV3dnWVc1a0lHNXZiaTF5WlhOcFpHVnVkR2xoYkFBQUFCQUFBQUFHQUFRQUNRQUFBQlJVZVhCbGN5QnZaaUIzYjNKckxDQjBiM1JoYkFBRUFBa0FBQUFVVkhsd1pYTWdiMllnZDI5eWF5d2dkRzkwWVd3QUJBQUpBQUFBRkZSNWNHVnpJRzltSUhkdmNtc3NJSFJ2ZEdGc0FBUUFDUUFBQUJSVWVYQmxjeUJ2WmlCM2IzSnJMQ0IwYjNSaGJBQUVBQWtBQUFBUVRtVjNJR052Ym5OMGNuVmpkR2x2YmdBRUFBa0FBQUFRVG1WM0lHTnZibk4wY25WamRHbHZiZ0FBQUJBQUFBQUdBQVFBQ1FBQUFCUlZibUZrYW5WemRHVmtJQzBnWTNWeWNtVnVkQUFFQUFrQUFBQVZWVzVoWkdwMWMzUmxaQ0F0SUdOdmJuTjBZVzUwQUFRQUNRQUFBQjFUWldGemIyNWhiR3g1SUdGa2FuVnpkR1ZrSUMwZ1kzVnljbVZ1ZEFBRUFBa0FBQUFlVTJWaGMyOXVZV3hzZVNCaFpHcDFjM1JsWkNBdElHTnZibk4wWVc1MEFBUUFDUUFBQUJSVmJtRmthblZ6ZEdWa0lDMGdZM1Z5Y21WdWRBQUVBQWtBQUFBVlZXNWhaR3AxYzNSbFpDQXRJR052Ym5OMFlXNTBBQUFBRUFBQUFBWUFCQUFKQUFBQUIwUnZiR3hoY25NQUJBQUpBQUFBQjBSdmJHeGhjbk1BQkFBSkFBQUFCMFJ2Ykd4aGNuTUFCQUFKQUFBQUIwUnZiR3hoY25NQUJBQUpBQUFBQjBSdmJHeGhjbk1BQkFBSkFBQUFCMFJ2Ykd4aGNuTUFBQUFRQUFBQUJnQUVBQWtBQUFBQ09ERUFCQUFKQUFBQUFqZ3hBQVFBQ1FBQUFBSTRNUUFFQUFrQUFBQUNPREVBQkFBSkFBQUFBamd4QUFRQUNRQUFBQUk0TVFBQUFCQUFBQUFHQUFRQUNRQUFBQVYxYm1sMGN3QUVBQWtBQUFBRmRXNXBkSE1BQkFBSkFBQUFCWFZ1YVhSekFBUUFDUUFBQUFWMWJtbDBjd0FFQUFrQUFBQUZkVzVwZEhNQUJBQUpBQUFBQlhWdWFYUnpBQUFBRUFBQUFBWUFCQUFKQUFBQUFUQUFCQUFKQUFBQUFUQUFCQUFKQUFBQUFUQUFCQUFKQUFBQUFUQUFCQUFKQUFBQUFUQUFCQUFKQUFBQUFUQUFBQUFRQUFBQUJnQUVBQWtBQUFBTGRqRXdNVFE1TlRNNU56QUFCQUFKQUFBQUMzWXhNREUwT1RVek9UY3hBQVFBQ1FBQUFBdDJNVEF4TkRrMU16azNNZ0FFQUFrQUFBQUxkakV3TVRRNU5UTTVOek1BQkFBSkFBQUFDM1l4TURFME9UVXpPVGMwQUFRQUNRQUFBQXQyTVRBeE5EazFNemszTlFBQUFCQUFBQUFHQUFRQUNRQUFBQWN4TGpFdU1TNHhBQVFBQ1FBQUFBY3hMakV1TVM0eUFBUUFDUUFBQUFjeExqRXVNUzR6QUFRQUNRQUFBQWN4TGpFdU1TNDBBQVFBQ1FBQUFBY3hMakV1TWk0eEFBUUFDUUFBQUFjeExqRXVNaTR5QUFBQURnQUFBQVpDQTl4bFhQZ0FBRUlGVWs4MkdBQUFRZ1RQS1drNEFBQkNCazFtSitBQUFFSHljWENod0FBQWYvQUFBQUFBQjZJQUFBQVFBQUFBQmdBQUFBbi8vLy8vQUFBQUNmLy8vLzhBQUFBSi8vLy8vd0FBQUFuLy8vLy9BQUFBQ2YvLy8vOEFCQUFKQUFBQUFpNHVBQUFBRUFBQUFBWUFBQUFKLy8vLy93QUFBQW4vLy8vL0FBQUFDZi8vLy84QUFBQUovLy8vL3dBQUFBbi8vLy8vQUFBQUNmLy8vLzhBQUFBUUFBQUFCZ0FBQUFuLy8vLy9BQUFBQ2YvLy8vOEFBQUFKLy8vLy93QUFBQW4vLy8vL0FBQUFDZi8vLy84QUFBQUovLy8vL3dBQUFCQUFBQUFHQUFRQUNRQUFBQUV3QUFRQUNRQUFBQUV3QUFRQUNRQUFBQUV3QUFRQUNRQUFBQUV3QUFRQUNRQUFBQUV3QUFRQUNRQUFBQUV3QUFBQUVBQUFBQVlBQkFBSkFBQUFCVEV4TVRJMEFBUUFDUUFBQUFVeE1URXlOQUFFQUFrQUFBQUZNVEV4TWpRQUJBQUpBQUFBQlRFeE1USTBBQVFBQ1FBQUFBVXhNVEV5TkFBRUFBa0FBQUFGTVRFeE1qUUFBQUFRQUFBQUJnQUFBQW4vLy8vL0FBQUFDZi8vLy84QUFBQUovLy8vL3dBQUFBbi8vLy8vQUFBQUNmLy8vLzhBQUFBSi8vLy8vd0FBQUJBQUFBQUdBQVFBQ1FBQUFBRXhBQVFBQ1FBQUFBRXhBQVFBQ1FBQUFBRXhBQVFBQ1FBQUFBRXhBQVFBQ1FBQUFBRXhBQVFBQ1FBQUFBRXhBQUFBRUFBQUFBWUFBQUFKLy8vLy93QUFBQW4vLy8vL0FBQUFDZi8vLy84QUFBQUovLy8vL3dBQUFBbi8vLy8vQUFBQUNmLy8vLzhBQUFBUUFBQUFCZ0FFQUFrQUFBQUJNUUFFQUFrQUFBQUJNUUFFQUFrQUFBQUJNUUFFQUFrQUFBQUJNUUFFQUFrQUFBQURNUzR5QUFRQUNRQUFBQU14TGpJQUFBQVFBQUFBQmdBQUFBbi8vLy8vQUFBQUNmLy8vLzhBQUFBSi8vLy8vd0FBQUFuLy8vLy9BQUFBQ2YvLy8vOEFBQUFKLy8vLy93QUFBQkFBQUFBR0FBUUFDUUFBQUFFeEFBUUFDUUFBQUFFeUFBUUFDUUFBQUFFekFBUUFDUUFBQUFFMEFBUUFDUUFBQUFFeEFBUUFDUUFBQUFFeUFBQUVBZ0FBQUFFQUJBQUpBQUFBQlc1aGJXVnpBQUFBRUFBQUFCZ0FCQUFKQUFBQUNGSkZSbDlFUVZSRkFBUUFDUUFBQUFOSFJVOEFCQUFKQUFBQUJVUkhWVWxFQUFRQUNRQUFBQkZVZVhCbElHOW1JSE4wY25WamRIVnlaUUFFQUFrQUFBQU1WSGx3WlNCdlppQjNiM0pyQUFRQUNRQUFBQkJKYm5abGMzUnRaVzUwSUZaaGJIVmxBQVFBQ1FBQUFBTlZUMDBBQkFBSkFBQUFCbFZQVFY5SlJBQUVBQWtBQUFBTlUwTkJURUZTWDBaQlExUlBVZ0FFQUFrQUFBQUpVME5CVEVGU1gwbEVBQVFBQ1FBQUFBWldSVU5VVDFJQUJBQUpBQUFBQ2tOUFQxSkVTVTVCVkVVQUJBQUpBQUFBQlZaQlRGVkZBQVFBQ1FBQUFBWlRWRUZVVlZNQUJBQUpBQUFBQmxOWlRVSlBUQUFFQUFrQUFBQUtWRVZTVFVsT1FWUkZSQUFFQUFrQUFBQUlSRVZEU1UxQlRGTUFCQUFKQUFBQUJrZGxiMVZKUkFBRUFBa0FBQUFwUTJ4aGMzTnBabWxqWVhScGIyNGdRMjlrWlNCbWIzSWdWSGx3WlNCdlppQnpkSEoxWTNSMWNtVUFCQUFKQUFBQUgwaHBaWEpoY21Ob2VTQm1iM0lnVkhsd1pTQnZaaUJ6ZEhKMVkzUjFjbVVBQkFBSkFBQUFKRU5zWVhOemFXWnBZMkYwYVc5dUlFTnZaR1VnWm05eUlGUjVjR1VnYjJZZ2QyOXlhd0FFQUFrQUFBQWFTR2xsY21GeVkyaDVJR1p2Y2lCVWVYQmxJRzltSUhkdmNtc0FCQUFKQUFBQUtFTnNZWE56YVdacFkyRjBhVzl1SUVOdlpHVWdabTl5SUVsdWRtVnpkRzFsYm5RZ1ZtRnNkV1VBQkFBSkFBQUFIa2hwWlhKaGNtTm9lU0JtYjNJZ1NXNTJaWE4wYldWdWRDQldZV3gxWlFBQUJBSUFBQUFCQUFRQUNRQUFBQWx5YjNjdWJtRnRaWE1BQUFBTkFBQUFBb0FBQUFELy8vLzZBQUFFQWdBQUFBRUFCQUFKQUFBQUJXTnNZWE56QUFBQUVBQUFBQUVBQkFBSkFBQUFDbVJoZEdFdVpuSmhiV1VBQUFEK0FBQUVBZ0FBQUFFQUJBQUpBQUFBQjI5d2RHbHZibk1BQUFJVEFBQUFCUUFBQUJBQUFBQUJBQVFBQ1FBQUFBRnlBQUFBRUFBQUFBRUFCQUFKQUFBQUQzVnVibUZ0WldRdFkyaDFibXN0TkFBQUFBb0FBQUFCQUFBQUFBQUFBQTBBQUFBQkFBQUFCZ0FBQUEwQUFBQUJBQUFBR0FBQUJBSUFBQUwvQUFBQUVBQUFBQVVBQkFBSkFBQUFCbVZ1WjJsdVpRQUVBQWtBQUFBRmJHRmlaV3dBQkFBSkFBQUFEbkp2ZDI1aGJXVnpMbkJ5YVc1MEFBUUFDUUFBQUFweWIzZHpMblJ2ZEdGc0FBUUFDUUFBQUFwamIyeHpMblJ2ZEdGc0FBQUEvZ0FBQVA0PSJ9 -->
-<div data-pagedtable="false">
-<script data-pagedtable-source type="application/json">
-{"columns":[{"label":["REF_DATE"],"name":[1],"type":["chr"],"align":["left"]},{"label":["GEO"],"name":[2],"type":["chr"],"align":["left"]},{"label":["DGUID"],"name":[3],"type":["chr"],"align":["left"]},{"label":["Type of structure"],"name":[4],"type":["chr"],"align":["left"]},{"label":["Type of work"],"name":[5],"type":["chr"],"align":["left"]},{"label":["Investment Value"],"name":[6],"type":["chr"],"align":["left"]},{"label":["UOM"],"name":[7],"type":["chr"],"align":["left"]},{"label":["UOM_ID"],"name":[8],"type":["chr"],"align":["left"]},{"label":["SCALAR_FACTOR"],"name":[9],"type":["chr"],"align":["left"]},{"label":["SCALAR_ID"],"name":[10],"type":["chr"],"align":["left"]},{"label":["VECTOR"],"name":[11],"type":["chr"],"align":["left"]},{"label":["COORDINATE"],"name":[12],"type":["chr"],"align":["left"]},{"label":["VALUE"],"name":[13],"type":["dbl"],"align":["right"]},{"label":["STATUS"],"name":[14],"type":["chr"],"align":["left"]},{"label":["SYMBOL"],"name":[15],"type":["chr"],"align":["left"]},{"label":["TERMINATED"],"name":[16],"type":["chr"],"align":["left"]},{"label":["DECIMALS"],"name":[17],"type":["chr"],"align":["left"]},{"label":["GeoUID"],"name":[18],"type":["chr"],"align":["left"]},{"label":["Classification Code for Type of structure"],"name":[19],"type":["chr"],"align":["left"]},{"label":["Hierarchy for Type of structure"],"name":[20],"type":["chr"],"align":["left"]},{"label":["Classification Code for Type of work"],"name":[21],"type":["chr"],"align":["left"]},{"label":["Hierarchy for Type of work"],"name":[22],"type":["chr"],"align":["left"]},{"label":["Classification Code for Investment Value"],"name":[23],"type":["chr"],"align":["left"]},{"label":["Hierarchy for Investment Value"],"name":[24],"type":["chr"],"align":["left"]}],"data":[{"1":"2010-01","2":"Canada","3":"2016A000011124","4":"Total residential and non-residential","5":"Types of work, total","6":"Unadjusted - current","7":"Dollars","8":"81","9":"units","10":"0","11":"v1014953970","12":"1.1.1.1","13":"10662751135","14":"NA","15":"NA","16":"NA","17":"0","18":"11124","19":"NA","20":"1","21":"NA","22":"1","23":"NA","24":"1"},{"1":"2010-01","2":"Canada","3":"2016A000011124","4":"Total residential and non-residential","5":"Types of work, total","6":"Unadjusted - constant","7":"Dollars","8":"81","9":"units","10":"0","11":"v1014953971","12":"1.1.1.2","13":"11446904515","14":"NA","15":"NA","16":"NA","17":"0","18":"11124","19":"NA","20":"1","21":"NA","22":"1","23":"NA","24":"2"},{"1":"2010-01","2":"Canada","3":"2016A000011124","4":"Total residential and non-residential","5":"Types of work, total","6":"Seasonally adjusted - current","7":"Dollars","8":"81","9":"units","10":"0","11":"v1014953972","12":"1.1.1.3","13":"11171867943","14":"NA","15":"NA","16":"NA","17":"0","18":"11124","19":"NA","20":"1","21":"NA","22":"1","23":"NA","24":"3"},{"1":"2010-01","2":"Canada","3":"2016A000011124","4":"Total residential and non-residential","5":"Types of work, total","6":"Seasonally adjusted - constant","7":"Dollars","8":"81","9":"units","10":"0","11":"v1014953973","12":"1.1.1.4","13":"11973477628","14":"NA","15":"NA","16":"NA","17":"0","18":"11124","19":"NA","20":"1","21":"NA","22":"1","23":"NA","24":"4"},{"1":"2010-01","2":"Canada","3":"2016A000011124","4":"Total residential and non-residential","5":"New construction","6":"Unadjusted - current","7":"Dollars","8":"81","9":"units","10":"0","11":"v1014953974","12":"1.1.2.1","13":"4950788636","14":"NA","15":"NA","16":"NA","17":"0","18":"11124","19":"NA","20":"1","21":"NA","22":"1.2","23":"NA","24":"1"},{"1":"2010-01","2":"Canada","3":"2016A000011124","4":"Total residential and non-residential","5":"New construction","6":"Unadjusted - constant","7":"Dollars","8":"81","9":"units","10":"0","11":"v1014953975","12":"1.1.2.2","13":"NA","14":"..","15":"NA","16":"NA","17":"0","18":"11124","19":"NA","20":"1","21":"NA","22":"1.2","23":"NA","24":"2"}],"options":{"columns":{"min":{},"max":[10],"total":[24]},"rows":{"min":[10],"max":[10],"total":[6]},"pages":{}}}
-  </script>
-</div>
-<!-- rnb-frame-end -->
-<!-- rnb-chunk-end -->
-<!-- rnb-text-begin -->
-<!-- rnb-text-end -->
-<!-- rnb-chunk-begin -->
-<!-- rnb-source-begin eyJkYXRhIjoiYGBgclxubnJvdyhpbnZlc3RtZW50X3RhYmxlKVxuYGBgIn0= -->
-<pre class="r"><code>nrow(investment_table)</code></pre>
-<!-- rnb-source-end -->
-<!-- rnb-output-begin eyJkYXRhIjoiWzFdIDUyMjI0MDBcbiJ9 -->
-<pre><code>[1] 5222400</code></pre>
-<!-- rnb-output-end -->
-<!-- rnb-chunk-end -->
-<!-- rnb-text-begin -->
-<p>rename columns for conformity</p>
-<!-- rnb-text-end -->
-<!-- rnb-chunk-begin -->
-<!-- rnb-source-begin eyJkYXRhIjoiYGBgclxuY29sbmFtZXMoaW52ZXN0bWVudF90YWJsZSkgPC0gc3RyX3JlcGxhY2VfYWxsKFxuICAgIGNvbG5hbWVzKGludmVzdG1lbnRfdGFibGUpLCBjKFwiIFwiID0gXCJfXCIsIFwiXFxcXChcIiA9IFwiX1wiLCBcIlxcXFwpXCIgPSBcIl9cIikpXG4gIGNvbG5hbWVzKGludmVzdG1lbnRfdGFibGUpIDwtIHNhcHBseShjb2xuYW1lcyhpbnZlc3RtZW50X3RhYmxlKSwgXG4gICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgIHRvbG93ZXIpXG5gYGAifQ== -->
-<pre class="r"><code>colnames(investment_table) &lt;- str_replace_all(
-    colnames(investment_table), c(&quot; &quot; = &quot;_&quot;, &quot;\\(&quot; = &quot;_&quot;, &quot;\\)&quot; = &quot;_&quot;))
-  colnames(investment_table) &lt;- sapply(colnames(investment_table), 
-                                            tolower)</code></pre>
-<!-- rnb-source-end -->
-<!-- rnb-chunk-end -->
-<!-- rnb-text-begin -->
-<!-- rnb-text-end -->
-<!-- rnb-chunk-begin -->
-<!-- rnb-source-begin eyJkYXRhIjoiYGBgclxuY29sbmFtZXMoaW52ZXN0bWVudF90YWJsZSlcbmBgYCJ9 -->
-<pre class="r"><code>colnames(investment_table)</code></pre>
-<!-- rnb-source-end -->
-<!-- rnb-output-begin eyJkYXRhIjoiIFsxXSBcInJlZl9kYXRlXCIgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgXCJnZW9cIiAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgXG4gWzNdIFwiZGd1aWRcIiAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICBcInR5cGVfb2Zfc3RydWN0dXJlXCIgICAgICAgICAgICAgICAgICAgICAgICBcbiBbNV0gXCJ0eXBlX29mX3dvcmtcIiAgICAgICAgICAgICAgICAgICAgICAgICAgICAgIFwiaW52ZXN0bWVudF92YWx1ZVwiICAgICAgICAgICAgICAgICAgICAgICAgIFxuIFs3XSBcInVvbVwiICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgXCJ1b21faWRcIiAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgXG4gWzldIFwic2NhbGFyX2ZhY3RvclwiICAgICAgICAgICAgICAgICAgICAgICAgICAgICBcInNjYWxhcl9pZFwiICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICBcblsxMV0gXCJ2ZWN0b3JcIiAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgIFwiY29vcmRpbmF0ZVwiICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgIFxuWzEzXSBcInZhbHVlXCIgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgXCJzdGF0dXNcIiAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgXG5bMTVdIFwic3ltYm9sXCIgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICBcInRlcm1pbmF0ZWRcIiAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICBcblsxN10gXCJkZWNpbWFsc1wiICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgIFwiZ2VvdWlkXCIgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgIFxuWzE5XSBcImNsYXNzaWZpY2F0aW9uX2NvZGVfZm9yX3R5cGVfb2Zfc3RydWN0dXJlXCIgXCJoaWVyYXJjaHlfZm9yX3R5cGVfb2Zfc3RydWN0dXJlXCIgICAgICAgICAgXG5bMjFdIFwiY2xhc3NpZmljYXRpb25fY29kZV9mb3JfdHlwZV9vZl93b3JrXCIgICAgICBcImhpZXJhcmNoeV9mb3JfdHlwZV9vZl93b3JrXCIgICAgICAgICAgICAgICBcblsyM10gXCJjbGFzc2lmaWNhdGlvbl9jb2RlX2Zvcl9pbnZlc3RtZW50X3ZhbHVlXCIgIFwiaGllcmFyY2h5X2Zvcl9pbnZlc3RtZW50X3ZhbHVlXCIgICAgICAgICAgIFxuIn0= -->
-<pre><code> [1] &quot;ref_date&quot;                                  &quot;geo&quot;                                      
- [3] &quot;dguid&quot;                                     &quot;type_of_structure&quot;                        
- [5] &quot;type_of_work&quot;                              &quot;investment_value&quot;                         
- [7] &quot;uom&quot;                                       &quot;uom_id&quot;                                   
- [9] &quot;scalar_factor&quot;                             &quot;scalar_id&quot;                                
-[11] &quot;vector&quot;                                    &quot;coordinate&quot;                               
-[13] &quot;value&quot;                                     &quot;status&quot;                                   
-[15] &quot;symbol&quot;                                    &quot;terminated&quot;                               
-[17] &quot;decimals&quot;                                  &quot;geouid&quot;                                   
-[19] &quot;classification_code_for_type_of_structure&quot; &quot;hierarchy_for_type_of_structure&quot;          
-[21] &quot;classification_code_for_type_of_work&quot;      &quot;hierarchy_for_type_of_work&quot;               
-[23] &quot;classification_code_for_investment_value&quot;  &quot;hierarchy_for_investment_value&quot;           </code></pre>
-<!-- rnb-output-end -->
-<!-- rnb-chunk-end -->
-<!-- rnb-text-begin -->
-<p>Subselect the relevant columns for further analysis:</p>
-<!-- rnb-text-end -->
-<!-- rnb-chunk-begin -->
-<!-- rnb-source-begin eyJkYXRhIjoiYGBgclxucmVsZXZhbnRfY29sdW1ucyA8LSBjKFwidHlwZV9vZl9zdHJ1Y3R1cmVcIiwgXCJ0eXBlX29mX3dvcmtcIiwgXCJpbnZlc3RtZW50X3ZhbHVlXCIsXG4gICAgICAgICAgICAgICAgICAgICAgXCJ2ZWN0b3JcIiwgXCJjb29yZGluYXRlXCIsIFwiZ2VvXCIsIFwicmVmX2RhdGVcIixcbiAgICAgICAgICAgICAgICAgICAgICBcInZhbHVlXCIsICBcInVvbVwiKVxuaW52ZXN0bWVudCA8LSBpbnZlc3RtZW50X3RhYmxlWyxyZWxldmFudF9jb2x1bW5zXVxuaGVhZChpbnZlc3RtZW50KVxuYGBgIn0= -->
-<pre class="r"><code>relevant_columns &lt;- c(&quot;type_of_structure&quot;, &quot;type_of_work&quot;, &quot;investment_value&quot;,
-                      &quot;vector&quot;, &quot;coordinate&quot;, &quot;geo&quot;, &quot;ref_date&quot;,
-                      &quot;value&quot;,  &quot;uom&quot;)
-investment &lt;- investment_table[,relevant_columns]
-head(investment)</code></pre>
-<!-- rnb-source-end -->
-<!-- rnb-frame-begin eyJtZXRhZGF0YSI6eyJjbGFzc2VzIjpbInRibF9kZiIsInRibCIsImRhdGEuZnJhbWUiXSwibmNvbCI6OSwibnJvdyI6Nn0sInJkZiI6IlVrUllNd3BZQ2dBQUFBTUFBd1lEQUFNRkFBQUFBQVZWVkVZdE9BQUFCQUlBQUFBQkFBUUFDUUFBQUFGNEFBQURFd0FBQUFrQUFBQVFBQUFBQmdBRUFBa0FBQUFsVkc5MFlXd2djbVZ6YVdSbGJuUnBZV3dnWVc1a0lHNXZiaTF5WlhOcFpHVnVkR2xoYkFBRUFBa0FBQUFsVkc5MFlXd2djbVZ6YVdSbGJuUnBZV3dnWVc1a0lHNXZiaTF5WlhOcFpHVnVkR2xoYkFBRUFBa0FBQUFsVkc5MFlXd2djbVZ6YVdSbGJuUnBZV3dnWVc1a0lHNXZiaTF5WlhOcFpHVnVkR2xoYkFBRUFBa0FBQUFsVkc5MFlXd2djbVZ6YVdSbGJuUnBZV3dnWVc1a0lHNXZiaTF5WlhOcFpHVnVkR2xoYkFBRUFBa0FBQUFsVkc5MFlXd2djbVZ6YVdSbGJuUnBZV3dnWVc1a0lHNXZiaTF5WlhOcFpHVnVkR2xoYkFBRUFBa0FBQUFsVkc5MFlXd2djbVZ6YVdSbGJuUnBZV3dnWVc1a0lHNXZiaTF5WlhOcFpHVnVkR2xoYkFBQUFCQUFBQUFHQUFRQUNRQUFBQlJVZVhCbGN5QnZaaUIzYjNKckxDQjBiM1JoYkFBRUFBa0FBQUFVVkhsd1pYTWdiMllnZDI5eWF5d2dkRzkwWVd3QUJBQUpBQUFBRkZSNWNHVnpJRzltSUhkdmNtc3NJSFJ2ZEdGc0FBUUFDUUFBQUJSVWVYQmxjeUJ2WmlCM2IzSnJMQ0IwYjNSaGJBQUVBQWtBQUFBUVRtVjNJR052Ym5OMGNuVmpkR2x2YmdBRUFBa0FBQUFRVG1WM0lHTnZibk4wY25WamRHbHZiZ0FBQUJBQUFBQUdBQVFBQ1FBQUFCUlZibUZrYW5WemRHVmtJQzBnWTNWeWNtVnVkQUFFQUFrQUFBQVZWVzVoWkdwMWMzUmxaQ0F0SUdOdmJuTjBZVzUwQUFRQUNRQUFBQjFUWldGemIyNWhiR3g1SUdGa2FuVnpkR1ZrSUMwZ1kzVnljbVZ1ZEFBRUFBa0FBQUFlVTJWaGMyOXVZV3hzZVNCaFpHcDFjM1JsWkNBdElHTnZibk4wWVc1MEFBUUFDUUFBQUJSVmJtRmthblZ6ZEdWa0lDMGdZM1Z5Y21WdWRBQUVBQWtBQUFBVlZXNWhaR3AxYzNSbFpDQXRJR052Ym5OMFlXNTBBQUFBRUFBQUFBWUFCQUFKQUFBQUMzWXhNREUwT1RVek9UY3dBQVFBQ1FBQUFBdDJNVEF4TkRrMU16azNNUUFFQUFrQUFBQUxkakV3TVRRNU5UTTVOeklBQkFBSkFBQUFDM1l4TURFME9UVXpPVGN6QUFRQUNRQUFBQXQyTVRBeE5EazFNemszTkFBRUFBa0FBQUFMZGpFd01UUTVOVE01TnpVQUFBQVFBQUFBQmdBRUFBa0FBQUFITVM0eExqRXVNUUFFQUFrQUFBQUhNUzR4TGpFdU1nQUVBQWtBQUFBSE1TNHhMakV1TXdBRUFBa0FBQUFITVM0eExqRXVOQUFFQUFrQUFBQUhNUzR4TGpJdU1RQUVBQWtBQUFBSE1TNHhMakl1TWdBQUFCQUFBQUFHQUFRQUNRQUFBQVpEWVc1aFpHRUFCQUFKQUFBQUJrTmhibUZrWVFBRUFBa0FBQUFHUTJGdVlXUmhBQVFBQ1FBQUFBWkRZVzVoWkdFQUJBQUpBQUFBQmtOaGJtRmtZUUFFQUFrQUFBQUdRMkZ1WVdSaEFBQUFFQUFBQUFZQUJBQUpBQUFBQnpJd01UQXRNREVBQkFBSkFBQUFCekl3TVRBdE1ERUFCQUFKQUFBQUJ6SXdNVEF0TURFQUJBQUpBQUFBQnpJd01UQXRNREVBQkFBSkFBQUFCekl3TVRBdE1ERUFCQUFKQUFBQUJ6SXdNVEF0TURFQUFBQU9BQUFBQmtJRDNHVmMrQUFBUWdWU1R6WVlBQUJDQk04cGFUZ0FBRUlHVFdZbjRBQUFRZkp4Y0tIQUFBQi84QUFBQUFBSG9nQUFBQkFBQUFBR0FBUUFDUUFBQUFkRWIyeHNZWEp6QUFRQUNRQUFBQWRFYjJ4c1lYSnpBQVFBQ1FBQUFBZEViMnhzWVhKekFBUUFDUUFBQUFkRWIyeHNZWEp6QUFRQUNRQUFBQWRFYjJ4c1lYSnpBQVFBQ1FBQUFBZEViMnhzWVhKekFBQUVBZ0FBQUFFQUJBQUpBQUFBQlc1aGJXVnpBQUFBRUFBQUFBa0FCQUFKQUFBQUVYUjVjR1ZmYjJaZmMzUnlkV04wZFhKbEFBUUFDUUFBQUF4MGVYQmxYMjltWDNkdmNtc0FCQUFKQUFBQUVHbHVkbVZ6ZEcxbGJuUmZkbUZzZFdVQUJBQUpBQUFBQm5abFkzUnZjZ0FFQUFrQUFBQUtZMjl2Y21ScGJtRjBaUUFFQUFrQUFBQURaMlZ2QUFRQUNRQUFBQWh5WldaZlpHRjBaUUFFQUFrQUFBQUZkbUZzZFdVQUJBQUpBQUFBQTNWdmJRQUFCQUlBQUFBQkFBUUFDUUFBQUFseWIzY3VibUZ0WlhNQUFBQU5BQUFBQW9BQUFBRC8vLy82QUFBRUFnQUFBQUVBQkFBSkFBQUFCV05zWVhOekFBQUFFQUFBQUFFQUJBQUpBQUFBQ21SaGRHRXVabkpoYldVQUFBRCtBQUFFQWdBQUFBRUFCQUFKQUFBQUIyOXdkR2x2Ym5NQUFBSVRBQUFBQlFBQUFCQUFBQUFCQUFRQUNRQUFBQUZ5QUFBQUVBQUFBQUVBQkFBSkFBQUFEM1Z1Ym1GdFpXUXRZMmgxYm1zdE1RQUFBQW9BQUFBQkFBQUFBQUFBQUEwQUFBQUJBQUFBQmdBQUFBMEFBQUFCQUFBQUNRQUFCQUlBQUFML0FBQUFFQUFBQUFVQUJBQUpBQUFBQm1WdVoybHVaUUFFQUFrQUFBQUZiR0ZpWld3QUJBQUpBQUFBRG5KdmQyNWhiV1Z6TG5CeWFXNTBBQVFBQ1FBQUFBcHliM2R6TG5SdmRHRnNBQVFBQ1FBQUFBcGpiMnh6TG5SdmRHRnNBQUFBL2dBQUFQND0ifQ== -->
-<div data-pagedtable="false">
-<script data-pagedtable-source type="application/json">
-{"columns":[{"label":["type_of_structure"],"name":[1],"type":["chr"],"align":["left"]},{"label":["type_of_work"],"name":[2],"type":["chr"],"align":["left"]},{"label":["investment_value"],"name":[3],"type":["chr"],"align":["left"]},{"label":["vector"],"name":[4],"type":["chr"],"align":["left"]},{"label":["coordinate"],"name":[5],"type":["chr"],"align":["left"]},{"label":["geo"],"name":[6],"type":["chr"],"align":["left"]},{"label":["ref_date"],"name":[7],"type":["chr"],"align":["left"]},{"label":["value"],"name":[8],"type":["dbl"],"align":["right"]},{"label":["uom"],"name":[9],"type":["chr"],"align":["left"]}],"data":[{"1":"Total residential and non-residential","2":"Types of work, total","3":"Unadjusted - current","4":"v1014953970","5":"1.1.1.1","6":"Canada","7":"2010-01","8":"10662751135","9":"Dollars"},{"1":"Total residential and non-residential","2":"Types of work, total","3":"Unadjusted - constant","4":"v1014953971","5":"1.1.1.2","6":"Canada","7":"2010-01","8":"11446904515","9":"Dollars"},{"1":"Total residential and non-residential","2":"Types of work, total","3":"Seasonally adjusted - current","4":"v1014953972","5":"1.1.1.3","6":"Canada","7":"2010-01","8":"11171867943","9":"Dollars"},{"1":"Total residential and non-residential","2":"Types of work, total","3":"Seasonally adjusted - constant","4":"v1014953973","5":"1.1.1.4","6":"Canada","7":"2010-01","8":"11973477628","9":"Dollars"},{"1":"Total residential and non-residential","2":"New construction","3":"Unadjusted - current","4":"v1014953974","5":"1.1.2.1","6":"Canada","7":"2010-01","8":"4950788636","9":"Dollars"},{"1":"Total residential and non-residential","2":"New construction","3":"Unadjusted - constant","4":"v1014953975","5":"1.1.2.2","6":"Canada","7":"2010-01","8":"NA","9":"Dollars"}],"options":{"columns":{"min":{},"max":[10],"total":[9]},"rows":{"min":[10],"max":[10],"total":[6]},"pages":{}}}
-  </script>
-</div>
-<!-- rnb-frame-end -->
-<!-- rnb-chunk-end -->
-<!-- rnb-text-begin -->
-<div id="missing-values" class="section level3">
-<h3>Missing values</h3>
-<!-- rnb-text-end -->
-<!-- rnb-chunk-begin -->
-<!-- rnb-source-begin eyJkYXRhIjoiYGBgclxuc2FwcGx5KGludmVzdG1lbnQsIGZ1bmN0aW9uKHgpIHN1bShpcy5uYSh4KSkpXG5gYGAifQ== -->
-<pre class="r"><code>sapply(investment, function(x) sum(is.na(x)))</code></pre>
-<!-- rnb-source-end -->
-<!-- rnb-output-begin eyJkYXRhIjoidHlwZV9vZl9zdHJ1Y3R1cmUgICAgICB0eXBlX29mX3dvcmsgIGludmVzdG1lbnRfdmFsdWUgICAgICAgICAgICB2ZWN0b3IgICAgICAgIGNvb3JkaW5hdGUgXG4gICAgICAgICAgICAgICAgMCAgICAgICAgICAgICAgICAgMCAgICAgICAgICAgICAgICAgMCAgICAgICAgICAgICAgICAgMCAgICAgICAgICAgICAgICAgMCBcbiAgICAgICAgICAgICAgZ2VvICAgICAgICAgIHJlZl9kYXRlICAgICAgICAgICAgIHZhbHVlICAgICAgICAgICAgICAgdW9tIFxuICAgICAgICAgICAgICAgIDAgICAgICAgICAgICAgICAgIDAgICAgICAgICAgIDM2NDY5OTEgICAgICAgICAgICAgICAgIDAgXG4ifQ== -->
-<pre><code>type_of_structure      type_of_work  investment_value            vector        coordinate 
-                0                 0                 0                 0                 0 
-              geo          ref_date             value               uom 
-                0                 0           3646991                 0 </code></pre>
-<!-- rnb-output-end -->
-<!-- rnb-chunk-end -->
-<!-- rnb-text-begin -->
-<!-- rnb-text-end -->
-<!-- rnb-chunk-begin -->
-<!-- rnb-source-begin eyJkYXRhIjoiYGBgclxubnJvdyhpbnZlc3RtZW50KVxuYGBgIn0= -->
-<pre class="r"><code>nrow(investment)</code></pre>
-<!-- rnb-source-end -->
-<!-- rnb-output-begin eyJkYXRhIjoiWzFdIDUyMjI0MDBcbiJ9 -->
-<pre><code>[1] 5222400</code></pre>
-<!-- rnb-output-end -->
-<!-- rnb-chunk-end -->
-<!-- rnb-text-begin -->
-<!-- rnb-text-end -->
-<!-- rnb-chunk-begin -->
-<!-- rnb-source-begin eyJkYXRhIjoiYGBgclxubWlzc2luZ192YWx1ZXMgPC0gaW52ZXN0bWVudFtpcy5uYShpbnZlc3RtZW50JHZhbHVlKSwgXVxuYGBgIn0= -->
-<pre class="r"><code>missing_values &lt;- investment[is.na(investment$value), ]</code></pre>
-<!-- rnb-source-end -->
-<!-- rnb-chunk-end -->
-<!-- rnb-text-begin -->
-<!-- rnb-text-end -->
-<!-- rnb-chunk-begin -->
-<!-- rnb-source-begin eyJkYXRhIjoiYGBgclxuaGVhZChtaXNzaW5nX3ZhbHVlcylcbmBgYCJ9 -->
-<pre class="r"><code>head(missing_values)</code></pre>
-<!-- rnb-source-end -->
-<!-- rnb-frame-begin eyJtZXRhZGF0YSI6eyJjbGFzc2VzIjpbInRibF9kZiIsInRibCIsImRhdGEuZnJhbWUiXSwibmNvbCI6OSwibnJvdyI6Nn0sInJkZiI6IlVrUllNd3BZQ2dBQUFBTUFBd1lEQUFNRkFBQUFBQVZWVkVZdE9BQUFCQUlBQUFBQkFBUUFDUUFBQUFGNEFBQURFd0FBQUFrQUFBQVFBQUFBQmdBRUFBa0FBQUFsVkc5MFlXd2djbVZ6YVdSbGJuUnBZV3dnWVc1a0lHNXZiaTF5WlhOcFpHVnVkR2xoYkFBRUFBa0FBQUFsVkc5MFlXd2djbVZ6YVdSbGJuUnBZV3dnWVc1a0lHNXZiaTF5WlhOcFpHVnVkR2xoYkFBRUFBa0FBQUFsVkc5MFlXd2djbVZ6YVdSbGJuUnBZV3dnWVc1a0lHNXZiaTF5WlhOcFpHVnVkR2xoYkFBRUFBa0FBQUFsVkc5MFlXd2djbVZ6YVdSbGJuUnBZV3dnWVc1a0lHNXZiaTF5WlhOcFpHVnVkR2xoYkFBRUFBa0FBQUFsVkc5MFlXd2djbVZ6YVdSbGJuUnBZV3dnWVc1a0lHNXZiaTF5WlhOcFpHVnVkR2xoYkFBRUFBa0FBQUFsVkc5MFlXd2djbVZ6YVdSbGJuUnBZV3dnWVc1a0lHNXZiaTF5WlhOcFpHVnVkR2xoYkFBQUFCQUFBQUFHQUFRQUNRQUFBQkJPWlhjZ1kyOXVjM1J5ZFdOMGFXOXVBQVFBQ1FBQUFCQk9aWGNnWTI5dWMzUnlkV04wYVc5dUFBUUFDUUFBQUJCT1pYY2dZMjl1YzNSeWRXTjBhVzl1QUFRQUNRQUFBQkZTWlc1dmRtRjBhVzl1Y3lCMGIzUmhiQUFFQUFrQUFBQVJVbVZ1YjNaaGRHbHZibk1nZEc5MFlXd0FCQUFKQUFBQUVWSmxibTkyWVhScGIyNXpJSFJ2ZEdGc0FBQUFFQUFBQUFZQUJBQUpBQUFBRlZWdVlXUnFkWE4wWldRZ0xTQmpiMjV6ZEdGdWRBQUVBQWtBQUFBZFUyVmhjMjl1WVd4c2VTQmhaR3AxYzNSbFpDQXRJR04xY25KbGJuUUFCQUFKQUFBQUhsTmxZWE52Ym1Gc2JIa2dZV1JxZFhOMFpXUWdMU0JqYjI1emRHRnVkQUFFQUFrQUFBQVZWVzVoWkdwMWMzUmxaQ0F0SUdOdmJuTjBZVzUwQUFRQUNRQUFBQjFUWldGemIyNWhiR3g1SUdGa2FuVnpkR1ZrSUMwZ1kzVnljbVZ1ZEFBRUFBa0FBQUFlVTJWaGMyOXVZV3hzZVNCaFpHcDFjM1JsWkNBdElHTnZibk4wWVc1MEFBQUFFQUFBQUFZQUJBQUpBQUFBQzNZeE1ERTBPVFV6T1RjMUFBUUFDUUFBQUF0Mk1UQXhORGt4TURBeU1BQUVBQWtBQUFBTGRqRXdNVFE1TVRBd01qRUFCQUFKQUFBQUMzWXhNREUwT1RVek9UYzNBQVFBQ1FBQUFBdDJNVEF4TkRreE1EQXlNZ0FFQUFrQUFBQUxkakV3TVRRNU1UQXdNak1BQUFBUUFBQUFCZ0FFQUFrQUFBQUhNUzR4TGpJdU1nQUVBQWtBQUFBSE1TNHhMakl1TXdBRUFBa0FBQUFITVM0eExqSXVOQUFFQUFrQUFBQUhNUzR4TGpNdU1nQUVBQWtBQUFBSE1TNHhMak11TXdBRUFBa0FBQUFITVM0eExqTXVOQUFBQUJBQUFBQUdBQVFBQ1FBQUFBWkRZVzVoWkdFQUJBQUpBQUFBQmtOaGJtRmtZUUFFQUFrQUFBQUdRMkZ1WVdSaEFBUUFDUUFBQUFaRFlXNWhaR0VBQkFBSkFBQUFCa05oYm1Ga1lRQUVBQWtBQUFBR1EyRnVZV1JoQUFBQUVBQUFBQVlBQkFBSkFBQUFCekl3TVRBdE1ERUFCQUFKQUFBQUJ6SXdNVEF0TURFQUJBQUpBQUFBQnpJd01UQXRNREVBQkFBSkFBQUFCekl3TVRBdE1ERUFCQUFKQUFBQUJ6SXdNVEF0TURFQUJBQUpBQUFBQnpJd01UQXRNREVBQUFBT0FBQUFCbi93QUFBQUFBZWlmL0FBQUFBQUI2Si84QUFBQUFBSG9uL3dBQUFBQUFlaWYvQUFBQUFBQjZKLzhBQUFBQUFIb2dBQUFCQUFBQUFHQUFRQUNRQUFBQWRFYjJ4c1lYSnpBQVFBQ1FBQUFBZEViMnhzWVhKekFBUUFDUUFBQUFkRWIyeHNZWEp6QUFRQUNRQUFBQWRFYjJ4c1lYSnpBQVFBQ1FBQUFBZEViMnhzWVhKekFBUUFDUUFBQUFkRWIyeHNZWEp6QUFBRUFnQUFBQUVBQkFBSkFBQUFCVzVoYldWekFBQUFFQUFBQUFrQUJBQUpBQUFBRVhSNWNHVmZiMlpmYzNSeWRXTjBkWEpsQUFRQUNRQUFBQXgwZVhCbFgyOW1YM2R2Y21zQUJBQUpBQUFBRUdsdWRtVnpkRzFsYm5SZmRtRnNkV1VBQkFBSkFBQUFCblpsWTNSdmNnQUVBQWtBQUFBS1kyOXZjbVJwYm1GMFpRQUVBQWtBQUFBRFoyVnZBQVFBQ1FBQUFBaHlaV1pmWkdGMFpRQUVBQWtBQUFBRmRtRnNkV1VBQkFBSkFBQUFBM1Z2YlFBQUJBSUFBQUFCQUFRQUNRQUFBQWx5YjNjdWJtRnRaWE1BQUFBTkFBQUFBb0FBQUFELy8vLzZBQUFFQWdBQUFBRUFCQUFKQUFBQUJXTnNZWE56QUFBQUVBQUFBQUVBQkFBSkFBQUFDbVJoZEdFdVpuSmhiV1VBQUFEK0FBQUVBZ0FBQUFFQUJBQUpBQUFBQjI5d2RHbHZibk1BQUFJVEFBQUFCUUFBQUJBQUFBQUJBQVFBQ1FBQUFBRnlBQUFBRUFBQUFBRUFCQUFKQUFBQUVIVnVibUZ0WldRdFkyaDFibXN0TVRJQUFBQUtBQUFBQVFBQUFBQUFBQUFOQUFBQUFRQUFBQVlBQUFBTkFBQUFBUUFBQUFrQUFBUUNBQUFDL3dBQUFCQUFBQUFGQUFRQUNRQUFBQVpsYm1kcGJtVUFCQUFKQUFBQUJXeGhZbVZzQUFRQUNRQUFBQTV5YjNkdVlXMWxjeTV3Y21sdWRBQUVBQWtBQUFBS2NtOTNjeTUwYjNSaGJBQUVBQWtBQUFBS1kyOXNjeTUwYjNSaGJBQUFBUDRBQUFEKyJ9 -->
-<div data-pagedtable="false">
-<script data-pagedtable-source type="application/json">
-{"columns":[{"label":["type_of_structure"],"name":[1],"type":["chr"],"align":["left"]},{"label":["type_of_work"],"name":[2],"type":["chr"],"align":["left"]},{"label":["investment_value"],"name":[3],"type":["chr"],"align":["left"]},{"label":["vector"],"name":[4],"type":["chr"],"align":["left"]},{"label":["coordinate"],"name":[5],"type":["chr"],"align":["left"]},{"label":["geo"],"name":[6],"type":["chr"],"align":["left"]},{"label":["ref_date"],"name":[7],"type":["chr"],"align":["left"]},{"label":["value"],"name":[8],"type":["dbl"],"align":["right"]},{"label":["uom"],"name":[9],"type":["chr"],"align":["left"]}],"data":[{"1":"Total residential and non-residential","2":"New construction","3":"Unadjusted - constant","4":"v1014953975","5":"1.1.2.2","6":"Canada","7":"2010-01","8":"NA","9":"Dollars"},{"1":"Total residential and non-residential","2":"New construction","3":"Seasonally adjusted - current","4":"v1014910020","5":"1.1.2.3","6":"Canada","7":"2010-01","8":"NA","9":"Dollars"},{"1":"Total residential and non-residential","2":"New construction","3":"Seasonally adjusted - constant","4":"v1014910021","5":"1.1.2.4","6":"Canada","7":"2010-01","8":"NA","9":"Dollars"},{"1":"Total residential and non-residential","2":"Renovations total","3":"Unadjusted - constant","4":"v1014953977","5":"1.1.3.2","6":"Canada","7":"2010-01","8":"NA","9":"Dollars"},{"1":"Total residential and non-residential","2":"Renovations total","3":"Seasonally adjusted - current","4":"v1014910022","5":"1.1.3.3","6":"Canada","7":"2010-01","8":"NA","9":"Dollars"},{"1":"Total residential and non-residential","2":"Renovations total","3":"Seasonally adjusted - constant","4":"v1014910023","5":"1.1.3.4","6":"Canada","7":"2010-01","8":"NA","9":"Dollars"}],"options":{"columns":{"min":{},"max":[10],"total":[9]},"rows":{"min":[10],"max":[10],"total":[6]},"pages":{}}}
-  </script>
-</div>
-<!-- rnb-frame-end -->
-<!-- rnb-chunk-end -->
-<!-- rnb-text-begin -->
-<!-- rnb-text-end -->
-<!-- rnb-chunk-begin -->
-<!-- rnb-source-begin eyJkYXRhIjoiYGBgclxuc2V0LnNlZWQoMTIzKVxuZHBseXI6OnNhbXBsZV9uKG1pc3NpbmdfdmFsdWVzLCAxMClcbmBgYCJ9 -->
-<pre class="r"><code>set.seed(123)
-dplyr::sample_n(missing_values, 10)</code></pre>
-<!-- rnb-source-end -->
-<!-- rnb-frame-begin eyJtZXRhZGF0YSI6eyJjbGFzc2VzIjpbInRibF9kZiIsInRibCIsImRhdGEuZnJhbWUiXSwibmNvbCI6OSwibnJvdyI6MTB9LCJyZGYiOiJVa1JZTXdwWUNnQUFBQU1BQXdZREFBTUZBQUFBQUFWVlZFWXRPQUFBQkFJQUFBQUJBQVFBQ1FBQUFBRjRBQUFERXdBQUFBa0FBQUFRQUFBQUNnQUVBQWtBQUFBV1RXbHVhVzVuSUdGdVpDQmhaM0pwWTNWc2RIVnlaUUFFQUFrQUFBQVVSMjkyWlhKdWJXVnVkQ0JpZFdsc1pHbHVaM01BQkFBSkFBQUFDVUZ3WVhKMGJXVnVkQUFFQUFrQUFBQWdUWFZzZEdsd2JHVWdaSGRsYkd4cGJtY2dZblZwYkdScGJtY2dkRzkwWVd3QUJBQUpBQUFBRkVkdmRtVnlibTFsYm5RZ1luVnBiR1JwYm1kekFBUUFDUUFBQUJOSWIzUmxiSE1zSUhKbGMzUmhkWEpoYm5SekFBUUFDUUFBQUNCTmRXeDBhWEJzWlNCa2QyVnNiR2x1WnlCaWRXbHNaR2x1WnlCMGIzUmhiQUFFQUFrQUFBQVJUV2x1YjNJc0lHTnZiVzFsY21OcFlXd0FCQUFKQUFBQUVsTmphRzl2YkhNc0lHVmtkV05oZEdsdmJnQUVBQWtBQUFBUVZHOTBZV3dnYVc1a2RYTjBjbWxoYkFBQUFCQUFBQUFLQUFRQUNRQUFBQkJPWlhjZ1kyOXVjM1J5ZFdOMGFXOXVBQVFBQ1FBQUFCRlNaVzV2ZG1GMGFXOXVjeUIwYjNSaGJBQUVBQWtBQUFBUlEyOXVkbVZ5YzJsdmJuTWdkRzkwWVd3QUJBQUpBQUFBRVZKbGJtOTJZWFJwYjI1eklIUnZkR0ZzQUFRQUNRQUFBQk5QZEdobGNpQjBlWEJsY3lCdlppQjNiM0pyQUFRQUNRQUFBQkJPWlhjZ1kyOXVjM1J5ZFdOMGFXOXVBQVFBQ1FBQUFCRkRiMjUyWlhKemFXOXVjeUIwYjNSaGJBQUVBQWtBQUFBUlVtVnViM1poZEdsdmJuTWdkRzkwWVd3QUJBQUpBQUFBRVZKbGJtOTJZWFJwYjI1eklIUnZkR0ZzQUFRQUNRQUFBQkJPWlhjZ1kyOXVjM1J5ZFdOMGFXOXVBQUFBRUFBQUFBb0FCQUFKQUFBQUhsTmxZWE52Ym1Gc2JIa2dZV1JxZFhOMFpXUWdMU0JqYjI1emRHRnVkQUFFQUFrQUFBQWVVMlZoYzI5dVlXeHNlU0JoWkdwMWMzUmxaQ0F0SUdOdmJuTjBZVzUwQUFRQUNRQUFBQjFUWldGemIyNWhiR3g1SUdGa2FuVnpkR1ZrSUMwZ1kzVnljbVZ1ZEFBRUFBa0FBQUFkVTJWaGMyOXVZV3hzZVNCaFpHcDFjM1JsWkNBdElHTjFjbkpsYm5RQUJBQUpBQUFBSFZObFlYTnZibUZzYkhrZ1lXUnFkWE4wWldRZ0xTQmpkWEp5Wlc1MEFBUUFDUUFBQUI1VFpXRnpiMjVoYkd4NUlHRmthblZ6ZEdWa0lDMGdZMjl1YzNSaGJuUUFCQUFKQUFBQUhWTmxZWE52Ym1Gc2JIa2dZV1JxZFhOMFpXUWdMU0JqZFhKeVpXNTBBQVFBQ1FBQUFCMVRaV0Z6YjI1aGJHeDVJR0ZrYW5WemRHVmtJQzBnWTNWeWNtVnVkQUFFQUFrQUFBQWVVMlZoYzI5dVlXeHNlU0JoWkdwMWMzUmxaQ0F0SUdOdmJuTjBZVzUwQUFRQUNRQUFBQlZWYm1Ga2FuVnpkR1ZrSUMwZ1kyOXVjM1JoYm5RQUFBQVFBQUFBQ2dBRUFBa0FBQUFMZGpFd01UUTVNall3TkRjQUJBQUpBQUFBQzNZeE1ERTBPVEV3T1RjM0FBUUFDUUFBQUF0Mk1UQXhORGt5TXpjeU5nQUVBQWtBQUFBTGRqRXdNVFE1TWpRNU9UQUFCQUFKQUFBQUMzWXhNREUwT1RJeU9UWTRBQVFBQ1FBQUFBdDJNVEF4TkRreE56QTFNd0FFQUFrQUFBQUxkakV3TVRRNU1UUTJNalFBQkFBSkFBQUFDM1l4TURFME9UWTJOREV5QUFRQUNRQUFBQXQyTVRBeE5Ea3hOREUzTndBRUFBa0FBQUFMZGpFd01UUTVOVFE0T1RjQUFBQVFBQUFBQ2dBRUFBa0FBQUFKTlRBdU1UY3VNaTQwQUFRQUNRQUFBQWd6TGpNekxqTXVOQUFFQUFrQUFBQUpORE11TVRFdU5DNHpBQVFBQ1FBQUFBZzBOeTQ0TGpNdU13QUVBQWtBQUFBSk5EQXVNek11TlM0ekFBUUFDUUFBQUFreU1pNHlOUzR5TGpRQUJBQUpBQUFBQ0RFMUxqZ3VOQzR6QUFRQUNRQUFBQWt6TlM0eU55NHpMak1BQkFBSkFBQUFDVEV6TGpJNUxqTXVOQUFFQUFrQUFBQUlNeTR4TkM0eUxqSUFBQUFRQUFBQUNnQUVBQWtBQUFBVVVtVm5hVzVoTENCVFlYTnJZWFJqYUdWM1lXNEFCQUFKQUFBQUZGQnlhVzVqWlNCRlpIZGhjbVFnU1hOc1lXNWtBQVFBQ1FBQUFCOVRkQzRnUTJGMGFHRnlhVzVsY3kxT2FXRm5ZWEpoTENCUGJuUmhjbWx2QUFRQUNRQUFBQ2xOWVc1cGRHOWlZU0F0SUhSdmRHRnNJRU5sYm5OMWN5QnRaWFJ5YjNCdmJHbDBZVzRnWVhKbFlRQUVBQWtBQUFBUFQzTm9ZWGRoTENCUGJuUmhjbWx2QUFRQUNRQUFBQmxUWVdsdWRDQktiMmh1TENCT1pYY2dRbkoxYm5OM2FXTnJBQVFBQ1FBQUFDZERZVzVoWkdFZ0xTQjBiM1JoYkNCRFpXNXpkWE1nYldWMGNtOXdiMnhwZEdGdUlHRnlaV0VBQkFBSkFBQUFEMGQxWld4d2FDd2dUMjUwWVhKcGJ3QUVBQWtBQUFBVlRtOXlkR2gzWlhOMElGUmxjbkpwZEc5eWFXVnpBQVFBQ1FBQUFCUlFjbWx1WTJVZ1JXUjNZWEprSUVsemJHRnVaQUFBQUJBQUFBQUtBQVFBQ1FBQUFBY3lNREUxTFRFeEFBUUFDUUFBQUFjeU1ERTVMVEV3QUFRQUNRQUFBQWN5TURFd0xUQTFBQVFBQ1FBQUFBY3lNREU1TFRBM0FBUUFDUUFBQUFjeU1ERTRMVEF5QUFRQUNRQUFBQWN5TURFNUxURXhBQVFBQ1FBQUFBY3lNREl3TFRBMEFBUUFDUUFBQUFjeU1ERTBMVEV5QUFRQUNRQUFBQWN5TURFNUxURXdBQVFBQ1FBQUFBY3lNREUxTFRBM0FBQUFEZ0FBQUFwLzhBQUFBQUFIb24vd0FBQUFBQWVpZi9BQUFBQUFCNkovOEFBQUFBQUhvbi93QUFBQUFBZWlmL0FBQUFBQUI2Si84QUFBQUFBSG9uL3dBQUFBQUFlaWYvQUFBQUFBQjZKLzhBQUFBQUFIb2dBQUFCQUFBQUFLQUFRQUNRQUFBQWRFYjJ4c1lYSnpBQVFBQ1FBQUFBZEViMnhzWVhKekFBUUFDUUFBQUFkRWIyeHNZWEp6QUFRQUNRQUFBQWRFYjJ4c1lYSnpBQVFBQ1FBQUFBZEViMnhzWVhKekFBUUFDUUFBQUFkRWIyeHNZWEp6QUFRQUNRQUFBQWRFYjJ4c1lYSnpBQVFBQ1FBQUFBZEViMnhzWVhKekFBUUFDUUFBQUFkRWIyeHNZWEp6QUFRQUNRQUFBQWRFYjJ4c1lYSnpBQUFFQWdBQUFBRUFCQUFKQUFBQUJXNWhiV1Z6QUFBQUVBQUFBQWtBQkFBSkFBQUFFWFI1Y0dWZmIyWmZjM1J5ZFdOMGRYSmxBQVFBQ1FBQUFBeDBlWEJsWDI5bVgzZHZjbXNBQkFBSkFBQUFFR2x1ZG1WemRHMWxiblJmZG1Gc2RXVUFCQUFKQUFBQUJuWmxZM1J2Y2dBRUFBa0FBQUFLWTI5dmNtUnBibUYwWlFBRUFBa0FBQUFEWjJWdkFBUUFDUUFBQUFoeVpXWmZaR0YwWlFBRUFBa0FBQUFGZG1Gc2RXVUFCQUFKQUFBQUEzVnZiUUFBQkFJQUFBQUJBQVFBQ1FBQUFBbHliM2N1Ym1GdFpYTUFBQUFOQUFBQUFvQUFBQUQvLy8vMkFBQUVBZ0FBQUFFQUJBQUpBQUFBQldOc1lYTnpBQUFBRUFBQUFBRUFCQUFKQUFBQUNtUmhkR0V1Wm5KaGJXVUFBQUQrQUFBRUFnQUFBQUVBQkFBSkFBQUFCMjl3ZEdsdmJuTUFBQUlUQUFBQUJRQUFBQkFBQUFBQkFBUUFDUUFBQUFGeUFBQUFFQUFBQUFFQUJBQUpBQUFBRUhWdWJtRnRaV1F0WTJoMWJtc3RNVE1BQUFBS0FBQUFBUUFBQUFBQUFBQU5BQUFBQVFBQUFBb0FBQUFOQUFBQUFRQUFBQWtBQUFRQ0FBQUMvd0FBQUJBQUFBQUZBQVFBQ1FBQUFBWmxibWRwYm1VQUJBQUpBQUFBQld4aFltVnNBQVFBQ1FBQUFBNXliM2R1WVcxbGN5NXdjbWx1ZEFBRUFBa0FBQUFLY205M2N5NTBiM1JoYkFBRUFBa0FBQUFLWTI5c2N5NTBiM1JoYkFBQUFQNEFBQUQrIn0= -->
-<div data-pagedtable="false">
-<script data-pagedtable-source type="application/json">
-{"columns":[{"label":["type_of_structure"],"name":[1],"type":["chr"],"align":["left"]},{"label":["type_of_work"],"name":[2],"type":["chr"],"align":["left"]},{"label":["investment_value"],"name":[3],"type":["chr"],"align":["left"]},{"label":["vector"],"name":[4],"type":["chr"],"align":["left"]},{"label":["coordinate"],"name":[5],"type":["chr"],"align":["left"]},{"label":["geo"],"name":[6],"type":["chr"],"align":["left"]},{"label":["ref_date"],"name":[7],"type":["chr"],"align":["left"]},{"label":["value"],"name":[8],"type":["dbl"],"align":["right"]},{"label":["uom"],"name":[9],"type":["chr"],"align":["left"]}],"data":[{"1":"Mining and agriculture","2":"New construction","3":"Seasonally adjusted - constant","4":"v1014926047","5":"50.17.2.4","6":"Regina, Saskatchewan","7":"2015-11","8":"NA","9":"Dollars"},{"1":"Government buildings","2":"Renovations total","3":"Seasonally adjusted - constant","4":"v1014910977","5":"3.33.3.4","6":"Prince Edward Island","7":"2019-10","8":"NA","9":"Dollars"},{"1":"Apartment","2":"Conversions total","3":"Seasonally adjusted - current","4":"v1014923726","5":"43.11.4.3","6":"St. Catharines-Niagara, Ontario","7":"2010-05","8":"NA","9":"Dollars"},{"1":"Multiple dwelling building total","2":"Renovations total","3":"Seasonally adjusted - current","4":"v1014924990","5":"47.8.3.3","6":"Manitoba - total Census metropolitan area","7":"2019-07","8":"NA","9":"Dollars"},{"1":"Government buildings","2":"Other types of work","3":"Seasonally adjusted - current","4":"v1014922968","5":"40.33.5.3","6":"Oshawa, Ontario","7":"2018-02","8":"NA","9":"Dollars"},{"1":"Hotels, restaurants","2":"New construction","3":"Seasonally adjusted - constant","4":"v1014917053","5":"22.25.2.4","6":"Saint John, New Brunswick","7":"2019-11","8":"NA","9":"Dollars"},{"1":"Multiple dwelling building total","2":"Conversions total","3":"Seasonally adjusted - current","4":"v1014914624","5":"15.8.4.3","6":"Canada - total Census metropolitan area","7":"2020-04","8":"NA","9":"Dollars"},{"1":"Minor, commercial","2":"Renovations total","3":"Seasonally adjusted - current","4":"v1014966412","5":"35.27.3.3","6":"Guelph, Ontario","7":"2014-12","8":"NA","9":"Dollars"},{"1":"Schools, education","2":"Renovations total","3":"Seasonally adjusted - constant","4":"v1014914177","5":"13.29.3.4","6":"Northwest Territories","7":"2019-10","8":"NA","9":"Dollars"},{"1":"Total industrial","2":"New construction","3":"Unadjusted - constant","4":"v1014954897","5":"3.14.2.2","6":"Prince Edward Island","7":"2015-07","8":"NA","9":"Dollars"}],"options":{"columns":{"min":{},"max":[10],"total":[9]},"rows":{"min":[10],"max":[10],"total":[10]},"pages":{}}}
-  </script>
-</div>
-<!-- rnb-frame-end -->
-<!-- rnb-chunk-end -->
-<!-- rnb-text-begin -->
-</div>
-</div>
-<div id="step-iii-univariate-distributions" class="section level1">
-<h1>Step III: Univariate Distributions</h1>
-<div id="type-of-structure" class="section level3">
-<h3>Type of Structure</h3>
-<p>Important categories: “Total residential and non-residential”, “Total residential”, “Total commercial”</p>
-<!-- rnb-text-end -->
-<!-- rnb-chunk-begin -->
-<!-- rnb-source-begin eyJkYXRhIjoiYGBgclxudW5pcXVlKGludmVzdG1lbnQkdHlwZV9vZl9zdHJ1Y3R1cmUpXG5gYGAifQ== -->
-<pre class="r"><code>unique(investment$type_of_structure)</code></pre>
-<!-- rnb-source-end -->
-<!-- rnb-output-begin eyJkYXRhIjoiIFsxXSBcIlRvdGFsIHJlc2lkZW50aWFsIGFuZCBub24tcmVzaWRlbnRpYWxcIiBcIlRvdGFsIHJlc2lkZW50aWFsXCIgICAgICAgICAgICAgICAgICAgIFxuIFszXSBcIlNpbmdsZSBkd2VsbGluZyBidWlsZGluZyB0b3RhbFwiICAgICAgICBcIlNpbmdsZVwiICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgIFxuIFs1XSBcIk1vYmlsZSBob21lXCIgICAgICAgICAgICAgICAgICAgICAgICAgICBcIkNvdHRhZ2VcIiAgICAgICAgICAgICAgICAgICAgICAgICAgICAgIFxuIFs3XSBcIk1pbm9yLCBTaW5nbGVcIiAgICAgICAgICAgICAgICAgICAgICAgICBcIk11bHRpcGxlIGR3ZWxsaW5nIGJ1aWxkaW5nIHRvdGFsXCIgICAgIFxuIFs5XSBcIkRvdWJsZVwiICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICBcIlJvd1wiICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgIFxuWzExXSBcIkFwYXJ0bWVudFwiICAgICAgICAgICAgICAgICAgICAgICAgICAgICBcIk1pbm9yLCBNdWx0aXBsZVwiICAgICAgICAgICAgICAgICAgICAgIFxuWzEzXSBcIlRvdGFsIG5vbi1yZXNpZGVudGlhbFwiICAgICAgICAgICAgICAgICBcIlRvdGFsIGluZHVzdHJpYWxcIiAgICAgICAgICAgICAgICAgICAgIFxuWzE1XSBcIkZhY3RvcmllcywgcGxhbnRzXCIgICAgICAgICAgICAgICAgICAgICBcIlRyYW5zcG9ydGF0aW9uLCB1dGlsaXRpZXNcIiAgICAgICAgICAgIFxuWzE3XSBcIk1pbmluZyBhbmQgYWdyaWN1bHR1cmVcIiAgICAgICAgICAgICAgICBcIk1pbm9yLCBpbmR1c3RyaWFsXCIgICAgICAgICAgICAgICAgICAgIFxuWzE5XSBcIlRvdGFsIGNvbW1lcmNpYWxcIiAgICAgICAgICAgICAgICAgICAgICBcIlRyYWRlIGFuZCBzZXJ2aWNlc1wiICAgICAgICAgICAgICAgICAgIFxuWzIxXSBcIldhcmVob3VzZXNcIiAgICAgICAgICAgICAgICAgICAgICAgICAgICBcIlNlcnZpY2Ugc3RhdGlvbnNcIiAgICAgICAgICAgICAgICAgICAgIFxuWzIzXSBcIk9mZmljZSBidWlsZGluZ3NcIiAgICAgICAgICAgICAgICAgICAgICBcIlJlY3JlYXRpb25cIiAgICAgICAgICAgICAgICAgICAgICAgICAgIFxuWzI1XSBcIkhvdGVscywgcmVzdGF1cmFudHNcIiAgICAgICAgICAgICAgICAgICBcIkxhYm9yYXRvcmllc1wiICAgICAgICAgICAgICAgICAgICAgICAgIFxuWzI3XSBcIk1pbm9yLCBjb21tZXJjaWFsXCIgICAgICAgICAgICAgICAgICAgICBcIlRvdGFsIGluc3RpdHV0aW9uYWwgYW5kIGdvdmVybm1lbnRhbFwiIFxuWzI5XSBcIlNjaG9vbHMsIGVkdWNhdGlvblwiICAgICAgICAgICAgICAgICAgICBcIk1lZGljYWwsIGhvc3BpdGFsXCIgICAgICAgICAgICAgICAgICAgIFxuWzMxXSBcIldlbGZhcmUsIGhvbWVcIiAgICAgICAgICAgICAgICAgICAgICAgICBcIkNodXJjaGVzLCByZWxpZ2lvblwiICAgICAgICAgICAgICAgICAgIFxuWzMzXSBcIkdvdmVybm1lbnQgYnVpbGRpbmdzXCIgICAgICAgICAgICAgICAgICBcIk1pbm9yLCBpbnN0aXR1dGlvbmFsIGFuZCBnb3Zlcm5tZW50XCIgIFxuIn0= -->
-<pre><code> [1] &quot;Total residential and non-residential&quot; &quot;Total residential&quot;                    
- [3] &quot;Single dwelling building total&quot;        &quot;Single&quot;                               
- [5] &quot;Mobile home&quot;                           &quot;Cottage&quot;                              
- [7] &quot;Minor, Single&quot;                         &quot;Multiple dwelling building total&quot;     
- [9] &quot;Double&quot;                                &quot;Row&quot;                                  
-[11] &quot;Apartment&quot;                             &quot;Minor, Multiple&quot;                      
-[13] &quot;Total non-residential&quot;                 &quot;Total industrial&quot;                     
-[15] &quot;Factories, plants&quot;                     &quot;Transportation, utilities&quot;            
-[17] &quot;Mining and agriculture&quot;                &quot;Minor, industrial&quot;                    
-[19] &quot;Total commercial&quot;                      &quot;Trade and services&quot;                   
-[21] &quot;Warehouses&quot;                            &quot;Service stations&quot;                     
-[23] &quot;Office buildings&quot;                      &quot;Recreation&quot;                           
-[25] &quot;Hotels, restaurants&quot;                   &quot;Laboratories&quot;                         
-[27] &quot;Minor, commercial&quot;                     &quot;Total institutional and governmental&quot; 
-[29] &quot;Schools, education&quot;                    &quot;Medical, hospital&quot;                    
-[31] &quot;Welfare, home&quot;                         &quot;Churches, religion&quot;                   
-[33] &quot;Government buildings&quot;                  &quot;Minor, institutional and government&quot;  </code></pre>
-<!-- rnb-output-end -->
-<!-- rnb-chunk-end -->
-<!-- rnb-text-begin -->
-<!-- rnb-text-end -->
-<!-- rnb-chunk-begin -->
-<!-- rnb-source-begin eyJkYXRhIjoiYGBgclxudGFibGUoaW52ZXN0bWVudCR0eXBlX29mX3N0cnVjdHVyZSlcbmBgYCJ9 -->
-<pre class="r"><code>table(investment$type_of_structure)</code></pre>
-<!-- rnb-source-end -->
-<!-- rnb-output-begin eyJkYXRhIjoiXG4gICAgICAgICAgICAgICAgICAgICAgICAgICAgQXBhcnRtZW50ICAgICAgICAgICAgICAgICAgICBDaHVyY2hlcywgcmVsaWdpb24gXG4gICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgMTUzNjAwICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAxNTM2MDAgXG4gICAgICAgICAgICAgICAgICAgICAgICAgICAgICBDb3R0YWdlICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICBEb3VibGUgXG4gICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgMTUzNjAwICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAxNTM2MDAgXG4gICAgICAgICAgICAgICAgICAgIEZhY3RvcmllcywgcGxhbnRzICAgICAgICAgICAgICAgICAgR292ZXJubWVudCBidWlsZGluZ3MgXG4gICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgMTUzNjAwICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAxNTM2MDAgXG4gICAgICAgICAgICAgICAgICBIb3RlbHMsIHJlc3RhdXJhbnRzICAgICAgICAgICAgICAgICAgICAgICAgICBMYWJvcmF0b3JpZXMgXG4gICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgMTUzNjAwICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAxNTM2MDAgXG4gICAgICAgICAgICAgICAgICAgIE1lZGljYWwsIGhvc3BpdGFsICAgICAgICAgICAgICAgIE1pbmluZyBhbmQgYWdyaWN1bHR1cmUgXG4gICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgMTUzNjAwICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAxNTM2MDAgXG4gICAgICAgICAgICAgICAgICAgIE1pbm9yLCBjb21tZXJjaWFsICAgICAgICAgICAgICAgICAgICAgTWlub3IsIGluZHVzdHJpYWwgXG4gICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgMTUzNjAwICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAxNTM2MDAgXG4gIE1pbm9yLCBpbnN0aXR1dGlvbmFsIGFuZCBnb3Zlcm5tZW50ICAgICAgICAgICAgICAgICAgICAgICBNaW5vciwgTXVsdGlwbGUgXG4gICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgMTUzNjAwICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAxNTM2MDAgXG4gICAgICAgICAgICAgICAgICAgICAgICBNaW5vciwgU2luZ2xlICAgICAgICAgICAgICAgICAgICAgICAgICAgTW9iaWxlIGhvbWUgXG4gICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgMTUzNjAwICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAxNTM2MDAgXG4gICAgIE11bHRpcGxlIGR3ZWxsaW5nIGJ1aWxkaW5nIHRvdGFsICAgICAgICAgICAgICAgICAgICAgIE9mZmljZSBidWlsZGluZ3MgXG4gICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgMTUzNjAwICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAxNTM2MDAgXG4gICAgICAgICAgICAgICAgICAgICAgICAgICBSZWNyZWF0aW9uICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICBSb3cgXG4gICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgMTUzNjAwICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAxNTM2MDAgXG4gICAgICAgICAgICAgICAgICAgU2Nob29scywgZWR1Y2F0aW9uICAgICAgICAgICAgICAgICAgICAgIFNlcnZpY2Ugc3RhdGlvbnMgXG4gICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgMTUzNjAwICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAxNTM2MDAgXG4gICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgU2luZ2xlICAgICAgICBTaW5nbGUgZHdlbGxpbmcgYnVpbGRpbmcgdG90YWwgXG4gICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgMTUzNjAwICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAxNTM2MDAgXG4gICAgICAgICAgICAgICAgICAgICBUb3RhbCBjb21tZXJjaWFsICAgICAgICAgICAgICAgICAgICAgIFRvdGFsIGluZHVzdHJpYWwgXG4gICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgMTUzNjAwICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAxNTM2MDAgXG4gVG90YWwgaW5zdGl0dXRpb25hbCBhbmQgZ292ZXJubWVudGFsICAgICAgICAgICAgICAgICBUb3RhbCBub24tcmVzaWRlbnRpYWwgXG4gICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgMTUzNjAwICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAxNTM2MDAgXG4gICAgICAgICAgICAgICAgICAgIFRvdGFsIHJlc2lkZW50aWFsIFRvdGFsIHJlc2lkZW50aWFsIGFuZCBub24tcmVzaWRlbnRpYWwgXG4gICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgMTUzNjAwICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAxNTM2MDAgXG4gICAgICAgICAgICAgICAgICAgVHJhZGUgYW5kIHNlcnZpY2VzICAgICAgICAgICAgIFRyYW5zcG9ydGF0aW9uLCB1dGlsaXRpZXMgXG4gICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgMTUzNjAwICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAxNTM2MDAgXG4gICAgICAgICAgICAgICAgICAgICAgICAgICBXYXJlaG91c2VzICAgICAgICAgICAgICAgICAgICAgICAgIFdlbGZhcmUsIGhvbWUgXG4gICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgMTUzNjAwICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAxNTM2MDAgXG4ifQ== -->
-<pre><code>
-                            Apartment                    Churches, religion 
-                               153600                                153600 
-                              Cottage                                Double 
-                               153600                                153600 
-                    Factories, plants                  Government buildings 
-                               153600                                153600 
-                  Hotels, restaurants                          Laboratories 
-                               153600                                153600 
-                    Medical, hospital                Mining and agriculture 
-                               153600                                153600 
-                    Minor, commercial                     Minor, industrial 
-                               153600                                153600 
-  Minor, institutional and government                       Minor, Multiple 
-                               153600                                153600 
-                        Minor, Single                           Mobile home 
-                               153600                                153600 
-     Multiple dwelling building total                      Office buildings 
-                               153600                                153600 
-                           Recreation                                   Row 
-                               153600                                153600 
-                   Schools, education                      Service stations 
-                               153600                                153600 
-                               Single        Single dwelling building total 
-                               153600                                153600 
-                     Total commercial                      Total industrial 
-                               153600                                153600 
- Total institutional and governmental                 Total non-residential 
-                               153600                                153600 
-                    Total residential Total residential and non-residential 
-                               153600                                153600 
-                   Trade and services             Transportation, utilities 
-                               153600                                153600 
-                           Warehouses                         Welfare, home 
-                               153600                                153600 </code></pre>
-<!-- rnb-output-end -->
-<!-- rnb-chunk-end -->
-<!-- rnb-text-begin -->
-<p>All 3 important time series have the same length.</p>
-<!-- rnb-text-end -->
-<!-- rnb-chunk-begin -->
-<!-- rnb-source-begin eyJkYXRhIjoiYGBgclxuaW52ZXN0bWVudCAlPiUgc2VsZWN0KHR5cGVfb2Zfc3RydWN0dXJlKSAlPiVcbiAgZmlsdGVyKHR5cGVfb2Zfc3RydWN0dXJlICVpbiUgYyhcIlRvdGFsIHJlc2lkZW50aWFsIGFuZCBub24tcmVzaWRlbnRpYWxcIixcbiAgICAgICAgICAgICAgICAgICAgICAgIFwiVG90YWwgcmVzaWRlbnRpYWxcIiwgXCJUb3RhbCBjb21tZXJjaWFsXCIpKSAlPiVcbiAgdGFibGUoKVxuYGBgIn0= -->
-<pre class="r"><code>investment %&gt;% select(type_of_structure) %&gt;%
-  filter(type_of_structure %in% c(&quot;Total residential and non-residential&quot;,
-                        &quot;Total residential&quot;, &quot;Total commercial&quot;)) %&gt;%
-  table()</code></pre>
-<!-- rnb-source-end -->
-<!-- rnb-output-begin eyJkYXRhIjoiLlxuICAgICAgICAgICAgICAgICAgICAgVG90YWwgY29tbWVyY2lhbCAgICAgICAgICAgICAgICAgICAgIFRvdGFsIHJlc2lkZW50aWFsIFxuICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgIDE1MzYwMCAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgMTUzNjAwIFxuVG90YWwgcmVzaWRlbnRpYWwgYW5kIG5vbi1yZXNpZGVudGlhbCBcbiAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAxNTM2MDAgXG4ifQ== -->
-<pre><code>.
-                     Total commercial                     Total residential 
-                               153600                                153600 
-Total residential and non-residential 
-                               153600 </code></pre>
-<!-- rnb-output-end -->
-<!-- rnb-chunk-end -->
-<!-- rnb-text-begin -->
-</div>
-<div id="type-of-work" class="section level3">
-<h3>Type of Work</h3>
-<p>Important category: “Types of work, total”</p>
-<!-- rnb-text-end -->
-<!-- rnb-chunk-begin -->
-<!-- rnb-source-begin eyJkYXRhIjoiYGBgclxudW5pcXVlKGludmVzdG1lbnQkdHlwZV9vZl93b3JrKVxuYGBgIn0= -->
-<pre class="r"><code>unique(investment$type_of_work)</code></pre>
-<!-- rnb-source-end -->
-<!-- rnb-output-begin eyJkYXRhIjoiWzFdIFwiVHlwZXMgb2Ygd29yaywgdG90YWxcIiBcIk5ldyBjb25zdHJ1Y3Rpb25cIiAgICAgXCJSZW5vdmF0aW9ucyB0b3RhbFwiICAgIFwiQ29udmVyc2lvbnMgdG90YWxcIiAgIFxuWzVdIFwiT3RoZXIgdHlwZXMgb2Ygd29ya1wiIFxuIn0= -->
-<pre><code>[1] &quot;Types of work, total&quot; &quot;New construction&quot;     &quot;Renovations total&quot;    &quot;Conversions total&quot;   
-[5] &quot;Other types of work&quot; </code></pre>
-<!-- rnb-output-end -->
-<!-- rnb-chunk-end -->
-<!-- rnb-text-begin -->
-<!-- rnb-text-end -->
-<!-- rnb-chunk-begin -->
-<!-- rnb-source-begin eyJkYXRhIjoiYGBgclxudGFibGUoaW52ZXN0bWVudCR0eXBlX29mX3dvcmspXG5gYGAifQ== -->
-<pre class="r"><code>table(investment$type_of_work)</code></pre>
-<!-- rnb-source-end -->
-<!-- rnb-output-begin eyJkYXRhIjoiXG4gICBDb252ZXJzaW9ucyB0b3RhbCAgICAgTmV3IGNvbnN0cnVjdGlvbiAgT3RoZXIgdHlwZXMgb2Ygd29yayAgICBSZW5vdmF0aW9ucyB0b3RhbCBcbiAgICAgICAgICAgICAxMDQ0NDgwICAgICAgICAgICAgICAxMDQ0NDgwICAgICAgICAgICAgICAxMDQ0NDgwICAgICAgICAgICAgICAxMDQ0NDgwIFxuVHlwZXMgb2Ygd29yaywgdG90YWwgXG4gICAgICAgICAgICAgMTA0NDQ4MCBcbiJ9 -->
-<pre><code>
-   Conversions total     New construction  Other types of work    Renovations total 
-             1044480              1044480              1044480              1044480 
-Types of work, total 
-             1044480 </code></pre>
-<!-- rnb-output-end -->
-<!-- rnb-chunk-end -->
-<!-- rnb-text-begin -->
-<!-- rnb-text-end -->
-<!-- rnb-chunk-begin -->
-<!-- rnb-source-begin eyJkYXRhIjoiYGBgclxubGFwcGx5KHRhYmxlKGludmVzdG1lbnQkdHlwZV9vZl93b3JrKSwgXG4gICAgICAgZnVuY3Rpb24oeCkgeC9hcy5udW1lcmljKG5yb3coaW52ZXN0bWVudCkpKVxuYGBgIn0= -->
-<pre class="r"><code>lapply(table(investment$type_of_work), 
-       function(x) x/as.numeric(nrow(investment)))</code></pre>
-<!-- rnb-source-end -->
-<!-- rnb-output-begin eyJkYXRhIjoiJGBDb252ZXJzaW9ucyB0b3RhbGBcblsxXSAwLjJcblxuJGBOZXcgY29uc3RydWN0aW9uYFxuWzFdIDAuMlxuXG4kYE90aGVyIHR5cGVzIG9mIHdvcmtgXG5bMV0gMC4yXG5cbiRgUmVub3ZhdGlvbnMgdG90YWxgXG5bMV0gMC4yXG5cbiRgVHlwZXMgb2Ygd29yaywgdG90YWxgXG5bMV0gMC4yXG4ifQ== -->
-<pre><code>$`Conversions total`
-[1] 0.2
-
-$`New construction`
-[1] 0.2
-
-$`Other types of work`
-[1] 0.2
-
-$`Renovations total`
-[1] 0.2
-
-$`Types of work, total`
-[1] 0.2</code></pre>
-<!-- rnb-output-end -->
-<!-- rnb-chunk-end -->
-<!-- rnb-text-begin -->
-</div>
-<div id="investment-value" class="section level3">
-<h3>Investment Value</h3>
-<p>Distinguishes between seasonal adjusted and unajusted, constant and current. On the StatCan website defines the difference: “Deflation: The methodology of transforming current dollar values to constant dollar values (deflation process) has been updated from 2007=100 to 2012=100.” Steve’s comment is to use current dollars for now as we can transform them into constant dollars later.</p>
-<!-- rnb-text-end -->
-<!-- rnb-chunk-begin -->
-<!-- rnb-source-begin eyJkYXRhIjoiYGBgclxudW5pcXVlKGludmVzdG1lbnQkaW52ZXN0bWVudF92YWx1ZSlcbmBgYCJ9 -->
-<pre class="r"><code>unique(investment$investment_value)</code></pre>
-<!-- rnb-source-end -->
-<!-- rnb-output-begin eyJkYXRhIjoiWzFdIFwiVW5hZGp1c3RlZCAtIGN1cnJlbnRcIiAgICAgICAgICAgXCJVbmFkanVzdGVkIC0gY29uc3RhbnRcIiAgICAgICAgICBcIlNlYXNvbmFsbHkgYWRqdXN0ZWQgLSBjdXJyZW50XCIgIFwiU2Vhc29uYWxseSBhZGp1c3RlZCAtIGNvbnN0YW50XCJcbiJ9 -->
-<pre><code>[1] &quot;Unadjusted - current&quot;           &quot;Unadjusted - constant&quot;          &quot;Seasonally adjusted - current&quot;  &quot;Seasonally adjusted - constant&quot;</code></pre>
-<!-- rnb-output-end -->
-<!-- rnb-chunk-end -->
-<!-- rnb-text-begin -->
-<!-- rnb-text-end -->
-<!-- rnb-chunk-begin -->
-<!-- rnb-source-begin eyJkYXRhIjoiYGBgclxubGFwcGx5KHRhYmxlKGludmVzdG1lbnQkaW52ZXN0bWVudF92YWx1ZSksXG4gICAgICAgZnVuY3Rpb24oeCkgeCAvIGFzLm51bWVyaWMobnJvdyhpbnZlc3RtZW50KSkpXG5gYGAifQ== -->
-<pre class="r"><code>lapply(table(investment$investment_value),
-       function(x) x / as.numeric(nrow(investment)))</code></pre>
-<!-- rnb-source-end -->
-<!-- rnb-chunk-end -->
-<!-- rnb-text-begin -->
-</div>
-<div id="time-span" class="section level3">
-<h3>Time Span</h3>
-<p>Time span available is from 1/2010 to 8/2020. 8/2020 is expected due to the publication lag of two months. Same number of data points per month for the whole time span.</p>
-<!-- rnb-text-end -->
-<!-- rnb-chunk-begin -->
-<!-- rnb-source-begin eyJkYXRhIjoiYGBgclxudGFibGUoaW52ZXN0bWVudCRyZWZfZGF0ZSlcbmBgYCJ9 -->
-<pre class="r"><code>table(investment$ref_date)</code></pre>
-<!-- rnb-source-end -->
-<!-- rnb-chunk-end -->
-<!-- rnb-text-begin -->
-<!-- rnb-text-end -->
-<!-- rnb-chunk-begin -->
-<!-- rnb-source-begin eyJkYXRhIjoiYGBgclxudW5pcXVlKHRhYmxlKGludmVzdG1lbnQkcmVmX2RhdGUpKVxuYGBgIn0= -->
-<pre class="r"><code>unique(table(investment$ref_date))</code></pre>
-<!-- rnb-source-end -->
-<!-- rnb-chunk-end -->
-<!-- rnb-text-begin -->
-</div>
-<div id="geographic-information" class="section level3">
-<h3>Geographic Information</h3>
-<p>Geographic information is avialable on the country level (“Canada”), on the province level and on some cases, the city areas.</p>
-<!-- rnb-text-end -->
-<!-- rnb-chunk-begin -->
-<!-- rnb-source-begin eyJkYXRhIjoiYGBgclxudW5pcXVlKGludmVzdG1lbnQkZ2VvKVxuYGBgIn0= -->
-<pre class="r"><code>unique(investment$geo)</code></pre>
-<!-- rnb-source-end -->
-<!-- rnb-chunk-end -->
-<!-- rnb-text-begin -->
-<p>Available provinces extracted from the above list:</p>
-<!-- rnb-text-end -->
-<!-- rnb-chunk-begin -->
-<!-- rnb-source-begin eyJkYXRhIjoiYGBgclxucHJvdmluY2VfbmFtZXMgPC0gYyhcIkJyaXRpc2ggQ29sdW1iaWFcIiwgXCJOb3ZhIFNjb3RpYVwiLCBcIk51bmF2dXRcIiwgXCJRdWViZWNcIixcbiAgICAgICAgICAgICAgICAgICAgXCJTYXNrYXRjaGV3YW5cIixcbiAgICAgICAgICAgICAgICAgICAgXCJBbGJlcnRhXCIsIFwiTWFuaXRvYmFcIiwgXCJOZXcgQnJ1bnN3aWNrXCIsXG4gICAgICAgICAgICAgICAgICAgIFwiTmV3Zm91bmRsYW5kIGFuZCBMYWJyYWRvclwiLCBcIk5vcnRod2VzdCBUZXJyaXRvcmllc1wiLFxuICAgICAgICAgICAgICAgICAgICBcIk9udGFyaW9cIiwgXCJQcmluY2UgRWR3YXJkIElzbGFuZFwiLCBcIll1a29uXCIpXG5sZW5ndGgocHJvdmluY2VfbmFtZXMpXG5gYGAifQ== -->
-<pre class="r"><code>province_names &lt;- c(&quot;British Columbia&quot;, &quot;Nova Scotia&quot;, &quot;Nunavut&quot;, &quot;Quebec&quot;,
-                    &quot;Saskatchewan&quot;,
-                    &quot;Alberta&quot;, &quot;Manitoba&quot;, &quot;New Brunswick&quot;,
-                    &quot;Newfoundland and Labrador&quot;, &quot;Northwest Territories&quot;,
-                    &quot;Ontario&quot;, &quot;Prince Edward Island&quot;, &quot;Yukon&quot;)
-length(province_names)</code></pre>
-<!-- rnb-source-end -->
-<!-- rnb-chunk-end -->
-<!-- rnb-text-begin -->
-<blockquote>
-<p>All 13 provinces and territories available.</p>
-</blockquote>
-</div>
-<div id="units" class="section level3">
-<h3>Units</h3>
-<p>All data is in dollars.</p>
-<!-- rnb-text-end -->
-<!-- rnb-chunk-begin -->
-<!-- rnb-source-begin eyJkYXRhIjoiYGBgclxudW5pcXVlKGludmVzdG1lbnQkdW9tKVxuYGBgIn0= -->
-<pre class="r"><code>unique(investment$uom)</code></pre>
-<!-- rnb-source-end -->
-<!-- rnb-chunk-end -->
-<!-- rnb-text-begin -->
-</div>
-<div id="vector-and-coordinates" class="section level3">
-<h3>Vector and Coordinates</h3>
-<p>Both are used to subset the data to create series of data. Vectors allow to choose the right time series for our purposes</p>
-<!-- rnb-text-end -->
-<!-- rnb-chunk-begin -->
-<!-- rnb-source-begin eyJkYXRhIjoiYGBgclxubGVuZ3RoKHVuaXF1ZShpbnZlc3RtZW50JHZlY3RvcikpXG5gYGAifQ== -->
-<pre class="r"><code>length(unique(investment$vector))</code></pre>
-<!-- rnb-source-end -->
-<!-- rnb-chunk-end -->
-<!-- rnb-text-begin -->
-</div>
-<div id="step-iv-multivariate-analysis" class="section level2">
-<h2>Step IV: Multivariate Analysis</h2>
-<p>Subselect relevant data and compare time series by categories.</p>
-<div id="total" class="section level3">
-<h3>Total</h3>
-<!-- rnb-text-end -->
-<!-- rnb-chunk-begin -->
-<!-- rnb-source-begin eyJkYXRhIjoiYGBgclxudG90YWwgPC0gaW52ZXN0bWVudCAlPiVcbiAgZmlsdGVyKHR5cGVfb2Zfc3RydWN0dXJlID09IFwiVG90YWwgcmVzaWRlbnRpYWwgYW5kIG5vbi1yZXNpZGVudGlhbFwiKSAlPiVcbiAgICBmaWx0ZXIodHlwZV9vZl93b3JrID09IFwiVHlwZXMgb2Ygd29yaywgdG90YWxcIikgJT4lXG4gICAgICBmaWx0ZXIoaW52ZXN0bWVudF92YWx1ZSA9PSBcIlVuYWRqdXN0ZWQgLSBjdXJyZW50XCIpICU+JVxuICAgICAgICBmaWx0ZXIoZ2VvID09IFwiQ2FuYWRhXCIpXG5gYGAifQ== -->
-<pre class="r"><code>total &lt;- investment %&gt;%
-  filter(type_of_structure == &quot;Total residential and non-residential&quot;) %&gt;%
-    filter(type_of_work == &quot;Types of work, total&quot;) %&gt;%
-      filter(investment_value == &quot;Unadjusted - current&quot;) %&gt;%
-        filter(geo == &quot;Canada&quot;)</code></pre>
-<!-- rnb-source-end -->
-<!-- rnb-chunk-end -->
-<!-- rnb-text-begin -->
-<!-- rnb-text-end -->
-<!-- rnb-chunk-begin -->
-<!-- rnb-source-begin eyJkYXRhIjoiYGBgclxubnJvdyh0b3RhbClcbmBgYCJ9 -->
-<pre class="r"><code>nrow(total)</code></pre>
-<!-- rnb-source-end -->
-<!-- rnb-chunk-end -->
-<!-- rnb-text-begin -->
-<p>time series <code>total</code> corresponds to one datapoint per month.</p>
-<!-- rnb-text-end -->
-<!-- rnb-chunk-begin -->
-<!-- rnb-source-begin eyJkYXRhIjoiYGBgclxubGFwcGx5KHRvdGFsLCB1bmlxdWUpXG5gYGAifQ== -->
-<pre class="r"><code>lapply(total, unique)</code></pre>
-<!-- rnb-source-end -->
-<!-- rnb-chunk-end -->
-<!-- rnb-text-begin -->
-<p>No missing values.</p>
-<!-- rnb-text-end -->
-<!-- rnb-chunk-begin -->
-<!-- rnb-source-begin eyJkYXRhIjoiYGBgclxuc3VtKGlzLm5hKHRvdGFsKSlcbmBgYCJ9 -->
-<pre class="r"><code>sum(is.na(total))</code></pre>
-<!-- rnb-source-end -->
-<!-- rnb-chunk-end -->
-<!-- rnb-text-begin -->
-<p>Findings of total time series * Time series reveals clear trend and seasonal effects. * Extreme drop due to Covid-19. * Peaks pronounced in July/August, with a second weak peak around November * The august value is clearly higher than what one can infer from the trend of previous years</p>
-<!-- rnb-text-end -->
-<!-- rnb-chunk-begin -->
-<!-- rnb-source-begin eyJkYXRhIjoiYGBgclxudG90YWwkdHlwZV9vZl9zdHJ1Y3R1cmUgPC0gXCJUb3RhbFwiXG5gYGAifQ== -->
-<pre class="r"><code>total$type_of_structure &lt;- &quot;Total&quot;</code></pre>
-<!-- rnb-source-end -->
-<!-- rnb-chunk-end -->
-<!-- rnb-text-begin -->
-<!-- rnb-text-end -->
-<!-- rnb-chunk-begin -->
-<!-- rnb-source-begin eyJkYXRhIjoiYGBgclxucCA8LSBnZ3Bsb3QoZGF0YT10b3RhbCwgYWVzKHg9YXMueWVhcm1vbihyZWZfZGF0ZSksIHk9dmFsdWUpKSArIGdlb21fbGluZSgpICtcbiAgICAgICAgICAgICAgbGFicyh0aXRsZSA9IFwiVG90YWwgSW52ZXN0bWVudFwiLCBcbiAgICAgICAgICAgICAgICAgICB4ID0gXCJyZWZlcmVuY2UgbW9udGhcIiwgeSA9IFwidmFsdWUgKGRvbGxhcnMpXCIpXG5nZ3Bsb3RseShwKVxuYGBgIn0= -->
-<pre class="r"><code>p &lt;- ggplot(data=total, aes(x=as.yearmon(ref_date), y=value)) + geom_line() +
-              labs(title = &quot;Total Investment&quot;, 
-                   x = &quot;reference month&quot;, y = &quot;value (dollars)&quot;)
-ggplotly(p)</code></pre>
-<!-- rnb-source-end -->
-<!-- rnb-chunk-end -->
-<!-- rnb-text-begin -->
-</div>
-<div id="comparing-residential-and-non-residential" class="section level3">
-<h3>Comparing Residential and Non-Residential</h3>
-<!-- rnb-text-end -->
-<!-- rnb-chunk-begin -->
-<!-- rnb-source-begin eyJkYXRhIjoiYGBgclxudG90YWxfcmVzX2NvbSA8LSBpbnZlc3RtZW50ICU+JVxuICBmaWx0ZXIodHlwZV9vZl9zdHJ1Y3R1cmUgJWluJSBjKFwiVG90YWwgcmVzaWRlbnRpYWxcIiwgXCJUb3RhbCBjb21tZXJjaWFsXCIpKSAlPiVcbiAgICBmaWx0ZXIodHlwZV9vZl93b3JrID09IFwiVHlwZXMgb2Ygd29yaywgdG90YWxcIikgJT4lXG4gICAgICBmaWx0ZXIoaW52ZXN0bWVudF92YWx1ZSA9PSBcIlVuYWRqdXN0ZWQgLSBjdXJyZW50XCIpICU+JVxuICAgICAgICBmaWx0ZXIoZ2VvID09IFwiQ2FuYWRhXCIpXG5gYGAifQ== -->
-<pre class="r"><code>total_res_com &lt;- investment %&gt;%
-  filter(type_of_structure %in% c(&quot;Total residential&quot;, &quot;Total commercial&quot;)) %&gt;%
-    filter(type_of_work == &quot;Types of work, total&quot;) %&gt;%
-      filter(investment_value == &quot;Unadjusted - current&quot;) %&gt;%
-        filter(geo == &quot;Canada&quot;)</code></pre>
-<!-- rnb-source-end -->
-<!-- rnb-chunk-end -->
-<!-- rnb-text-begin -->
-<!-- rnb-text-end -->
-<!-- rnb-chunk-begin -->
-<!-- rnb-source-begin eyJkYXRhIjoiYGBgclxubGFwcGx5KHRvdGFsX3Jlc19jb20sIHVuaXF1ZSlbYygxLDIsMyw0LDUsNildXG5gYGAifQ== -->
-<pre class="r"><code>lapply(total_res_com, unique)[c(1,2,3,4,5,6)]</code></pre>
-<!-- rnb-source-end -->
-<!-- rnb-chunk-end -->
-<!-- rnb-text-begin -->
-<!-- rnb-text-end -->
-<!-- rnb-chunk-begin -->
-<!-- rnb-source-begin eyJkYXRhIjoiYGBgclxucCA8LSBnZ3Bsb3QoZGF0YT10b3RhbF9yZXNfY29tKSArIGdlb21fbGluZShhZXMoeD1hcy55ZWFybW9uKHJlZl9kYXRlKSwgeT12YWx1ZSwgXG4gICAgICAgICAgICAgICAgICAgICAgZ3JvdXA9dHlwZV9vZl9zdHJ1Y3R1cmUsIGxpbmV0eXBlPXR5cGVfb2Zfc3RydWN0dXJlKSkgK1xuICAgICAgICAgICAgICBnZW9tX2xpbmUoZGF0YT10b3RhbCwgYWVzKHg9YXMueWVhcm1vbihyZWZfZGF0ZSksIHk9dmFsdWUsIGxpbmV0eXBlPXR5cGVfb2Zfc3RydWN0dXJlLCBhbHBoYT0wLjEpKSArXG4gICAgICAgICAgICAgIGxhYnModGl0bGUgPSBcIkNvbXBhcmlzb24gUmVzaWRlbnRpYWwgLSBDb21tZXJpY2FsXCIsIHggPSBcInJlZmVyZW5jZSBtb250aFwiLCB5ID0gXCJ2YWx1ZSAoZG9sbGFycylcIixcbiAgICAgICAgICAgICAgICAgICBhbHBoYT0gXCJcIiwgbGluZXR5cGU9IFwiVHlwZSBvZiBTdHJ1Y3R1cmVcIilcbmdncGxvdGx5KHAsIHdpZHRoPTgwMClcbmBgYCJ9 -->
-<pre class="r"><code>p &lt;- ggplot(data=total_res_com) + geom_line(aes(x=as.yearmon(ref_date), y=value, 
-                      group=type_of_structure, linetype=type_of_structure)) +
-              geom_line(data=total, aes(x=as.yearmon(ref_date), y=value, linetype=type_of_structure, alpha=0.1)) +
-              labs(title = &quot;Comparison Residential - Commerical&quot;, x = &quot;reference month&quot;, y = &quot;value (dollars)&quot;,
-                   alpha= &quot;&quot;, linetype= &quot;Type of Structure&quot;)
-ggplotly(p, width=800)</code></pre>
-<!-- rnb-source-end -->
-<!-- rnb-chunk-end -->
-<!-- rnb-text-begin -->
-</div>
-<div id="comparison-total-by-geography" class="section level3">
-<h3>Comparison Total by Geography</h3>
-<!-- rnb-text-end -->
-<!-- rnb-chunk-begin -->
-<!-- rnb-source-begin eyJkYXRhIjoiYGBgclxudG90YWxfYnlfZ2VvIDwtIGludmVzdG1lbnQgJT4lXG4gIGZpbHRlcih0eXBlX29mX3N0cnVjdHVyZSA9PSBcIlRvdGFsIHJlc2lkZW50aWFsIGFuZCBub24tcmVzaWRlbnRpYWxcIikgJT4lXG4gICAgZmlsdGVyKHR5cGVfb2Zfd29yayA9PSBcIlR5cGVzIG9mIHdvcmssIHRvdGFsXCIpICU+JVxuICAgICAgZmlsdGVyKGludmVzdG1lbnRfdmFsdWUgPT0gXCJVbmFkanVzdGVkIC0gY3VycmVudFwiKSAlPiVcbiAgICAgICAgZmlsdGVyKGdlbyAlaW4lIHByb3ZpbmNlX25hbWVzKVxuYGBgIn0= -->
-<pre class="r"><code>total_by_geo &lt;- investment %&gt;%
-  filter(type_of_structure == &quot;Total residential and non-residential&quot;) %&gt;%
-    filter(type_of_work == &quot;Types of work, total&quot;) %&gt;%
-      filter(investment_value == &quot;Unadjusted - current&quot;) %&gt;%
-        filter(geo %in% province_names)</code></pre>
-<!-- rnb-source-end -->
-<!-- rnb-chunk-end -->
-<!-- rnb-text-begin -->
-<!-- rnb-text-end -->
-<!-- rnb-chunk-begin -->
-<!-- rnb-source-begin eyJkYXRhIjoiYGBgclxubGFwcGx5KHRvdGFsX2J5X2dlbywgdW5pcXVlKVtjKDEsMiwzLDQsNSw2KV1cbmBgYCJ9 -->
-<pre class="r"><code>lapply(total_by_geo, unique)[c(1,2,3,4,5,6)]</code></pre>
-<!-- rnb-source-end -->
-<!-- rnb-chunk-end -->
-<!-- rnb-text-begin -->
+<div id="notes" class="section level3">
+<h3>Notes</h3>
 <ul>
-<li>Ontario has by far the most investment, compared to other provinces</li>
-<li></li>
+<li>File provided by David Bertrand from 2019</li>
 </ul>
 <!-- rnb-text-end -->
 <!-- rnb-chunk-begin -->
-<!-- rnb-source-begin eyJkYXRhIjoiYGBgclxucCA8LSBnZ3Bsb3QoZGF0YT10b3RhbF9ieV9nZW8pICsgZ2VvbV9saW5lKGFlcyh4PWFzLnllYXJtb24ocmVmX2RhdGUpLFxuICAgICAgICAgICAgICAgICAgICAgICAgeT12YWx1ZSwgZ3JvdXA9Z2VvLCBjb2xvcj1nZW8pKSArXG4gICAgICAgICAgICBnZW9tX2xpbmUoZGF0YT10b3RhbCwgYWVzKHg9YXMueWVhcm1vbihyZWZfZGF0ZSksIHk9dmFsdWUsIFxuICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICBjb2xvcj1nZW8sIGFscGhhPTAuMSkpICtcbiAgICAgICAgICAgICAgbGFicyh0aXRsZSA9IFwiQ29tcGFyaXNvbiBUb3RhbCBieSBHZW9ncmFwaHlcIixcbiAgICAgICAgICAgICAgICAgICB4ID0gXCJyZWZlcmVuY2UgbW9udGhcIiwgeSA9IFwidmFsdWUgKGRvbGxhcnMpXCIsIFxuICAgICAgICAgICAgICAgICAgICAgICAgICAgIGFscGhhPSBcIlwiLCBjb2xvcj0gXCJQcm92aW5jZS9Db3VudHJ5XCIpICtcbiAgICAgICAgICAgIHNjYWxlX3lfY29udGludW91cyh0cmFucz0nbG9nMTAnKVxuZ2dwbG90bHkocCwgd2lkdGg9ODAwLCBoZWlnaHQ9NDkwKVxuYGBgIn0= -->
-<pre class="r"><code>p &lt;- ggplot(data=total_by_geo) + geom_line(aes(x=as.yearmon(ref_date),
-                        y=value, group=geo, color=geo)) +
-            geom_line(data=total, aes(x=as.yearmon(ref_date), y=value, 
-                                      color=geo, alpha=0.1)) +
-              labs(title = &quot;Comparison Total by Geography&quot;,
-                   x = &quot;reference month&quot;, y = &quot;value (dollars)&quot;, 
-                            alpha= &quot;&quot;, color= &quot;Province/Country&quot;) +
-            scale_y_continuous(trans=&#39;log10&#39;)
-ggplotly(p, width=800, height=490)</code></pre>
+<!-- rnb-source-begin eyJkYXRhIjoiYGBgclxubGlicmFyeShcInJlYWR4bFwiKVxuYGBgIn0= -->
+<pre class="r"><code>library(&quot;readxl&quot;)</code></pre>
 <!-- rnb-source-end -->
+<!-- rnb-chunk-end -->
+<!-- rnb-text-begin -->
+</div>
+<div id="i.-loading-and-preprocessing-of-excel-file" class="section level2">
+<h2>I. Loading and Preprocessing of Excel file</h2>
+<!-- rnb-text-end -->
+<!-- rnb-chunk-begin -->
+<!-- rnb-source-begin eyJkYXRhIjoiYGBgclxuaXNzdWVycyA8LSByZWFkX2V4Y2VsKFwiLi4vLi4vLi4vZGF0YV90bXAvdHN4X2xpc3RlZF9pc3N1ZXJzXzIwMTkueGxzeFwiKVxuYGBgIn0= -->
+<pre class="r"><code>issuers &lt;- read_excel(&quot;../../../data_tmp/tsx_listed_issuers_2019.xlsx&quot;)</code></pre>
+<!-- rnb-source-end -->
+<!-- rnb-output-begin eyJkYXRhIjoiXG4tXG4vXG4gICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICBcbiJ9 -->
+<pre><code>
+-
+/
+                                                                                                                  </code></pre>
+<!-- rnb-output-end -->
+<!-- rnb-chunk-end -->
+<!-- rnb-text-begin -->
+<!-- rnb-text-end -->
+<!-- rnb-chunk-begin -->
+<!-- rnb-source-begin eyJkYXRhIjoiYGBgclxuaGVhZChpc3N1ZXJzKVxuYGBgIn0= -->
+<pre class="r"><code>head(issuers)</code></pre>
+<!-- rnb-source-end -->
+<!-- rnb-frame-begin eyJtZXRhZGF0YSI6eyJjbGFzc2VzIjpbInRibF9kZiIsInRibCIsImRhdGEuZnJhbWUiXSwibmNvbCI6NjYsIm5yb3ciOjZ9LCJyZGYiOiJVa1JZTXdwWUNnQUFBQU1BQXdZREFBTUZBQUFBQUFWVlZFWXRPQUFBQkFJQUFBQUJBQVFBQ1FBQUFBRjRBQUFERXdBQUFFSUFBQUFRQUFBQUJnQUVBQWtBQUFBSFFVSkZNREF3TlFBRUFBa0FBQUFIUVVSV01EQXhNUUFFQUFrQUFBQUhRVUpUTURBd013QUVBQWtBQUFBSFFrRlNNREF3TndBRUFBa0FBQUFIUVVsU01EQXdNUUFFQUFrQUFBQUhRVlZTTURBeE9RQUFBQkFBQUFBR0FBUUFDUUFBQUFOVVUxZ0FCQUFKQUFBQUExUlRXQUFFQUFrQUFBQURWRk5ZQUFRQUNRQUFBQU5VVTFnQUJBQUpBQUFBQTFSVFdBQUVBQWtBQUFBRFZGTllBQUFBRUFBQUFBWUFCQUFKQUFBQUcwRmlaWEprWldWdUlFbHVkR1Z5Ym1GMGFXOXVZV3dnU1c1akxnQUVBQWtBQUFBWVFXUjJZVzUwWVdkbElFOXBiQ0FtSUVkaGN5Qk1kR1F1QUFRQUNRQUFBQjFCWW5OdmJIVjBaU0JUYjJaMGQyRnlaU0JEYjNKd2IzSmhkR2x2YmdBRUFBa0FBQUFZUW1GeWNtbGpheUJIYjJ4a0lFTnZjbkJ2Y21GMGFXOXVBQVFBQ1FBQUFBcEJhWElnUTJGdVlXUmhBQVFBQ1FBQUFCUkJkWEp2Y21FZ1EyRnVibUZpYVhNZ1NXNWpMZ0FBQUJBQUFBQUdBQVFBQ1FBQUFBTkJRVUlBQkFBSkFBQUFBMEZCVmdBRUFBa0FBQUFEUVVKVUFBUUFDUUFBQUFOQlFsZ0FCQUFKQUFBQUFrRkRBQVFBQ1FBQUFBTkJRMElBQUFBT0FBQUFCa0ZOVUJXajF3bzlRYjZqRjJBQUFBQkJ0YnFESjJabVprSWo5N1M3Qm5yaFFnZnRudzNLVWV4QjVxWFpPUW85Y1FBQUFBNEFBQUFHUVpibWtPZ0FBQUJCcGtnUkFBQUFBRUdEK3ZRd0FBQUFRZHA5c3hEQUFBQkJyNUdndGdBQUFFSFFQQ253QUFBQUFBQUFFQUFBQUFZQUJBQUpBQUFBRWtacGJtRnVZMmxoYkNCVFpYSjJhV05sY3dBRUFBa0FBQUFKVDJsc0lDWWdSMkZ6QUFRQUNRQUFBQXBVWldOb2JtOXNiMmQ1QUFRQUNRQUFBQVpOYVc1cGJtY0FCQUFKQUFBQUhFTnZibk4xYldWeUlGQnliMlIxWTNSeklDWWdVMlZ5ZG1salpYTUFCQUFKQUFBQURVeHBabVVnVTJOcFpXNWpaWE1BQUFBUUFBQUFCZ0FBQUFuLy8vLy9BQUFBQ2YvLy8vOEFBQUFKLy8vLy93QUFBQW4vLy8vL0FBQUFDZi8vLy84QUJBQUpBQUFBQ0VOaGJtNWhZbWx6QUFBQUVBQUFBQVlBQkFBSkFBQUFDVlJUV0ZZZ1IzSmhaQUFBQUFuLy8vLy9BQVFBQ1FBQUFBbFVVMWhXSUVkeVlXUUFBQUFKLy8vLy93QUVBQWtBQUFBRFNWQlBBQVFBQ1FBQUFBbFVVMWhXSUVkeVlXUUFBQUFPQUFBQUJrRnpKbUFnQUFBQVFYTVZZaEFBQUFCQmN4OVFJQUFBQUVGeTZXNWdBQUFBUVhNaHZEQUFBQUJCY3p4K1FBQUFBQUFBQUJBQUFBQUdBQVFBQ1FBQUFBSlBUZ0FFQUFrQUFBQUNRVUlBQkFBSkFBQUFBa0pEQUFRQUNRQUFBQUpQVGdBRUFBa0FBQUFHVVhWbFltVmpBQVFBQ1FBQUFBSkJRZ0FBQUJBQUFBQUdBQVFBQ1FBQUFBWkRZVzVoWkdFQUJBQUpBQUFBQmtOaGJtRmtZUUFFQUFrQUFBQUdRMkZ1WVdSaEFBUUFDUUFBQUFaRFlXNWhaR0VBQkFBSkFBQUFCa05oYm1Ga1lRQUVBQWtBQUFBR1EyRnVZV1JoQUFBQUVBQUFBQVlBQUFBSi8vLy8vd0FBQUFuLy8vLy9BQUFBQ2YvLy8vOEFCQUFKQUFBQUJFNVpVMFVBQUFBSi8vLy8vd0FFQUFrQUFBQUVUbGxUUlFBQUFCQUFBQUFHQUFBQUNmLy8vLzhBQUFBSi8vLy8vd0FBQUFuLy8vLy9BQVFBQ1FBQUFBcE1hVzFoSUNoQ1Zrd3BBQUFBQ2YvLy8vOEFBQUFKLy8vLy93QUFBQkFBQUFBR0FBQUFDZi8vLy84QUFBQUovLy8vL3dBQUFBbi8vLy8vQUFBQUNmLy8vLzhBQkFBSkFBQUFCVTlVUTFGWUFBQUFDZi8vLy84QUFBQU9BQUFBQmovd0FBQUFBQUFBZi9BQUFBQUFCNkkvOEFBQUFBQUFBSC93QUFBQUFBZWlmL0FBQUFBQUI2SS84QUFBQUFBQUFBQUFBQTRBQUFBR2YvQUFBQUFBQjZKLzhBQUFBQUFIb24vd0FBQUFBQWVpZi9BQUFBQUFCNkovOEFBQUFBQUhvbi93QUFBQUFBZWlBQUFBRGdBQUFBWi84QUFBQUFBSG9uL3dBQUFBQUFlaWYvQUFBQUFBQjZKQVRnQUFBQUFBQUQvd0FBQUFBQUFBUC9BQUFBQUFBQUFBQUFBUUFBQUFCZ0FBQUFuLy8vLy9BQUFBQ2YvLy8vOEFBQUFKLy8vLy93QUFBQW4vLy8vL0FBQUFDZi8vLy84QUFBQUovLy8vL3dBQUFCQUFBQUFHQUFBQUNmLy8vLzhBQUFBSi8vLy8vd0FBQUFuLy8vLy9BQUFBQ2YvLy8vOEFBQUFKLy8vLy93QUFBQW4vLy8vL0FBQUFFQUFBQUFZQUFBQUovLy8vL3dBQUFBbi8vLy8vQUFRQUNRQUFBQWhUYjJaMGQyRnlaUUFBQUFuLy8vLy9BQUFBQ2YvLy8vOEFBQUFKLy8vLy93QUFBQkFBQUFBR0FBQUFDZi8vLy84QUFBQUovLy8vL3dBQUFBbi8vLy8vQUFBQUNmLy8vLzhBQkFBSkFBQUFGa052Ym5OMWJXVnlJRVJwYzJOeVpYUnBiMjVoY25rQUFBQUovLy8vL3dBQUFCQUFBQUFHQUFBQUNmLy8vLzhBQUFBSi8vLy8vd0FBQUFuLy8vLy9BQUFBQ2YvLy8vOEFBQUFKLy8vLy93QUFBQW4vLy8vL0FBQUFFQUFBQUFZQUFBQUovLy8vL3dBQUFBbi8vLy8vQUFBQUNmLy8vLzhBQUFBSi8vLy8vd0FBQUFuLy8vLy9BQVFBQ1FBQUFCRk5aV1JwWTJGc0lFMWhjbWxxZFdGdVlRQUFBQkFBQUFBR0FBQUFDZi8vLy84QUFBQUovLy8vL3dBQUFBbi8vLy8vQUFBQUNmLy8vLzhBQUFBSi8vLy8vd0FBQUFuLy8vLy9BQUFBRUFBQUFBWUFBQUFKLy8vLy93QUFBQW4vLy8vL0FBQUFDZi8vLy84QUFBQUovLy8vL3dBQUFBbi8vLy8vQUFBQUNmLy8vLzhBQUFBUUFBQUFCZ0FBQUFuLy8vLy9BQUFBQ2YvLy8vOEFBQUFKLy8vLy93QUFBQW4vLy8vL0FBQUFDZi8vLy84QUFBQUovLy8vL3dBQUFBNEFBQUFHZi9BQUFBQUFCNkovOEFBQUFBQUhvbi93QUFBQUFBZWlmL0FBQUFBQUI2Si84QUFBQUFBSG9uL3dBQUFBQUFlaUFBQUFFQUFBQUFZQUJBQUpBQUFBQVVNQUJBQUpBQUFBQVVNQUJBQUpBQUFBQVVNQUJBQUpBQUFBQVVNQUJBQUpBQUFBQVVNQUJBQUpBQUFBQVVNQUFBQVFBQUFBQmdBQUFBbi8vLy8vQUFBQUNmLy8vLzhBQUFBSi8vLy8vd0FBQUFuLy8vLy9BQUFBQ2YvLy8vOEFBQUFKLy8vLy93QUFBQkFBQUFBR0FBQUFDZi8vLy84QUFBQUovLy8vL3dBQUFBbi8vLy8vQUFBQUNmLy8vLzhBQUFBSi8vLy8vd0FBQUFuLy8vLy9BQUFBRUFBQUFBWUFBQUFKLy8vLy93QUFBQW4vLy8vL0FBQUFDZi8vLy84QUFBQUovLy8vL3dBQUFBbi8vLy8vQUFBQUNmLy8vLzhBQUFBUUFBQUFCZ0FBQUFuLy8vLy9BQUFBQ2YvLy8vOEFBQUFKLy8vLy93QUFBQW4vLy8vL0FBQUFDZi8vLy84QUFBQUovLy8vL3dBQUFCQUFBQUFHQUFBQUNmLy8vLzhBQkFBSkFBQUFCREl3TURrQUFBQUovLy8vL3dBQUFBbi8vLy8vQUFBQUNmLy8vLzhBQUFBSi8vLy8vd0FBQUE0QUFBQUdRWGJoVGJBQUFBQkJwcEh3QmdBQUFFRjNCZVVBQUFBQVFkRnhYSDFBQUFCQnNTN1BqUUFBQUVIaUREM0pJQUFBQUFBQURnQUFBQVpCTVp6cGdBQUFBRUc0Vm1nTGdBQUFRYWdta0RRQUFBQkNGZFlKSTJnQUFFSUZJdVNWVEFBQVFoTkZiVCs2QUFBQUFBQU9BQUFBQmtDUElBQUFBQUFBUVJOeEpBQUFBQUJBOGZoQUFBQUFBRUZGeVNlQUFBQUFRVGRkckFBQUFBQkJUVUl2Z0FBQUFBQUFBQTRBQUFBR1FDZ0FBQUFBQUFCQUtBQUFBQUFBQUVBb0FBQUFBQUFBUUNnQUFBQUFBQUJBS0FBQUFBQUFBRUFvQUFBQUFBQUFBQUFBRUFBQUFBWUFBQUFKLy8vLy93QUFBQW4vLy8vL0FBQUFDZi8vLy84QUFJQUpBQUFBS0VQRHRIUmxJR1RpZ0psSmRtOXBjbVVzUkZKRExFMWhiR2tzVTJWdVpXZGhiQ3hhWVcxaWFXRUFBQUFKLy8vLy93QUFBQW4vLy8vL0FBQUFFQUFBQUFZQUFBQUovLy8vL3dBQUFBbi8vLy8vQUFBQUNmLy8vLzhBQkFBSkFBQUFFRkJoY0hWaElFNWxkeUJIZFdsdVpXRUFBQUFKLy8vLy93QUFBQW4vLy8vL0FBQUFFQUFBQUFZQUFBQUovLy8vL3dBRUFBa0FBQUFGUVVJc1FrTUFBQUFKLy8vLy93QUVBQWtBQUFBQ1QwNEFBQUFKLy8vLy93QUFBQW4vLy8vL0FBQUFFQUFBQUFZQUFBQUovLy8vL3dBQUFBbi8vLy8vQUFBQUNmLy8vLzhBQUFBSi8vLy8vd0FBQUFuLy8vLy9BQUFBQ2YvLy8vOEFBQUFRQUFBQUJnQUFBQW4vLy8vL0FBQUFDZi8vLy84QUFBQUovLy8vL3dBRUFBa0FBQUFvUVhKblpXNTBhVzVoTEVOb2FXeGxMQ0JFYjIxcGJtbGpZVzRnVW1Wd2RXSnNhV01zVUdWeWRRQUFBQW4vLy8vL0FBQUFDZi8vLy84QUFBQVFBQUFBQmdBQUFBbi8vLy8vQUFBQUNmLy8vLzhBQUFBSi8vLy8vd0FFQUFrQUFBQU1VMkYxWkdrZ1FYSmhZbWxoQUFBQUNmLy8vLzhBQUFBSi8vLy8vd0FBQUJBQUFBQUdBQUFBQ2YvLy8vOEFBQUFKLy8vLy93QUFBQW4vLy8vL0FBQUFDZi8vLy84QUFBQUovLy8vL3dBQUFBbi8vLy8vQUFBQUVBQUFBQVlBQUFBSi8vLy8vd0FBQUFuLy8vLy9BQUFBQ2YvLy8vOEFCQUFKQUFBQUNFRkxMRTFVTEU1V0FBQUFDZi8vLy84QUFBQUovLy8vL3dBQUFBNEFBQUFHZi9BQUFBQUFCNkkvOEFBQUFBQUFBSC93QUFBQUFBZWlmL0FBQUFBQUI2Si84QUFBQUFBSG9uL3dBQUFBQUFlaUFBQUFEZ0FBQUFaLzhBQUFBQUFIb24vd0FBQUFBQWVpZi9BQUFBQUFCNkkvOEFBQUFBQUFBSC93QUFBQUFBZWlmL0FBQUFBQUI2SUFBQUFPQUFBQUJuL3dBQUFBQUFlaWYvQUFBQUFBQjZKLzhBQUFBQUFIb2ovd0FBQUFBQUFBZi9BQUFBQUFCNkovOEFBQUFBQUhvZ0FBQUE0QUFBQUdmL0FBQUFBQUI2Si84QUFBQUFBSG9uL3dBQUFBQUFlaVAvQUFBQUFBQUFCLzhBQUFBQUFIb24vd0FBQUFBQWVpQUFBQURnQUFBQVovOEFBQUFBQUhvbi93QUFBQUFBZWlmL0FBQUFBQUI2Si84QUFBQUFBSG9uL3dBQUFBQUFlaWYvQUFBQUFBQjZJQUFBQU9BQUFBQm4vd0FBQUFBQWVpZi9BQUFBQUFCNkovOEFBQUFBQUhvbi93QUFBQUFBZWlmL0FBQUFBQUI2Si84QUFBQUFBSG9nQUFBQTRBQUFBR2YvQUFBQUFBQjZKLzhBQUFBQUFIb24vd0FBQUFBQWVpZi9BQUFBQUFCNkovOEFBQUFBQUhvbi93QUFBQUFBZWlBQUFBRGdBQUFBWi84QUFBQUFBSG9uL3dBQUFBQUFlaWYvQUFBQUFBQjZKLzhBQUFBQUFIb24vd0FBQUFBQWVpZi9BQUFBQUFCNklBQUFBT0FBQUFCbi93QUFBQUFBZWlmL0FBQUFBQUI2Si84QUFBQUFBSG9uL3dBQUFBQUFlaWYvQUFBQUFBQjZKLzhBQUFBQUFIb2dBQUFBNEFBQUFHZi9BQUFBQUFCNkovOEFBQUFBQUhvbi93QUFBQUFBZWlmL0FBQUFBQUI2Si84QUFBQUFBSG9uL3dBQUFBQUFlaUFBQUFEZ0FBQUFaLzhBQUFBQUFIb24vd0FBQUFBQWVpZi9BQUFBQUFCNkovOEFBQUFBQUhvbi93QUFBQUFBZWlmL0FBQUFBQUI2SUFBQUFPQUFBQUJuL3dBQUFBQUFlaWYvQUFBQUFBQjZKLzhBQUFBQUFIb24vd0FBQUFBQWVpZi9BQUFBQUFCNkovOEFBQUFBQUhvZ0FBQUE0QUFBQUdmL0FBQUFBQUI2Si84QUFBQUFBSG9uL3dBQUFBQUFlaWYvQUFBQUFBQjZKLzhBQUFBQUFIb24vd0FBQUFBQWVpQUFBQURnQUFBQVovOEFBQUFBQUhvbi93QUFBQUFBZWlmL0FBQUFBQUI2Si84QUFBQUFBSG9uL3dBQUFBQUFlaWYvQUFBQUFBQjZJQUFBQU9BQUFBQm4vd0FBQUFBQWVpZi9BQUFBQUFCNkovOEFBQUFBQUhvbi93QUFBQUFBZWlmL0FBQUFBQUI2Si84QUFBQUFBSG9nQUFBQTRBQUFBR2YvQUFBQUFBQjZKLzhBQUFBQUFIb24vd0FBQUFBQWVpZi9BQUFBQUFCNkovOEFBQUFBQUhvbi93QUFBQUFBZWlBQUFBRGdBQUFBWi84QUFBQUFBSG9uL3dBQUFBQUFlaWYvQUFBQUFBQjZKLzhBQUFBQUFIb24vd0FBQUFBQWVpZi9BQUFBQUFCNklBQUFBT0FBQUFCbi93QUFBQUFBZWlmL0FBQUFBQUI2Si84QUFBQUFBSG9uL3dBQUFBQUFlaWYvQUFBQUFBQjZKLzhBQUFBQUFIb2dBQUFBNEFBQUFHZi9BQUFBQUFCNkovOEFBQUFBQUhvbi93QUFBQUFBZWlmL0FBQUFBQUI2Si84QUFBQUFBSG9uL3dBQUFBQUFlaUFBQUFFQUFBQUFZQUFBQUovLy8vL3dBQUFBbi8vLy8vQUFBQUNmLy8vLzhBQUFBSi8vLy8vd0FBQUFuLy8vLy9BQUFBQ2YvLy8vOEFBQVFDQUFBQUFRQUVBQWtBQUFBRmJtRnRaWE1BQUFBUUFBQUFRZ0FFQUFrQUFBQUZRMjlmU1VRQUJBQUpBQUFBQ0VWNFkyaGhibWRsQUFRQUNRQUFBQVJPWVcxbEFBUUFDUUFBQUF4U2IyOTBEUXBVYVdOclpYSUFCQUFKQUFBQUdWRk5WaWhESkNrTkNqTXhMVVJsWTJWdFltVnlMVEl3TVRrQUJBQUpBQUFBSEU4dlV5QlRhR0Z5WlhNTkNqTXhMVVJsWTJWdFltVnlMVEl3TVRrQUJBQUpBQUFBQmxObFkzUnZjZ0FFQUFrQUFBQUxVM1ZpRFFwVFpXTjBiM0lBQkFBSkFBQUFERXhwYzNScGJtY2dWSGx3WlFBRUFBa0FBQUFmUkdGMFpTQnZaaUFOQ2xSVFdDQk1hWE4wYVc1bkRRcFpXVmxaVFUxRVJBQUVBQWtBQUFBTVNGRU5Da3h2WTJGMGFXOXVBQVFBQ1FBQUFBcElVUTBLVW1WbmFXOXVBQVFBQ1FBQUFCTkpiblJsY214cGMzUmxaQTBLUTI5a1pWOUpBQVFBQ1FBQUFCUkpiblJsY214cGMzUmxaQTBLUTI5a1pWOUpTUUFFQUFrQUFBQU5UR2x6ZEdWa0lHOXVJRTlVUXdBRUFBa0FBQUFVVkZOWUlBMEtWbVZ1ZEhWeVpTQU5Da2R5WVdRQUJBQUpBQUFBQzBadmNtMWxjZzBLUTFCREFBUUFDUUFBQUFWSmJtUmxlQUFFQUFrQUFBQWhRMnhsWVc0Z1ZHVmphRzV2Ykc5bmVTQlFjbWx0WVhKNUlFbHVaSFZ6ZEhKNUFBUUFDUUFBQUJ0RGJHVmhiaUJVWldOb2JtOXNiMmQ1SUZOMVlpMVRaV04wYjNJQUJBQUpBQUFBRlZSbFkyaHViMnh2WjNrZ1UzVmlMVk5sWTNSdmNnQUVBQWtBQUFBb1EyOXVjM1Z0WlhJZ1VISnZaSFZqZEhNZ0ppQlRaWEoyYVdObGN3MEtVM1ZpTFZObFkzUnZjZ0FFQUFrQUFBQVdVbVZoYkNCRmMzUmhkR1VnVTNWaUxWTmxZM1J2Y2dBRUFBa0FBQUFZVEdsbVpTQlRZMmxsYm1ObGN5QlRkV0l0VTJWamRHOXlBQVFBQ1FBQUFBaFZVMEZmUTJsMGVRQUVBQWtBQUFBSlZWTkJYMU4wWVhSbEFBUUFDUUFBQUF0QmMybGhJRkpsWjJsdmJnQUVBQWtBQUFBT1NYTnlZV1ZzSUZKbGJHRjBaV1FBQkFBSkFBQUFNbEJzWVdObElHOW1JRWx1WTI5eWNHOXlZWFJwYjI0TkNrTTlRMkZ1WVdSaERRcFZQVlZUUVEwS1JqMUdiM0psYVdkdUFBUUFDUUFBQUF0R2RXNWtJRVpoYldsc2VRQUVBQWtBQUFBTFUxQWdSM0p2ZFhCcGJtY0FCQUFKQUFBQUIxTlFYMVI1Y0dVQUJBQUpBQUFBQmxOUVgxTjFZZ0FFQUFrQUFBQVpTVzVqYjIxbElGUnlkWE4wSUEwS1EyOXVkbVZ5YzJsdmJnQUVBQWtBQUFBY1ZtOXNkVzFsSUZsVVJBMEtNekV0UkdWalpXMWlaWEl0TWpBeE9RQUVBQWtBQUFBZ1ZtRnNkV1VnS0VNa0tTQlpWRVFOQ2pNeExVUmxZMlZ0WW1WeUxUSXdNVGtBQkFBSkFBQUFLRTUxYldKbGNpQnZaaUFOQ2xSeVlXUmxjeUJaVkVRTkNqTXhMVVJsWTJWdFltVnlMVEl3TVRrQUJBQUpBQUFBSTA1MWJXSmxjaUJ2WmcwS1RXOXVkR2h6SUc5bUlBMEtWSEpoWkdsdVp5QkVZWFJoQUFRQUNRQUFBQVpCUmxKSlEwRUFCQUFKQUFBQUNrRlZVeTlPV2k5UVRrY0FCQUFKQUFBQUJrTkJUa0ZFUVFBRUFBa0FBQUFNUTBoSlRrRWdKaUJCVTBsQkFBUUFDUUFBQUExTVFWUkpUaUJCVFVWU1NVTkJBQVFBQ1FBQUFBVlBWRWhGVWdBRUFBa0FBQUFKVlVzdlJWVlNUMUJGQUFRQUNRQUFBQU5WVTBFQUJBQUpBQUFBQzA5cGJDQmhibVFnUjJGekFBUUFDUUFBQUFSSGIyeGtBQVFBQ1FBQUFBWlRhV3gyWlhJQUJBQUpBQUFBQmtOdmNIQmxjZ0FFQUFrQUFBQUdUbWxqYTJWc0FBUUFDUUFBQUFkRWFXRnRiMjVrQUFRQUNRQUFBQXBOYjJ4NVltUmxiblZ0QUFRQUNRQUFBQXhRYkdGMGFXNTFiUzlRUjAwQUJBQUpBQUFBQkVseWIyNEFCQUFKQUFBQUJFeGxZV1FBQkFBSkFBQUFCRnBwYm1NQUJBQUpBQUFBQzFKaGNtVWdSV0Z5ZEdoekFBUUFDUUFBQUFaUWIzUmhjMmdBQkFBSkFBQUFCMHhwZEdocGRXMEFCQUFKQUFBQUIxVnlZVzVwZFcwQUJBQUpBQUFBQkVOdllXd0FCQUFKQUFBQUNGUjFibWR6ZEdWdUFBUUFDUUFBQUJaQ1lYTmxJQ1lnVUhKbFkybHZkWE1nVFdWMFlXeHpBQVFBQ1FBQUFCeE5hVzVsY21Gc0lGQnliM0JsY25ScFpYTWdLRWRsYm1WeVlXd3BBQVFBQ1FBQUFCQlBkR2hsY2lCUWNtOXdaWEowYVdWekFBQUVBZ0FBQUFFQUJBQUpBQUFBQ1hKdmR5NXVZVzFsY3dBQUFBMEFBQUFDZ0FBQUFQLy8vL29BQUFRQ0FBQUFBUUFFQUFrQUFBQUZZMnhoYzNNQUFBQVFBQUFBQVFBRUFBa0FBQUFLWkdGMFlTNW1jbUZ0WlFBQUFQNEFBQVFDQUFBQUFRQUVBQWtBQUFBSGIzQjBhVzl1Y3dBQUFoTUFBQUFGQUFBQUVBQUFBQUVBQkFBSkFBQUFBWElBQUFBUUFBQUFBUUFFQUFrQUFBQVBkVzV1WVcxbFpDMWphSFZ1YXkweUFBQUFDZ0FBQUFFQUFBQUFBQUFBRFFBQUFBRUFBQUFHQUFBQURRQUFBQUVBQUFCQ0FBQUVBZ0FBQXY4QUFBQVFBQUFBQlFBRUFBa0FBQUFHWlc1bmFXNWxBQVFBQ1FBQUFBVnNZV0psYkFBRUFBa0FBQUFPY205M2JtRnRaWE11Y0hKcGJuUUFCQUFKQUFBQUNuSnZkM011ZEc5MFlXd0FCQUFKQUFBQUNtTnZiSE11ZEc5MFlXd0FBQUQrQUFBQS9nPT0ifQ== -->
+<div data-pagedtable="false">
+<script data-pagedtable-source type="application/json">
+{"columns":[{"label":["Co_ID"],"name":[1],"type":["chr"],"align":["left"]},{"label":["Exchange"],"name":[2],"type":["chr"],"align":["left"]},{"label":["Name"],"name":[3],"type":["chr"],"align":["left"]},{"label":["Root\r\nTicker"],"name":[4],"type":["chr"],"align":["left"]},{"label":["QMV(C$)\r\n31-December-2019"],"name":[5],"type":["dbl"],"align":["right"]},{"label":["O/S Shares\r\n31-December-2019"],"name":[6],"type":["dbl"],"align":["right"]},{"label":["Sector"],"name":[7],"type":["chr"],"align":["left"]},{"label":["Sub\r\nSector"],"name":[8],"type":["chr"],"align":["left"]},{"label":["Listing Type"],"name":[9],"type":["chr"],"align":["left"]},{"label":["Date of \r\nTSX Listing\r\nYYYYMMDD"],"name":[10],"type":["dbl"],"align":["right"]},{"label":["HQ\r\nLocation"],"name":[11],"type":["chr"],"align":["left"]},{"label":["HQ\r\nRegion"],"name":[12],"type":["chr"],"align":["left"]},{"label":["Interlisted\r\nCode_I"],"name":[13],"type":["chr"],"align":["left"]},{"label":["Interlisted\r\nCode_II"],"name":[14],"type":["chr"],"align":["left"]},{"label":["Listed on OTC"],"name":[15],"type":["chr"],"align":["left"]},{"label":["TSX \r\nVenture \r\nGrad"],"name":[16],"type":["dbl"],"align":["right"]},{"label":["Former\r\nCPC"],"name":[17],"type":["dbl"],"align":["right"]},{"label":["Index"],"name":[18],"type":["dbl"],"align":["right"]},{"label":["Clean Technology Primary Industry"],"name":[19],"type":["chr"],"align":["left"]},{"label":["Clean Technology Sub-Sector"],"name":[20],"type":["chr"],"align":["left"]},{"label":["Technology Sub-Sector"],"name":[21],"type":["chr"],"align":["left"]},{"label":["Consumer Products & Services\r\nSub-Sector"],"name":[22],"type":["chr"],"align":["left"]},{"label":["Real Estate Sub-Sector"],"name":[23],"type":["chr"],"align":["left"]},{"label":["Life Sciences Sub-Sector"],"name":[24],"type":["chr"],"align":["left"]},{"label":["USA_City"],"name":[25],"type":["chr"],"align":["left"]},{"label":["USA_State"],"name":[26],"type":["chr"],"align":["left"]},{"label":["Asia Region"],"name":[27],"type":["chr"],"align":["left"]},{"label":["Israel Related"],"name":[28],"type":["dbl"],"align":["right"]},{"label":["Place of Incorporation\r\nC=Canada\r\nU=USA\r\nF=Foreign"],"name":[29],"type":["chr"],"align":["left"]},{"label":["Fund Family"],"name":[30],"type":["chr"],"align":["left"]},{"label":["SP Grouping"],"name":[31],"type":["chr"],"align":["left"]},{"label":["SP_Type"],"name":[32],"type":["chr"],"align":["left"]},{"label":["SP_Sub"],"name":[33],"type":["chr"],"align":["left"]},{"label":["Income Trust \r\nConversion"],"name":[34],"type":["chr"],"align":["left"]},{"label":["Volume YTD\r\n31-December-2019"],"name":[35],"type":["dbl"],"align":["right"]},{"label":["Value (C$) YTD\r\n31-December-2019"],"name":[36],"type":["dbl"],"align":["right"]},{"label":["Number of \r\nTrades YTD\r\n31-December-2019"],"name":[37],"type":["dbl"],"align":["right"]},{"label":["Number of\r\nMonths of \r\nTrading Data"],"name":[38],"type":["dbl"],"align":["right"]},{"label":["AFRICA"],"name":[39],"type":["chr"],"align":["left"]},{"label":["AUS/NZ/PNG"],"name":[40],"type":["chr"],"align":["left"]},{"label":["CANADA"],"name":[41],"type":["chr"],"align":["left"]},{"label":["CHINA & ASIA"],"name":[42],"type":["chr"],"align":["left"]},{"label":["LATIN AMERICA"],"name":[43],"type":["chr"],"align":["left"]},{"label":["OTHER"],"name":[44],"type":["chr"],"align":["left"]},{"label":["UK/EUROPE"],"name":[45],"type":["chr"],"align":["left"]},{"label":["USA"],"name":[46],"type":["chr"],"align":["left"]},{"label":["Oil and Gas"],"name":[47],"type":["dbl"],"align":["right"]},{"label":["Gold"],"name":[48],"type":["dbl"],"align":["right"]},{"label":["Silver"],"name":[49],"type":["dbl"],"align":["right"]},{"label":["Copper"],"name":[50],"type":["dbl"],"align":["right"]},{"label":["Nickel"],"name":[51],"type":["dbl"],"align":["right"]},{"label":["Diamond"],"name":[52],"type":["dbl"],"align":["right"]},{"label":["Molybdenum"],"name":[53],"type":["dbl"],"align":["right"]},{"label":["Platinum/PGM"],"name":[54],"type":["dbl"],"align":["right"]},{"label":["Iron"],"name":[55],"type":["dbl"],"align":["right"]},{"label":["Lead"],"name":[56],"type":["dbl"],"align":["right"]},{"label":["Zinc"],"name":[57],"type":["dbl"],"align":["right"]},{"label":["Rare Earths"],"name":[58],"type":["dbl"],"align":["right"]},{"label":["Potash"],"name":[59],"type":["dbl"],"align":["right"]},{"label":["Lithium"],"name":[60],"type":["dbl"],"align":["right"]},{"label":["Uranium"],"name":[61],"type":["dbl"],"align":["right"]},{"label":["Coal"],"name":[62],"type":["dbl"],"align":["right"]},{"label":["Tungsten"],"name":[63],"type":["dbl"],"align":["right"]},{"label":["Base & Precious Metals"],"name":[64],"type":["dbl"],"align":["right"]},{"label":["Mineral Properties (General)"],"name":[65],"type":["dbl"],"align":["right"]},{"label":["Other Properties"],"name":[66],"type":["chr"],"align":["left"]}],"data":[{"1":"ABE0005","2":"TSX","3":"Aberdeen International Inc.","4":"AAB","5":"3842091","6":"96052282","7":"Financial Services","8":"NA","9":"TSXV Grad","10":"20080130","11":"ON","12":"Canada","13":"NA","14":"NA","15":"NA","16":"1","17":"NA","18":"NA","19":"NA","20":"NA","21":"NA","22":"NA","23":"NA","24":"NA","25":"NA","26":"NA","27":"NA","28":"NA","29":"C","30":"NA","31":"NA","32":"NA","33":"NA","34":"NA","35":"23991515","36":"1154282","37":"996","38":"12","39":"NA","40":"NA","41":"NA","42":"NA","43":"NA","44":"NA","45":"NA","46":"NA","47":"NA","48":"NA","49":"NA","50":"NA","51":"NA","52":"NA","53":"NA","54":"NA","55":"NA","56":"NA","57":"NA","58":"NA","59":"NA","60":"NA","61":"NA","62":"NA","63":"NA","64":"NA","65":"NA","66":"NA"},{"1":"ADV0011","2":"TSX","3":"Advantage Oil & Gas Ltd.","4":"AAV","5":"514004832","6":"186910848","7":"Oil & Gas","8":"NA","9":"NA","10":"20010529","11":"AB","12":"Canada","13":"NA","14":"NA","15":"NA","16":"NA","17":"NA","18":"NA","19":"NA","20":"NA","21":"NA","22":"NA","23":"NA","24":"NA","25":"NA","26":"NA","27":"NA","28":"NA","29":"C","30":"NA","31":"NA","32":"NA","33":"NA","34":"2009","35":"189331459","36":"408315916","37":"318537","38":"12","39":"NA","40":"NA","41":"AB,BC","42":"NA","43":"NA","44":"NA","45":"NA","46":"NA","47":"1","48":"NA","49":"NA","50":"NA","51":"NA","52":"NA","53":"NA","54":"NA","55":"NA","56":"NA","57":"NA","58":"NA","59":"NA","60":"NA","61":"NA","62":"NA","63":"NA","64":"NA","65":"NA","66":"NA"},{"1":"ABS0003","2":"TSX","3":"Absolute Software Corporation","4":"ABT","5":"364544807","6":"41901702","7":"Technology","8":"NA","9":"TSXV Grad","10":"20051202","11":"BC","12":"Canada","13":"NA","14":"NA","15":"NA","16":"1","17":"NA","18":"NA","19":"NA","20":"NA","21":"Software","22":"NA","23":"NA","24":"NA","25":"NA","26":"NA","27":"NA","28":"NA","29":"C","30":"NA","31":"NA","32":"NA","33":"NA","34":"NA","35":"24141392","36":"202590234","37":"73604","38":"12","39":"NA","40":"NA","41":"NA","42":"NA","43":"NA","44":"NA","45":"NA","46":"NA","47":"NA","48":"NA","49":"NA","50":"NA","51":"NA","52":"NA","53":"NA","54":"NA","55":"NA","56":"NA","57":"NA","58":"NA","59":"NA","60":"NA","61":"NA","62":"NA","63":"NA","64":"NA","65":"NA","66":"NA"},{"1":"BAR0007","2":"TSX","3":"Barrick Gold Corporation","4":"ABX","5":"42880097667","6":"1777781827","7":"Mining","8":"NA","9":"NA","10":"19830502","11":"ON","12":"Canada","13":"NYSE","14":"Lima (BVL)","15":"NA","16":"NA","17":"NA","18":"60","19":"NA","20":"NA","21":"NA","22":"NA","23":"NA","24":"NA","25":"NA","26":"NA","27":"NA","28":"NA","29":"C","30":"NA","31":"NA","32":"NA","33":"NA","34":"NA","35":"1170567669","36":"23446309082","37":"2855503","38":"12","39":"Côte d’Ivoire,DRC,Mali,Senegal,Zambia","40":"Papua New Guinea","41":"ON","42":"NA","43":"Argentina,Chile, Dominican Republic,Peru","44":"Saudi Arabia","45":"NA","46":"AK,MT,NV","47":"NA","48":"1","49":"1","50":"1","51":"NA","52":"NA","53":"NA","54":"NA","55":"NA","56":"NA","57":"NA","58":"NA","59":"NA","60":"NA","61":"NA","62":"NA","63":"NA","64":"NA","65":"NA","66":"NA"},{"1":"AIR0001","2":"TSX","3":"Air Canada","4":"AC","5":"12846358969","6":"264818779","7":"Consumer Products & Services","8":"NA","9":"IPO","10":"20061123","11":"Quebec","12":"Canada","13":"NA","14":"NA","15":"OTCQX","16":"NA","17":"NA","18":"1","19":"NA","20":"NA","21":"NA","22":"Consumer Discretionary","23":"NA","24":"NA","25":"NA","26":"NA","27":"NA","28":"NA","29":"C","30":"NA","31":"NA","32":"NA","33":"NA","34":"NA","35":"288280461","36":"11347464874","37":"1531308","38":"12","39":"NA","40":"NA","41":"NA","42":"NA","43":"NA","44":"NA","45":"NA","46":"NA","47":"NA","48":"NA","49":"NA","50":"NA","51":"NA","52":"NA","53":"NA","54":"NA","55":"NA","56":"NA","57":"NA","58":"NA","59":"NA","60":"NA","61":"NA","62":"NA","63":"NA","64":"NA","65":"NA","66":"NA"},{"1":"AUR0019","2":"TSX","3":"Aurora Cannabis Inc.","4":"ACB","5":"3039742408","6":"1089513408","7":"Life Sciences","8":"Cannabis","9":"TSXV Grad","10":"20170724","11":"AB","12":"Canada","13":"NYSE","14":"NA","15":"NA","16":"1","17":"NA","18":"1","19":"NA","20":"NA","21":"NA","22":"NA","23":"NA","24":"Medical Marijuana","25":"NA","26":"NA","27":"NA","28":"NA","29":"C","30":"NA","31":"NA","32":"NA","33":"NA","34":"NA","35":"2422337097","36":"20692291566","37":"3834975","38":"12","39":"NA","40":"NA","41":"NA","42":"NA","43":"NA","44":"NA","45":"NA","46":"NA","47":"NA","48":"NA","49":"NA","50":"NA","51":"NA","52":"NA","53":"NA","54":"NA","55":"NA","56":"NA","57":"NA","58":"NA","59":"NA","60":"NA","61":"NA","62":"NA","63":"NA","64":"NA","65":"NA","66":"NA"}],"options":{"columns":{"min":{},"max":[10],"total":[66]},"rows":{"min":[10],"max":[10],"total":[6]},"pages":{}}}
+  </script>
+</div>
+<!-- rnb-frame-end -->
+<!-- rnb-chunk-end -->
+<!-- rnb-text-begin -->
+<!-- rnb-text-end -->
+<!-- rnb-chunk-begin -->
+<!-- rnb-source-begin eyJkYXRhIjoiYGBgclxuY29sbmFtZXMoaXNzdWVycykgPC0gbGFwcGx5KHN0cl9yZXBsYWNlX2FsbChjb2xuYW1lcyhpc3N1ZXJzKSwgXCJbXFxyXFxuIC1dXCIsIFwiX1wiKSwgRlVOPXRvbG93ZXIpXG5jb2xuYW1lcyhpc3N1ZXJzKVxuYGBgIn0= -->
+<pre class="r"><code>colnames(issuers) &lt;- lapply(str_replace_all(colnames(issuers), &quot;[\r\n -]&quot;, &quot;_&quot;), FUN=tolower)
+colnames(issuers)</code></pre>
+<!-- rnb-source-end -->
+<!-- rnb-output-begin eyJkYXRhIjoiIFsxXSBcImNvX2lkXCIgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgXCJleGNoYW5nZVwiICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgXG4gWzNdIFwibmFtZVwiICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICBcInJvb3RfX3RpY2tlclwiICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICBcbiBbNV0gXCJxbXYoYyQpX18zMV9kZWNlbWJlcl8yMDE5XCIgICAgICAgICAgICAgICAgICAgICAgICAgIFwiby9zX3NoYXJlc19fMzFfZGVjZW1iZXJfMjAxOVwiICAgICAgICAgICAgICAgICAgICAgIFxuIFs3XSBcInNlY3RvclwiICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgXCJzdWJfX3NlY3RvclwiICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgXG4gWzldIFwibGlzdGluZ190eXBlXCIgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICBcImRhdGVfb2ZfX190c3hfbGlzdGluZ19feXl5eW1tZGRcIiAgICAgICAgICAgICAgICAgICBcblsxMV0gXCJocV9fbG9jYXRpb25cIiAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgIFwiaHFfX3JlZ2lvblwiICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgIFxuWzEzXSBcImludGVybGlzdGVkX19jb2RlX2lcIiAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgXCJpbnRlcmxpc3RlZF9fY29kZV9paVwiICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgXG5bMTVdIFwibGlzdGVkX29uX290Y1wiICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICBcInRzeF9fX3ZlbnR1cmVfX19ncmFkXCIgICAgICAgICAgICAgICAgICAgICAgICAgICAgICBcblsxN10gXCJmb3JtZXJfX2NwY1wiICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgIFwiaW5kZXhcIiAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgIFxuWzE5XSBcImNsZWFuX3RlY2hub2xvZ3lfcHJpbWFyeV9pbmR1c3RyeVwiICAgICAgICAgICAgICAgICAgXCJjbGVhbl90ZWNobm9sb2d5X3N1Yl9zZWN0b3JcIiAgICAgICAgICAgICAgICAgICAgICAgXG5bMjFdIFwidGVjaG5vbG9neV9zdWJfc2VjdG9yXCIgICAgICAgICAgICAgICAgICAgICAgICAgICAgICBcImNvbnN1bWVyX3Byb2R1Y3RzXyZfc2VydmljZXNfX3N1Yl9zZWN0b3JcIiAgICAgICAgICBcblsyM10gXCJyZWFsX2VzdGF0ZV9zdWJfc2VjdG9yXCIgICAgICAgICAgICAgICAgICAgICAgICAgICAgIFwibGlmZV9zY2llbmNlc19zdWJfc2VjdG9yXCIgICAgICAgICAgICAgICAgICAgICAgICAgIFxuWzI1XSBcInVzYV9jaXR5XCIgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgXCJ1c2Ffc3RhdGVcIiAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgXG5bMjddIFwiYXNpYV9yZWdpb25cIiAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICBcImlzcmFlbF9yZWxhdGVkXCIgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICBcblsyOV0gXCJwbGFjZV9vZl9pbmNvcnBvcmF0aW9uX19jPWNhbmFkYV9fdT11c2FfX2Y9Zm9yZWlnblwiIFwiZnVuZF9mYW1pbHlcIiAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgIFxuWzMxXSBcInNwX2dyb3VwaW5nXCIgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgXCJzcF90eXBlXCIgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgXG5bMzNdIFwic3Bfc3ViXCIgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICBcImluY29tZV90cnVzdF9fX2NvbnZlcnNpb25cIiAgICAgICAgICAgICAgICAgICAgICAgICBcblszNV0gXCJ2b2x1bWVfeXRkX18zMV9kZWNlbWJlcl8yMDE5XCIgICAgICAgICAgICAgICAgICAgICAgIFwidmFsdWVfKGMkKV95dGRfXzMxX2RlY2VtYmVyXzIwMTlcIiAgICAgICAgICAgICAgICAgIFxuWzM3XSBcIm51bWJlcl9vZl9fX3RyYWRlc195dGRfXzMxX2RlY2VtYmVyXzIwMTlcIiAgICAgICAgICAgXCJudW1iZXJfb2ZfX21vbnRoc19vZl9fX3RyYWRpbmdfZGF0YVwiICAgICAgICAgICAgICAgXG5bMzldIFwiYWZyaWNhXCIgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICBcImF1cy9uei9wbmdcIiAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICBcbls0MV0gXCJjYW5hZGFcIiAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgIFwiY2hpbmFfJl9hc2lhXCIgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgIFxuWzQzXSBcImxhdGluX2FtZXJpY2FcIiAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgXCJvdGhlclwiICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgXG5bNDVdIFwidWsvZXVyb3BlXCIgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICBcInVzYVwiICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICBcbls0N10gXCJvaWxfYW5kX2dhc1wiICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgIFwiZ29sZFwiICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgIFxuWzQ5XSBcInNpbHZlclwiICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgXCJjb3BwZXJcIiAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgXG5bNTFdIFwibmlja2VsXCIgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICBcImRpYW1vbmRcIiAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICBcbls1M10gXCJtb2x5YmRlbnVtXCIgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgIFwicGxhdGludW0vcGdtXCIgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgIFxuWzU1XSBcImlyb25cIiAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgXCJsZWFkXCIgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgXG5bNTddIFwiemluY1wiICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICBcInJhcmVfZWFydGhzXCIgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICBcbls1OV0gXCJwb3Rhc2hcIiAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgIFwibGl0aGl1bVwiICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgIFxuWzYxXSBcInVyYW5pdW1cIiAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgXCJjb2FsXCIgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgXG5bNjNdIFwidHVuZ3N0ZW5cIiAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICBcImJhc2VfJl9wcmVjaW91c19tZXRhbHNcIiAgICAgICAgICAgICAgICAgICAgICAgICAgICBcbls2NV0gXCJtaW5lcmFsX3Byb3BlcnRpZXNfKGdlbmVyYWwpXCIgICAgICAgICAgICAgICAgICAgICAgIFwib3RoZXJfcHJvcGVydGllc1wiICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgIFxuIn0= -->
+<pre><code> [1] &quot;co_id&quot;                                              &quot;exchange&quot;                                          
+ [3] &quot;name&quot;                                               &quot;root__ticker&quot;                                      
+ [5] &quot;qmv(c$)__31_december_2019&quot;                          &quot;o/s_shares__31_december_2019&quot;                      
+ [7] &quot;sector&quot;                                             &quot;sub__sector&quot;                                       
+ [9] &quot;listing_type&quot;                                       &quot;date_of___tsx_listing__yyyymmdd&quot;                   
+[11] &quot;hq__location&quot;                                       &quot;hq__region&quot;                                        
+[13] &quot;interlisted__code_i&quot;                                &quot;interlisted__code_ii&quot;                              
+[15] &quot;listed_on_otc&quot;                                      &quot;tsx___venture___grad&quot;                              
+[17] &quot;former__cpc&quot;                                        &quot;index&quot;                                             
+[19] &quot;clean_technology_primary_industry&quot;                  &quot;clean_technology_sub_sector&quot;                       
+[21] &quot;technology_sub_sector&quot;                              &quot;consumer_products_&amp;_services__sub_sector&quot;          
+[23] &quot;real_estate_sub_sector&quot;                             &quot;life_sciences_sub_sector&quot;                          
+[25] &quot;usa_city&quot;                                           &quot;usa_state&quot;                                         
+[27] &quot;asia_region&quot;                                        &quot;israel_related&quot;                                    
+[29] &quot;place_of_incorporation__c=canada__u=usa__f=foreign&quot; &quot;fund_family&quot;                                       
+[31] &quot;sp_grouping&quot;                                        &quot;sp_type&quot;                                           
+[33] &quot;sp_sub&quot;                                             &quot;income_trust___conversion&quot;                         
+[35] &quot;volume_ytd__31_december_2019&quot;                       &quot;value_(c$)_ytd__31_december_2019&quot;                  
+[37] &quot;number_of___trades_ytd__31_december_2019&quot;           &quot;number_of__months_of___trading_data&quot;               
+[39] &quot;africa&quot;                                             &quot;aus/nz/png&quot;                                        
+[41] &quot;canada&quot;                                             &quot;china_&amp;_asia&quot;                                      
+[43] &quot;latin_america&quot;                                      &quot;other&quot;                                             
+[45] &quot;uk/europe&quot;                                          &quot;usa&quot;                                               
+[47] &quot;oil_and_gas&quot;                                        &quot;gold&quot;                                              
+[49] &quot;silver&quot;                                             &quot;copper&quot;                                            
+[51] &quot;nickel&quot;                                             &quot;diamond&quot;                                           
+[53] &quot;molybdenum&quot;                                         &quot;platinum/pgm&quot;                                      
+[55] &quot;iron&quot;                                               &quot;lead&quot;                                              
+[57] &quot;zinc&quot;                                               &quot;rare_earths&quot;                                       
+[59] &quot;potash&quot;                                             &quot;lithium&quot;                                           
+[61] &quot;uranium&quot;                                            &quot;coal&quot;                                              
+[63] &quot;tungsten&quot;                                           &quot;base_&amp;_precious_metals&quot;                            
+[65] &quot;mineral_properties_(general)&quot;                       &quot;other_properties&quot;                                  </code></pre>
+<!-- rnb-output-end -->
+<!-- rnb-chunk-end -->
+<!-- rnb-text-begin -->
+</div>
+<div id="ii.-univariate-analysis" class="section level2">
+<h2>II. Univariate Analysis</h2>
+<div id="sectors" class="section level3">
+<h3>Sectors</h3>
+<!-- rnb-text-end -->
+<!-- rnb-chunk-begin -->
+<!-- rnb-source-begin eyJkYXRhIjoiYGBgclxudGFibGUoaXNzdWVycyRzZWN0b3IpXG5gYGAifQ== -->
+<pre class="r"><code>table(issuers$sector)</code></pre>
+<!-- rnb-source-end -->
+<!-- rnb-output-begin eyJkYXRhIjoiXG4gICAgICAgICAgICAgIENsZWFuIFRlY2hub2xvZ3kgICAgICAgICAgICAgICBDbG9zZWQtRW5kIEZ1bmRzICAgICAgICAgICAgICAgICAgIENvbW0gJiBNZWRpYSBcbiAgICAgICAgICAgICAgICAgICAgICAgICAgICAzMCAgICAgICAgICAgICAgICAgICAgICAgICAgICAgODcgICAgICAgICAgICAgICAgICAgICAgICAgICAgIDIzIFxuICBDb25zdW1lciBQcm9kdWN0cyAmIFNlcnZpY2VzICAgICAgICAgICAgICAgICAgICAgICAgICAgIEVUUCAgICAgICAgICAgICAgICAgICAgICAgIEVUUC1FVE4gXG4gICAgICAgICAgICAgICAgICAgICAgICAgICAgNzAgICAgICAgICAgICAgICAgICAgICAgICAgICAgNjk2ICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgMSBcbiAgICAgICAgICAgIEZpbmFuY2lhbCBTZXJ2aWNlcyBJbmR1c3RyaWFsIFByb2R1Y3RzICYgU2VydmljZXMgICAgICAgICAgICAgICAgICBMaWZlIFNjaWVuY2VzIFxuICAgICAgICAgICAgICAgICAgICAgICAgICAgIDczICAgICAgICAgICAgICAgICAgICAgICAgICAgIDEyMyAgICAgICAgICAgICAgICAgICAgICAgICAgICAgNTYgXG4gICAgICAgICAgICAgICAgICAgICAgICBNaW5pbmcgICAgICAgICAgICAgICAgICAgICAgT2lsICYgR2FzICAgICAgICAgICAgICAgICAgICBSZWFsIEVzdGF0ZSBcbiAgICAgICAgICAgICAgICAgICAgICAgICAgIDIxMiAgICAgICAgICAgICAgICAgICAgICAgICAgICAgNjggICAgICAgICAgICAgICAgICAgICAgICAgICAgIDU3IFxuICAgICAgICAgICAgICAgICAgICAgICAgICBTUEFDICAgICAgICAgICAgICAgICAgICAgVGVjaG5vbG9neSAgICAgICAgICBVdGlsaXRpZXMgJiBQaXBlbGluZXMgXG4gICAgICAgICAgICAgICAgICAgICAgICAgICAgIDEgICAgICAgICAgICAgICAgICAgICAgICAgICAgIDUzICAgICAgICAgICAgICAgICAgICAgICAgICAgICAxOSBcbiJ9 -->
+<pre><code>
+              Clean Technology               Closed-End Funds                   Comm &amp; Media 
+                            30                             87                             23 
+  Consumer Products &amp; Services                            ETP                        ETP-ETN 
+                            70                            696                              1 
+            Financial Services Industrial Products &amp; Services                  Life Sciences 
+                            73                            123                             56 
+                        Mining                      Oil &amp; Gas                    Real Estate 
+                           212                             68                             57 
+                          SPAC                     Technology          Utilities &amp; Pipelines 
+                             1                             53                             19 </code></pre>
+<!-- rnb-output-end -->
+<!-- rnb-chunk-end -->
+<!-- rnb-text-begin -->
+</div>
+<div id="subsector" class="section level3">
+<h3>Subsector</h3>
+<!-- rnb-text-end -->
+<!-- rnb-chunk-begin -->
+<!-- rnb-source-begin eyJkYXRhIjoiYGBgclxudGFibGUoaXNzdWVycyRzdWJfX3NlY3RvcilcbmBgYCJ9 -->
+<pre class="r"><code>table(issuers$sub__sector)</code></pre>
+<!-- rnb-source-end -->
+<!-- rnb-output-begin eyJkYXRhIjoiXG4gICAgICAgICAgICAgIEFncmljdWx0dXJlIEJsb2NrY2hhaW4vQ3J5cHRvY3VycmVuY3kgICAgICAgICAgICAgICAgICBDYW5uYWJpcyAgICAgICAgICAgRW5lcmd5IFNlcnZpY2VzIFxuICAgICAgICAgICAgICAgICAgICAgICAxMiAgICAgICAgICAgICAgICAgICAgICAgICAxICAgICAgICAgICAgICAgICAgICAgICAgMjIgICAgICAgICAgICAgICAgICAgICAgICAzNiBcbiAgRm9yZXN0IFByb2R1Y3RzICYgUGFwZXIgICAgICAgICAgIE1pbmluZyBTZXJ2aWNlcyBcbiAgICAgICAgICAgICAgICAgICAgICAgMTUgICAgICAgICAgICAgICAgICAgICAgICAgMyBcbiJ9 -->
+<pre><code>
+              Agriculture Blockchain/Cryptocurrency                  Cannabis           Energy Services 
+                       12                         1                        22                        36 
+  Forest Products &amp; Paper           Mining Services 
+                       15                         3 </code></pre>
+<!-- rnb-output-end -->
+<!-- rnb-chunk-end -->
+<!-- rnb-text-begin -->
+</div>
+<div id="real-estate-subsector" class="section level3">
+<h3>Real Estate Subsector</h3>
+<p>AVailable in real_estate_sub-sector</p>
+<!-- rnb-text-end -->
+<!-- rnb-chunk-begin -->
+<!-- rnb-source-begin eyJkYXRhIjoiYGBgclxudGFibGUoaXNzdWVyc1ssICdyZWFsX2VzdGF0ZV9zdWJfc2VjdG9yJ10pXG5gYGAifQ== -->
+<pre class="r"><code>table(issuers[, &#39;real_estate_sub_sector&#39;])</code></pre>
+<!-- rnb-source-end -->
+<!-- rnb-output-begin eyJkYXRhIjoiXG4gICAgICAgICAgICAgICAgICAgICAgICAgRGl2ZXJzaWZpZWQgSW5kdXN0cmlhbC9PZmZpY2UvUmV0YWlsL1Jlc2lkZW50aWFsIFJlYWwgRXN0YXRlIERldmVsb3BtZW50IGFuZCBTZXJ2aWNlcyBcbiAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgNyAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgMzMgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAzIFxuICAgICBSZWFsIEVzdGF0ZSBPcGVyYXRpbmcgQ29tcGFuaWVzICAgICAgICAgICAgICAgICAgICAgICAgICBTcGVjaWFsaXplZCBcbiAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgOCAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgIDYgXG4ifQ== -->
+<pre><code>
+                         Diversified Industrial/Office/Retail/Residential Real Estate Development and Services 
+                                   7                                   33                                    3 
+     Real Estate Operating Companies                          Specialized 
+                                   8                                    6 </code></pre>
+<!-- rnb-output-end -->
+<!-- rnb-chunk-end -->
+<!-- rnb-text-begin -->
+</div>
+</div>
+<div id="iii.-analysis-of-real-estate-companies" class="section level2">
+<h2>III. Analysis of Real-Estate Companies</h2>
+<!-- rnb-text-end -->
+<!-- rnb-chunk-begin -->
+<!-- rnb-source-begin eyJkYXRhIjoiYGBgclxucmVhbF9lc3RhdGUgPC0gZmlsdGVyKGlzc3VlcnMsICFpcy5uYShpc3N1ZXJzWywgJ3JlYWxfZXN0YXRlX3N1Yl9zZWN0b3InXSkpXG5oZWFkKHJlYWxfZXN0YXRlKVxuYGBgIn0= -->
+<pre class="r"><code>real_estate &lt;- filter(issuers, !is.na(issuers[, &#39;real_estate_sub_sector&#39;]))
+head(real_estate)</code></pre>
+<!-- rnb-source-end -->
+<!-- rnb-frame-begin eyJtZXRhZGF0YSI6eyJjbGFzc2VzIjpbInRibF9kZiIsInRibCIsImRhdGEuZnJhbWUiXSwibmNvbCI6NjYsIm5yb3ciOjZ9LCJyZGYiOiJVa1JZTXdwWUNnQUFBQU1BQXdZREFBTUZBQUFBQUFWVlZFWXRPQUFBQkFJQUFBQUJBQVFBQ1FBQUFBRjRBQUFERXdBQUFFSUFBQUFRQUFBQUJnQUVBQWtBQUFBSFFVeE1NREF4T0FBRUFBa0FBQUFIUVZWVU1EQXdOZ0FFQUFrQUFBQUhWMFZUTURBMk1RQUVBQWtBQUFBSFFsSlBNREF6T0FBRUFBa0FBQUFIUWs5Qk1EQXdNUUFFQUFrQUFBQUhRa1ZETURBd01RQUFBQkFBQUFBR0FBUUFDUUFBQUFOVVUxZ0FCQUFKQUFBQUExUlRXQUFFQUFrQUFBQURWRk5ZQUFRQUNRQUFBQU5VVTFnQUJBQUpBQUFBQTFSVFdBQUVBQWtBQUFBRFZGTllBQUFBRUFBQUFBWUFCQUFKQUFBQUxrRnNiR2xsWkNCUWNtOXdaWEowYVdWeklGSmxZV3dnUlhOMFlYUmxJRWx1ZG1WemRHMWxiblFnVkhKMWMzUUFCQUFKQUFBQU1rRjFkRzl0YjNScGRtVWdVSEp2Y0dWeWRHbGxjeUJTWldGc0lFVnpkR0YwWlNCSmJuWmxjM1J0Wlc1MElGUnlkWE4wQUFRQUNRQUFBQ0pCY25ScGN5QlNaV0ZzSUVWemRHRjBaU0JKYm5abGMzUnRaVzUwSUZSeWRYTjBBQVFBQ1FBQUFDRkNjbTl2YTJacFpXeGtJRUoxYzJsdVpYTnpJRkJoY25SdVpYSnpJRXd1VUM0QUJBQUpBQUFBSmtKdllYSmtkMkZzYXlCU1pXRnNJRVZ6ZEdGMFpTQkpiblpsYzNSdFpXNTBJRlJ5ZFhOMEFBUUFDUUFBQUI1Q1pXTnJaWElnVFdsc2F5QkRiMjF3WVc1NUlFeDBaQzRnS0ZSb1pTa0FBQUFRQUFBQUJnQUVBQWtBQUFBQ1FWQUFCQUFKQUFBQUEwRlFVZ0FFQUFrQUFBQUNRVmdBQkFBSkFBQUFBMEpDVlFBRUFBa0FBQUFEUWtWSkFBUUFDUUFBQUFOQ1JVc0FBQUFPQUFBQUJrSDMwK2c4ZnVGSVFidE0wVzNNek0xQjNORkZZMEFBQUVId05yVTBmVWV1UWQrcHNiNnN6TTFCY1RvRktBQUFBQUFBQUE0QUFBQUdRWjFKZkR3QUFBQkJnZm13NEFBQUFFR2g1b2VVQUFBQVFaTlFFK3dBQUFCQmhnOVdjQUFBQUVFelY1b0FBQUFBQUFBQUVBQUFBQVlBQkFBSkFBQUFDMUpsWVd3Z1JYTjBZWFJsQUFRQUNRQUFBQXRTWldGc0lFVnpkR0YwWlFBRUFBa0FBQUFMVW1WaGJDQkZjM1JoZEdVQUJBQUpBQUFBQzFKbFlXd2dSWE4wWVhSbEFBUUFDUUFBQUF0U1pXRnNJRVZ6ZEdGMFpRQUVBQWtBQUFBTFVtVmhiQ0JGYzNSaGRHVUFBQUFRQUFBQUJnQUFBQW4vLy8vL0FBQUFDZi8vLy84QUFBQUovLy8vL3dBQUFBbi8vLy8vQUFBQUNmLy8vLzhBQUFBSi8vLy8vd0FBQUJBQUFBQUdBQVFBQ1FBQUFBTkpVRThBQkFBSkFBQUFBMGxRVHdBRUFBa0FBQUFKVkZOWVZpQkhjbUZrQUFRQUNRQUFBQVZQZEdobGNnQUVBQWtBQUFBSlZGTllWaUJIY21Ga0FBQUFDZi8vLy84QUFBQU9BQUFBQmtGekdqQ3dBQUFBUVhNM25DQUFBQUJCY3lHUUVBQUFBRUZ6T2dFd0FBQUFRWE1HNENBQUFBQkJjc0pmMEFBQUFBQUFBQkFBQUFBR0FBUUFDUUFBQUFKUFRnQUVBQWtBQUFBQ1QwNEFCQUFKQUFBQUFrMUNBQVFBQ1FBQUFBZENaWEp0ZFdSaEFBUUFDUUFBQUFKQlFnQUVBQWtBQUFBQ1QwNEFBQUFRQUFBQUJnQUVBQWtBQUFBR1EyRnVZV1JoQUFRQUNRQUFBQVpEWVc1aFpHRUFCQUFKQUFBQUJrTmhibUZrWVFBRUFBa0FBQUFGVDNSb1pYSUFCQUFKQUFBQUJrTmhibUZrWVFBRUFBa0FBQUFHUTJGdVlXUmhBQUFBRUFBQUFBWUFBQUFKLy8vLy93QUFBQW4vLy8vL0FBQUFDZi8vLy84QUJBQUpBQUFBQkU1WlUwVUFBQUFKLy8vLy93QUFBQW4vLy8vL0FBQUFFQUFBQUFZQUFBQUovLy8vL3dBQUFBbi8vLy8vQUFBQUNmLy8vLzhBQUFBSi8vLy8vd0FBQUFuLy8vLy9BQUFBQ2YvLy8vOEFBQUFRQUFBQUJnQUFBQW4vLy8vL0FBQUFDZi8vLy84QUJBQUpBQUFBQlU5VVExRllBQUFBQ2YvLy8vOEFBQUFKLy8vLy93QUFBQW4vLy8vL0FBQUFEZ0FBQUFaLzhBQUFBQUFIb24vd0FBQUFBQWVpUC9BQUFBQUFBQUIvOEFBQUFBQUhvai93QUFBQUFBQUFmL0FBQUFBQUI2SUFBQUFPQUFBQUJuL3dBQUFBQUFlaWYvQUFBQUFBQjZJLzhBQUFBQUFBQUgvd0FBQUFBQWVpUC9BQUFBQUFBQUIvOEFBQUFBQUhvZ0FBQUE0QUFBQUdQL0FBQUFBQUFBQi84QUFBQUFBSG9qL3dBQUFBQUFBQVAvQUFBQUFBQUFBLzhBQUFBQUFBQUgvd0FBQUFBQWVpQUFBQUVBQUFBQVlBQUFBSi8vLy8vd0FBQUFuLy8vLy9BQUFBQ2YvLy8vOEFBQUFKLy8vLy93QUFBQW4vLy8vL0FBQUFDZi8vLy84QUFBQVFBQUFBQmdBQUFBbi8vLy8vQUFBQUNmLy8vLzhBQUFBSi8vLy8vd0FBQUFuLy8vLy9BQUFBQ2YvLy8vOEFBQUFKLy8vLy93QUFBQkFBQUFBR0FBQUFDZi8vLy84QUFBQUovLy8vL3dBQUFBbi8vLy8vQUFBQUNmLy8vLzhBQUFBSi8vLy8vd0FBQUFuLy8vLy9BQUFBRUFBQUFBWUFBQUFKLy8vLy93QUFBQW4vLy8vL0FBQUFDZi8vLy84QUFBQUovLy8vL3dBQUFBbi8vLy8vQUFBQUNmLy8vLzhBQUFBUUFBQUFCZ0FFQUFrQUFBQWtTVzVrZFhOMGNtbGhiQzlQWm1acFkyVXZVbVYwWVdsc0wxSmxjMmxrWlc1MGFXRnNBQVFBQ1FBQUFDUkpibVIxYzNSeWFXRnNMMDltWm1salpTOVNaWFJoYVd3dlVtVnphV1JsYm5ScFlXd0FCQUFKQUFBQUMwUnBkbVZ5YzJsbWFXVmtBQVFBQ1FBQUFCOVNaV0ZzSUVWemRHRjBaU0JQY0dWeVlYUnBibWNnUTI5dGNHRnVhV1Z6QUFRQUNRQUFBQ1JKYm1SMWMzUnlhV0ZzTDA5bVptbGpaUzlTWlhSaGFXd3ZVbVZ6YVdSbGJuUnBZV3dBQkFBSkFBQUFIMUpsWVd3Z1JYTjBZWFJsSUU5d1pYSmhkR2x1WnlCRGIyMXdZVzVwWlhNQUFBQVFBQUFBQmdBQUFBbi8vLy8vQUFBQUNmLy8vLzhBQUFBSi8vLy8vd0FBQUFuLy8vLy9BQUFBQ2YvLy8vOEFBQUFKLy8vLy93QUFBQkFBQUFBR0FBQUFDZi8vLy84QUFBQUovLy8vL3dBQUFBbi8vLy8vQUFBQUNmLy8vLzhBQUFBSi8vLy8vd0FBQUFuLy8vLy9BQUFBRUFBQUFBWUFBQUFKLy8vLy93QUFBQW4vLy8vL0FBQUFDZi8vLy84QUFBQUovLy8vL3dBQUFBbi8vLy8vQUFBQUNmLy8vLzhBQUFBUUFBQUFCZ0FBQUFuLy8vLy9BQUFBQ2YvLy8vOEFBQUFKLy8vLy93QUFBQW4vLy8vL0FBQUFDZi8vLy84QUFBQUovLy8vL3dBQUFBNEFBQUFHZi9BQUFBQUFCNkovOEFBQUFBQUhvbi93QUFBQUFBZWlmL0FBQUFBQUI2Si84QUFBQUFBSG9uL3dBQUFBQUFlaUFBQUFFQUFBQUFZQUJBQUpBQUFBQVVNQUJBQUpBQUFBQVVNQUJBQUpBQUFBQVVNQUJBQUpBQUFBQVVZQUJBQUpBQUFBQVVNQUJBQUpBQUFBQVVNQUFBQVFBQUFBQmdBQUFBbi8vLy8vQUFBQUNmLy8vLzhBQUFBSi8vLy8vd0FBQUFuLy8vLy9BQUFBQ2YvLy8vOEFBQUFKLy8vLy93QUFBQkFBQUFBR0FBUUFDUUFBQUF4SmJtTnZiV1VnVkhKMWMzUUFCQUFKQUFBQURFbHVZMjl0WlNCVWNuVnpkQUFFQUFrQUFBQU1TVzVqYjIxbElGUnlkWE4wQUFBQUNmLy8vLzhBQkFBSkFBQUFERWx1WTI5dFpTQlVjblZ6ZEFBQUFBbi8vLy8vQUFBQUVBQUFBQVlBQUFBSi8vLy8vd0FBQUFuLy8vLy9BQUFBQ2YvLy8vOEFBQUFKLy8vLy93QUFBQW4vLy8vL0FBQUFDZi8vLy84QUFBQVFBQUFBQmdBRUFBa0FBQUFFVWtWSlZBQUVBQWtBQUFBRVVrVkpWQUFFQUFrQUFBQUVVa1ZKVkFBQUFBbi8vLy8vQUFRQUNRQUFBQVJTUlVsVUFBQUFDZi8vLy84QUFBQVFBQUFBQmdBQUFBbi8vLy8vQUFBQUNmLy8vLzhBQUFBSi8vLy8vd0FBQUFuLy8vLy9BQVFBQ1FBQUFBUXlNREEwQUFBQUNmLy8vLzhBQUFBT0FBQUFCa0dKcjBvb0FBQUFRWE1oR1VBQUFBQkJsTEdIL0FBQUFFRnd3cGFBQUFBQVFYMXIybEFBQUFCQkJxNWdBQUFBQUFBQUFBNEFBQUFHUWVRQzc1MndBQUJCcWo4ME9RQUFBRUhPd3lqZkFBQUFRY21tdlZQQUFBQkIwNXl0NVNBQUFFRkZKZ3NBQUFBQUFBQUFEZ0FBQUFaQkZFVmNBQUFBQUVEeGlmQUFBQUFBUVJLbnVBQUFBQUJBOGR6UUFBQUFBRUVKTGtBQUFBQUFRSDV3QUFBQUFBQUFBQUFPQUFBQUJrQW9BQUFBQUFBQVFDZ0FBQUFBQUFCQUtBQUFBQUFBQUVBb0FBQUFBQUFBUUNnQUFBQUFBQUJBS0FBQUFBQUFBQUFBQUJBQUFBQUdBQUFBQ2YvLy8vOEFBQUFKLy8vLy93QUFBQW4vLy8vL0FBQUFDZi8vLy84QUFBQUovLy8vL3dBQUFBbi8vLy8vQUFBQUVBQUFBQVlBQUFBSi8vLy8vd0FBQUFuLy8vLy9BQUFBQ2YvLy8vOEFBQUFKLy8vLy93QUFBQW4vLy8vL0FBQUFDZi8vLy84QUFBQVFBQUFBQmdBQUFBbi8vLy8vQUFBQUNmLy8vLzhBQUFBSi8vLy8vd0FBQUFuLy8vLy9BQUFBQ2YvLy8vOEFBQUFKLy8vLy93QUFBQkFBQUFBR0FBQUFDZi8vLy84QUFBQUovLy8vL3dBQUFBbi8vLy8vQUFBQUNmLy8vLzhBQUFBSi8vLy8vd0FBQUFuLy8vLy9BQUFBRUFBQUFBWUFBQUFKLy8vLy93QUFBQW4vLy8vL0FBQUFDZi8vLy84QUFBQUovLy8vL3dBQUFBbi8vLy8vQUFBQUNmLy8vLzhBQUFBUUFBQUFCZ0FBQUFuLy8vLy9BQUFBQ2YvLy8vOEFBQUFKLy8vLy93QUFBQW4vLy8vL0FBQUFDZi8vLy84QUFBQUovLy8vL3dBQUFCQUFBQUFHQUFBQUNmLy8vLzhBQUFBSi8vLy8vd0FBQUFuLy8vLy9BQUFBQ2YvLy8vOEFBQUFKLy8vLy93QUFBQW4vLy8vL0FBQUFFQUFBQUFZQUFBQUovLy8vL3dBQUFBbi8vLy8vQUFBQUNmLy8vLzhBQUFBSi8vLy8vd0FBQUFuLy8vLy9BQUFBQ2YvLy8vOEFBQUFPQUFBQUJuL3dBQUFBQUFlaWYvQUFBQUFBQjZKLzhBQUFBQUFIb24vd0FBQUFBQWVpZi9BQUFBQUFCNkovOEFBQUFBQUhvZ0FBQUE0QUFBQUdmL0FBQUFBQUI2Si84QUFBQUFBSG9uL3dBQUFBQUFlaWYvQUFBQUFBQjZKLzhBQUFBQUFIb24vd0FBQUFBQWVpQUFBQURnQUFBQVovOEFBQUFBQUhvbi93QUFBQUFBZWlmL0FBQUFBQUI2Si84QUFBQUFBSG9uL3dBQUFBQUFlaWYvQUFBQUFBQjZJQUFBQU9BQUFBQm4vd0FBQUFBQWVpZi9BQUFBQUFCNkovOEFBQUFBQUhvbi93QUFBQUFBZWlmL0FBQUFBQUI2Si84QUFBQUFBSG9nQUFBQTRBQUFBR2YvQUFBQUFBQjZKLzhBQUFBQUFIb24vd0FBQUFBQWVpZi9BQUFBQUFCNkovOEFBQUFBQUhvbi93QUFBQUFBZWlBQUFBRGdBQUFBWi84QUFBQUFBSG9uL3dBQUFBQUFlaWYvQUFBQUFBQjZKLzhBQUFBQUFIb24vd0FBQUFBQWVpZi9BQUFBQUFCNklBQUFBT0FBQUFCbi93QUFBQUFBZWlmL0FBQUFBQUI2Si84QUFBQUFBSG9uL3dBQUFBQUFlaWYvQUFBQUFBQjZKLzhBQUFBQUFIb2dBQUFBNEFBQUFHZi9BQUFBQUFCNkovOEFBQUFBQUhvbi93QUFBQUFBZWlmL0FBQUFBQUI2Si84QUFBQUFBSG9uL3dBQUFBQUFlaUFBQUFEZ0FBQUFaLzhBQUFBQUFIb24vd0FBQUFBQWVpZi9BQUFBQUFCNkovOEFBQUFBQUhvbi93QUFBQUFBZWlmL0FBQUFBQUI2SUFBQUFPQUFBQUJuL3dBQUFBQUFlaWYvQUFBQUFBQjZKLzhBQUFBQUFIb24vd0FBQUFBQWVpZi9BQUFBQUFCNkovOEFBQUFBQUhvZ0FBQUE0QUFBQUdmL0FBQUFBQUI2Si84QUFBQUFBSG9uL3dBQUFBQUFlaWYvQUFBQUFBQjZKLzhBQUFBQUFIb24vd0FBQUFBQWVpQUFBQURnQUFBQVovOEFBQUFBQUhvbi93QUFBQUFBZWlmL0FBQUFBQUI2Si84QUFBQUFBSG9uL3dBQUFBQUFlaWYvQUFBQUFBQjZJQUFBQU9BQUFBQm4vd0FBQUFBQWVpZi9BQUFBQUFCNkovOEFBQUFBQUhvbi93QUFBQUFBZWlmL0FBQUFBQUI2Si84QUFBQUFBSG9nQUFBQTRBQUFBR2YvQUFBQUFBQjZKLzhBQUFBQUFIb24vd0FBQUFBQWVpZi9BQUFBQUFCNkovOEFBQUFBQUhvbi93QUFBQUFBZWlBQUFBRGdBQUFBWi84QUFBQUFBSG9uL3dBQUFBQUFlaWYvQUFBQUFBQjZKLzhBQUFBQUFIb24vd0FBQUFBQWVpZi9BQUFBQUFCNklBQUFBT0FBQUFCbi93QUFBQUFBZWlmL0FBQUFBQUI2Si84QUFBQUFBSG9uL3dBQUFBQUFlaWYvQUFBQUFBQjZKLzhBQUFBQUFIb2dBQUFBNEFBQUFHZi9BQUFBQUFCNkovOEFBQUFBQUhvbi93QUFBQUFBZWlmL0FBQUFBQUI2Si84QUFBQUFBSG9uL3dBQUFBQUFlaUFBQUFEZ0FBQUFaLzhBQUFBQUFIb24vd0FBQUFBQWVpZi9BQUFBQUFCNkovOEFBQUFBQUhvbi93QUFBQUFBZWlmL0FBQUFBQUI2SUFBQUFPQUFBQUJuL3dBQUFBQUFlaWYvQUFBQUFBQjZKLzhBQUFBQUFIb24vd0FBQUFBQWVpZi9BQUFBQUFCNkovOEFBQUFBQUhvZ0FBQUJBQUFBQUdBQUFBQ2YvLy8vOEFBQUFKLy8vLy93QUFBQW4vLy8vL0FBQUFDZi8vLy84QUFBQUovLy8vL3dBQUFBbi8vLy8vQUFBRUFnQUFBQUVBQkFBSkFBQUFCVzVoYldWekFBQUFFQUFBQUVJQUJBQUpBQUFBQldOdlgybGtBQVFBQ1FBQUFBaGxlR05vWVc1blpRQUVBQWtBQUFBRWJtRnRaUUFFQUFrQUFBQU1jbTl2ZEY5ZmRHbGphMlZ5QUFRQUNRQUFBQmx4YlhZb1l5UXBYMTh6TVY5a1pXTmxiV0psY2w4eU1ERTVBQVFBQ1FBQUFCeHZMM05mYzJoaGNtVnpYMTh6TVY5a1pXTmxiV0psY2w4eU1ERTVBQVFBQ1FBQUFBWnpaV04wYjNJQUJBQUpBQUFBQzNOMVlsOWZjMlZqZEc5eUFBUUFDUUFBQUF4c2FYTjBhVzVuWDNSNWNHVUFCQUFKQUFBQUgyUmhkR1ZmYjJaZlgxOTBjM2hmYkdsemRHbHVaMTlmZVhsNWVXMXRaR1FBQkFBSkFBQUFER2h4WDE5c2IyTmhkR2x2YmdBRUFBa0FBQUFLYUhGZlgzSmxaMmx2YmdBRUFBa0FBQUFUYVc1MFpYSnNhWE4wWldSZlgyTnZaR1ZmYVFBRUFBa0FBQUFVYVc1MFpYSnNhWE4wWldSZlgyTnZaR1ZmYVdrQUJBQUpBQUFBRFd4cGMzUmxaRjl2Ymw5dmRHTUFCQUFKQUFBQUZIUnplRjlmWDNabGJuUjFjbVZmWDE5bmNtRmtBQVFBQ1FBQUFBdG1iM0p0WlhKZlgyTndZd0FFQUFrQUFBQUZhVzVrWlhnQUJBQUpBQUFBSVdOc1pXRnVYM1JsWTJodWIyeHZaM2xmY0hKcGJXRnllVjlwYm1SMWMzUnllUUFFQUFrQUFBQWJZMnhsWVc1ZmRHVmphRzV2Ykc5bmVWOXpkV0pmYzJWamRHOXlBQVFBQ1FBQUFCVjBaV05vYm05c2IyZDVYM04xWWw5elpXTjBiM0lBQkFBSkFBQUFLR052Ym5OMWJXVnlYM0J5YjJSMVkzUnpYeVpmYzJWeWRtbGpaWE5mWDNOMVlsOXpaV04wYjNJQUJBQUpBQUFBRm5KbFlXeGZaWE4wWVhSbFgzTjFZbDl6WldOMGIzSUFCQUFKQUFBQUdHeHBabVZmYzJOcFpXNWpaWE5mYzNWaVgzTmxZM1J2Y2dBRUFBa0FBQUFJZFhOaFgyTnBkSGtBQkFBSkFBQUFDWFZ6WVY5emRHRjBaUUFFQUFrQUFBQUxZWE5wWVY5eVpXZHBiMjRBQkFBSkFBQUFEbWx6Y21GbGJGOXlaV3hoZEdWa0FBUUFDUUFBQURKd2JHRmpaVjl2Wmw5cGJtTnZjbkJ2Y21GMGFXOXVYMTlqUFdOaGJtRmtZVjlmZFQxMWMyRmZYMlk5Wm05eVpXbG5iZ0FFQUFrQUFBQUxablZ1WkY5bVlXMXBiSGtBQkFBSkFBQUFDM053WDJkeWIzVndhVzVuQUFRQUNRQUFBQWR6Y0Y5MGVYQmxBQVFBQ1FBQUFBWnpjRjl6ZFdJQUJBQUpBQUFBR1dsdVkyOXRaVjkwY25WemRGOWZYMk52Ym5abGNuTnBiMjRBQkFBSkFBQUFISFp2YkhWdFpWOTVkR1JmWHpNeFgyUmxZMlZ0WW1WeVh6SXdNVGtBQkFBSkFBQUFJSFpoYkhWbFh5aGpKQ2xmZVhSa1gxOHpNVjlrWldObGJXSmxjbDh5TURFNUFBUUFDUUFBQUNodWRXMWlaWEpmYjJaZlgxOTBjbUZrWlhOZmVYUmtYMTh6TVY5a1pXTmxiV0psY2w4eU1ERTVBQVFBQ1FBQUFDTnVkVzFpWlhKZmIyWmZYMjF2Ym5Sb2MxOXZabDlmWDNSeVlXUnBibWRmWkdGMFlRQUVBQWtBQUFBR1lXWnlhV05oQUFRQUNRQUFBQXBoZFhNdmJub3ZjRzVuQUFRQUNRQUFBQVpqWVc1aFpHRUFCQUFKQUFBQURHTm9hVzVoWHlaZllYTnBZUUFFQUFrQUFBQU5iR0YwYVc1ZllXMWxjbWxqWVFBRUFBa0FBQUFGYjNSb1pYSUFCQUFKQUFBQUNYVnJMMlYxY205d1pRQUVBQWtBQUFBRGRYTmhBQVFBQ1FBQUFBdHZhV3hmWVc1a1gyZGhjd0FFQUFrQUFBQUVaMjlzWkFBRUFBa0FBQUFHYzJsc2RtVnlBQVFBQ1FBQUFBWmpiM0J3WlhJQUJBQUpBQUFBQm01cFkydGxiQUFFQUFrQUFBQUhaR2xoYlc5dVpBQUVBQWtBQUFBS2JXOXNlV0prWlc1MWJRQUVBQWtBQUFBTWNHeGhkR2x1ZFcwdmNHZHRBQVFBQ1FBQUFBUnBjbTl1QUFRQUNRQUFBQVJzWldGa0FBUUFDUUFBQUFSNmFXNWpBQVFBQ1FBQUFBdHlZWEpsWDJWaGNuUm9jd0FFQUFrQUFBQUdjRzkwWVhOb0FBUUFDUUFBQUFkc2FYUm9hWFZ0QUFRQUNRQUFBQWQxY21GdWFYVnRBQVFBQ1FBQUFBUmpiMkZzQUFRQUNRQUFBQWgwZFc1bmMzUmxiZ0FFQUFrQUFBQVdZbUZ6WlY4bVgzQnlaV05wYjNWelgyMWxkR0ZzY3dBRUFBa0FBQUFjYldsdVpYSmhiRjl3Y205d1pYSjBhV1Z6WHloblpXNWxjbUZzS1FBRUFBa0FBQUFRYjNSb1pYSmZjSEp2Y0dWeWRHbGxjd0FBQkFJQUFBQUJBQVFBQ1FBQUFBbHliM2N1Ym1GdFpYTUFBQUFOQUFBQUFvQUFBQUQvLy8vNkFBQUVBZ0FBQUFFQUJBQUpBQUFBQldOc1lYTnpBQUFBRUFBQUFBRUFCQUFKQUFBQUNtUmhkR0V1Wm5KaGJXVUFBQUQrQUFBRUFnQUFBQUVBQkFBSkFBQUFCMjl3ZEdsdmJuTUFBQUlUQUFBQUJRQUFBQkFBQUFBQkFBUUFDUUFBQUFGeUFBQUFFQUFBQUFFQUJBQUpBQUFBRDNWdWJtRnRaV1F0WTJoMWJtc3RNd0FBQUFvQUFBQUJBQUFBQUFBQUFBMEFBQUFCQUFBQUJnQUFBQTBBQUFBQkFBQUFRZ0FBQkFJQUFBTC9BQUFBRUFBQUFBVUFCQUFKQUFBQUJtVnVaMmx1WlFBRUFBa0FBQUFGYkdGaVpXd0FCQUFKQUFBQURuSnZkMjVoYldWekxuQnlhVzUwQUFRQUNRQUFBQXB5YjNkekxuUnZkR0ZzQUFRQUNRQUFBQXBqYjJ4ekxuUnZkR0ZzQUFBQS9nQUFBUDQ9In0= -->
+<div data-pagedtable="false">
+<script data-pagedtable-source type="application/json">
+{"columns":[{"label":["co_id"],"name":[1],"type":["chr"],"align":["left"]},{"label":["exchange"],"name":[2],"type":["chr"],"align":["left"]},{"label":["name"],"name":[3],"type":["chr"],"align":["left"]},{"label":["root__ticker"],"name":[4],"type":["chr"],"align":["left"]},{"label":["qmv(c$)__31_december_2019"],"name":[5],"type":["dbl"],"align":["right"]},{"label":["o/s_shares__31_december_2019"],"name":[6],"type":["dbl"],"align":["right"]},{"label":["sector"],"name":[7],"type":["chr"],"align":["left"]},{"label":["sub__sector"],"name":[8],"type":["chr"],"align":["left"]},{"label":["listing_type"],"name":[9],"type":["chr"],"align":["left"]},{"label":["date_of___tsx_listing__yyyymmdd"],"name":[10],"type":["dbl"],"align":["right"]},{"label":["hq__location"],"name":[11],"type":["chr"],"align":["left"]},{"label":["hq__region"],"name":[12],"type":["chr"],"align":["left"]},{"label":["interlisted__code_i"],"name":[13],"type":["chr"],"align":["left"]},{"label":["interlisted__code_ii"],"name":[14],"type":["chr"],"align":["left"]},{"label":["listed_on_otc"],"name":[15],"type":["chr"],"align":["left"]},{"label":["tsx___venture___grad"],"name":[16],"type":["dbl"],"align":["right"]},{"label":["former__cpc"],"name":[17],"type":["dbl"],"align":["right"]},{"label":["index"],"name":[18],"type":["dbl"],"align":["right"]},{"label":["clean_technology_primary_industry"],"name":[19],"type":["chr"],"align":["left"]},{"label":["clean_technology_sub_sector"],"name":[20],"type":["chr"],"align":["left"]},{"label":["technology_sub_sector"],"name":[21],"type":["chr"],"align":["left"]},{"label":["consumer_products_&_services__sub_sector"],"name":[22],"type":["chr"],"align":["left"]},{"label":["real_estate_sub_sector"],"name":[23],"type":["chr"],"align":["left"]},{"label":["life_sciences_sub_sector"],"name":[24],"type":["chr"],"align":["left"]},{"label":["usa_city"],"name":[25],"type":["chr"],"align":["left"]},{"label":["usa_state"],"name":[26],"type":["chr"],"align":["left"]},{"label":["asia_region"],"name":[27],"type":["chr"],"align":["left"]},{"label":["israel_related"],"name":[28],"type":["dbl"],"align":["right"]},{"label":["place_of_incorporation__c=canada__u=usa__f=foreign"],"name":[29],"type":["chr"],"align":["left"]},{"label":["fund_family"],"name":[30],"type":["chr"],"align":["left"]},{"label":["sp_grouping"],"name":[31],"type":["chr"],"align":["left"]},{"label":["sp_type"],"name":[32],"type":["chr"],"align":["left"]},{"label":["sp_sub"],"name":[33],"type":["chr"],"align":["left"]},{"label":["income_trust___conversion"],"name":[34],"type":["chr"],"align":["left"]},{"label":["volume_ytd__31_december_2019"],"name":[35],"type":["dbl"],"align":["right"]},{"label":["value_(c$)_ytd__31_december_2019"],"name":[36],"type":["dbl"],"align":["right"]},{"label":["number_of___trades_ytd__31_december_2019"],"name":[37],"type":["dbl"],"align":["right"]},{"label":["number_of__months_of___trading_data"],"name":[38],"type":["dbl"],"align":["right"]},{"label":["africa"],"name":[39],"type":["chr"],"align":["left"]},{"label":["aus/nz/png"],"name":[40],"type":["chr"],"align":["left"]},{"label":["canada"],"name":[41],"type":["chr"],"align":["left"]},{"label":["china_&_asia"],"name":[42],"type":["chr"],"align":["left"]},{"label":["latin_america"],"name":[43],"type":["chr"],"align":["left"]},{"label":["other"],"name":[44],"type":["chr"],"align":["left"]},{"label":["uk/europe"],"name":[45],"type":["chr"],"align":["left"]},{"label":["usa"],"name":[46],"type":["chr"],"align":["left"]},{"label":["oil_and_gas"],"name":[47],"type":["dbl"],"align":["right"]},{"label":["gold"],"name":[48],"type":["dbl"],"align":["right"]},{"label":["silver"],"name":[49],"type":["dbl"],"align":["right"]},{"label":["copper"],"name":[50],"type":["dbl"],"align":["right"]},{"label":["nickel"],"name":[51],"type":["dbl"],"align":["right"]},{"label":["diamond"],"name":[52],"type":["dbl"],"align":["right"]},{"label":["molybdenum"],"name":[53],"type":["dbl"],"align":["right"]},{"label":["platinum/pgm"],"name":[54],"type":["dbl"],"align":["right"]},{"label":["iron"],"name":[55],"type":["dbl"],"align":["right"]},{"label":["lead"],"name":[56],"type":["dbl"],"align":["right"]},{"label":["zinc"],"name":[57],"type":["dbl"],"align":["right"]},{"label":["rare_earths"],"name":[58],"type":["dbl"],"align":["right"]},{"label":["potash"],"name":[59],"type":["dbl"],"align":["right"]},{"label":["lithium"],"name":[60],"type":["dbl"],"align":["right"]},{"label":["uranium"],"name":[61],"type":["dbl"],"align":["right"]},{"label":["coal"],"name":[62],"type":["dbl"],"align":["right"]},{"label":["tungsten"],"name":[63],"type":["dbl"],"align":["right"]},{"label":["base_&_precious_metals"],"name":[64],"type":["dbl"],"align":["right"]},{"label":["mineral_properties_(general)"],"name":[65],"type":["dbl"],"align":["right"]},{"label":["other_properties"],"name":[66],"type":["chr"],"align":["left"]}],"data":[{"1":"ALL0018","2":"TSX","3":"Allied Properties Real Estate Investment Trust","4":"AP","5":"6396216264","6":"122838799","7":"Real Estate","8":"NA","9":"IPO","10":"20030219","11":"ON","12":"Canada","13":"NA","14":"NA","15":"NA","16":"NA","17":"NA","18":"1","19":"NA","20":"NA","21":"NA","22":"NA","23":"Industrial/Office/Retail/Residential","24":"NA","25":"NA","26":"NA","27":"NA","28":"NA","29":"C","30":"NA","31":"Income Trust","32":"NA","33":"REIT","34":"NA","35":"53864773","36":"2685893870","37":"332119","38":"12","39":"NA","40":"NA","41":"NA","42":"NA","43":"NA","44":"NA","45":"NA","46":"NA","47":"NA","48":"NA","49":"NA","50":"NA","51":"NA","52":"NA","53":"NA","54":"NA","55":"NA","56":"NA","57":"NA","58":"NA","59":"NA","60":"NA","61":"NA","62":"NA","63":"NA","64":"NA","65":"NA","66":"NA"},{"1":"AUT0006","2":"TSX","3":"Automotive Properties Real Estate Investment Trust","4":"APR","5":"458019182","6":"37697052","7":"Real Estate","8":"NA","9":"IPO","10":"20150722","11":"ON","12":"Canada","13":"NA","14":"NA","15":"NA","16":"NA","17":"NA","18":"NA","19":"NA","20":"NA","21":"NA","22":"NA","23":"Industrial/Office/Retail/Residential","24":"NA","25":"NA","26":"NA","27":"NA","28":"NA","29":"C","30":"NA","31":"Income Trust","32":"NA","33":"REIT","34":"NA","35":"20058516","36":"220174876","37":"71839","38":"12","39":"NA","40":"NA","41":"NA","42":"NA","43":"NA","44":"NA","45":"NA","46":"NA","47":"NA","48":"NA","49":"NA","50":"NA","51":"NA","52":"NA","53":"NA","54":"NA","55":"NA","56":"NA","57":"NA","58":"NA","59":"NA","60":"NA","61":"NA","62":"NA","63":"NA","64":"NA","65":"NA","66":"NA"},{"1":"WES0061","2":"TSX","3":"Artis Real Estate Investment Trust","4":"AX","5":"1933907341","6":"150160330","7":"Real Estate","8":"NA","9":"TSXV Grad","10":"20060417","11":"MB","12":"Canada","13":"NA","14":"NA","15":"OTCQX","16":"1","17":"1","18":"1","19":"NA","20":"NA","21":"NA","22":"NA","23":"Diversified","24":"NA","25":"NA","26":"NA","27":"NA","28":"NA","29":"C","30":"NA","31":"Income Trust","32":"NA","33":"REIT","34":"NA","35":"86794751","36":"1032212926","37":"305646","38":"12","39":"NA","40":"NA","41":"NA","42":"NA","43":"NA","44":"NA","45":"NA","46":"NA","47":"NA","48":"NA","49":"NA","50":"NA","51":"NA","52":"NA","53":"NA","54":"NA","55":"NA","56":"NA","57":"NA","58":"NA","59":"NA","60":"NA","61":"NA","62":"NA","63":"NA","64":"NA","65":"NA","66":"NA"},{"1":"BRO0038","2":"TSX","3":"Brookfield Business Partners L.P.","4":"BBU","5":"4352332616","6":"81003771","7":"Real Estate","8":"NA","9":"Other","10":"20160531","11":"Bermuda","12":"Other","13":"NYSE","14":"NA","15":"NA","16":"NA","17":"NA","18":"1","19":"NA","20":"NA","21":"NA","22":"NA","23":"Real Estate Operating Companies","24":"NA","25":"NA","26":"NA","27":"NA","28":"NA","29":"F","30":"NA","31":"NA","32":"NA","33":"NA","34":"NA","35":"17574248","36":"860715688","37":"73165","38":"12","39":"NA","40":"NA","41":"NA","42":"NA","43":"NA","44":"NA","45":"NA","46":"NA","47":"NA","48":"NA","49":"NA","50":"NA","51":"NA","52":"NA","53":"NA","54":"NA","55":"NA","56":"NA","57":"NA","58":"NA","59":"NA","60":"NA","61":"NA","62":"NA","63":"NA","64":"NA","65":"NA","66":"NA"},{"1":"BOA0001","2":"TSX","3":"Boardwalk Real Estate Investment Trust","4":"BEI","5":"2124859131","6":"46262990","7":"Real Estate","8":"NA","9":"TSXV Grad","10":"19951106","11":"AB","12":"Canada","13":"NA","14":"NA","15":"NA","16":"1","17":"1","18":"1","19":"NA","20":"NA","21":"NA","22":"NA","23":"Industrial/Office/Retail/Residential","24":"NA","25":"NA","26":"NA","27":"NA","28":"NA","29":"C","30":"NA","31":"Income Trust","32":"NA","33":"REIT","34":"2004","35":"30850469","36":"1316140948","37":"206280","38":"12","39":"NA","40":"NA","41":"NA","42":"NA","43":"NA","44":"NA","45":"NA","46":"NA","47":"NA","48":"NA","49":"NA","50":"NA","51":"NA","52":"NA","53":"NA","54":"NA","55":"NA","56":"NA","57":"NA","58":"NA","59":"NA","60":"NA","61":"NA","62":"NA","63":"NA","64":"NA","65":"NA","66":"NA"},{"1":"BEC0001","2":"TSX","3":"Becker Milk Company Ltd. (The)","4":"BEK","5":"18063442","6":"1267610","7":"Real Estate","8":"NA","9":"NA","10":"19670525","11":"ON","12":"Canada","13":"NA","14":"NA","15":"NA","16":"NA","17":"NA","18":"NA","19":"NA","20":"NA","21":"NA","22":"NA","23":"Real Estate Operating Companies","24":"NA","25":"NA","26":"NA","27":"NA","28":"NA","29":"C","30":"NA","31":"NA","32":"NA","33":"NA","34":"NA","35":"185804","36":"2771990","37":"487","38":"12","39":"NA","40":"NA","41":"NA","42":"NA","43":"NA","44":"NA","45":"NA","46":"NA","47":"NA","48":"NA","49":"NA","50":"NA","51":"NA","52":"NA","53":"NA","54":"NA","55":"NA","56":"NA","57":"NA","58":"NA","59":"NA","60":"NA","61":"NA","62":"NA","63":"NA","64":"NA","65":"NA","66":"NA"}],"options":{"columns":{"min":{},"max":[10],"total":[66]},"rows":{"min":[10],"max":[10],"total":[6]},"pages":{}}}
+  </script>
+</div>
+<!-- rnb-frame-end -->
+<!-- rnb-chunk-end -->
+<!-- rnb-text-begin -->
+<p>All issuers are from the TSX:</p>
+<!-- rnb-text-end -->
+<!-- rnb-chunk-begin -->
+<!-- rnb-source-begin eyJkYXRhIjoiYGBgclxudGFibGUocmVhbF9lc3RhdGUkZXhjaGFuZ2UpXG5gYGAifQ== -->
+<pre class="r"><code>table(real_estate$exchange)</code></pre>
+<!-- rnb-source-end -->
+<!-- rnb-output-begin eyJkYXRhIjoiXG5UU1ggXG4gNTcgXG4ifQ== -->
+<pre><code>
+TSX 
+ 57 </code></pre>
+<!-- rnb-output-end -->
+<!-- rnb-chunk-end -->
+<!-- rnb-text-begin -->
+<!-- rnb-text-end -->
+<!-- rnb-chunk-begin -->
+<!-- rnb-source-begin eyJkYXRhIjoiYGBgclxucmVhbF9lc3RhdGVfY29tcGFuaWVzIDwtIHJlYWxfZXN0YXRlWywgYyhcInJlYWxfZXN0YXRlX3N1Yl9zZWN0b3JcIiwgXCJuYW1lXCIsIFwicm9vdF9fdGlja2VyXCIpXVxuYGBgIn0= -->
+<pre class="r"><code>real_estate_companies &lt;- real_estate[, c(&quot;real_estate_sub_sector&quot;, &quot;name&quot;, &quot;root__ticker&quot;)]</code></pre>
+<!-- rnb-source-end -->
+<!-- rnb-chunk-end -->
+<!-- rnb-text-begin -->
+<div id="analysis-of-the-5-different-real-estate-subsectors" class="section level3">
+<h3>Analysis of the 5 different real-estate subsectors</h3>
+<!-- rnb-text-end -->
+<!-- rnb-chunk-begin -->
+<!-- rnb-source-begin eyJkYXRhIjoiYGBgclxudGFibGUocmVhbF9lc3RhdGVfY29tcGFuaWVzWywncmVhbF9lc3RhdGVfc3ViX3NlY3RvciddKVxuYGBgIn0= -->
+<pre class="r"><code>table(real_estate_companies[,&#39;real_estate_sub_sector&#39;])</code></pre>
+<!-- rnb-source-end -->
+<!-- rnb-output-begin eyJkYXRhIjoiXG4gICAgICAgICAgICAgICAgICAgICAgICAgRGl2ZXJzaWZpZWQgSW5kdXN0cmlhbC9PZmZpY2UvUmV0YWlsL1Jlc2lkZW50aWFsIFJlYWwgRXN0YXRlIERldmVsb3BtZW50IGFuZCBTZXJ2aWNlcyBcbiAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgNyAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgMzMgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAzIFxuICAgICBSZWFsIEVzdGF0ZSBPcGVyYXRpbmcgQ29tcGFuaWVzICAgICAgICAgICAgICAgICAgICAgICAgICBTcGVjaWFsaXplZCBcbiAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgOCAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgIDYgXG4ifQ== -->
+<pre><code>
+                         Diversified Industrial/Office/Retail/Residential Real Estate Development and Services 
+                                   7                                   33                                    3 
+     Real Estate Operating Companies                          Specialized 
+                                   8                                    6 </code></pre>
+<!-- rnb-output-end -->
+<!-- rnb-chunk-end -->
+<!-- rnb-text-begin -->
+<p>Industrial/Office/Retail/Residential</p>
+<!-- rnb-text-end -->
+<!-- rnb-chunk-begin -->
+<!-- rnb-source-begin eyJkYXRhIjoiYGBgclxuZmlsdGVyKHJlYWxfZXN0YXRlX2NvbXBhbmllcywgcmVhbF9lc3RhdGVfc3ViX3NlY3Rvcj09XCJJbmR1c3RyaWFsL09mZmljZS9SZXRhaWwvUmVzaWRlbnRpYWxcIilbLCBjKFwibmFtZVwiLCBcInJvb3RfX3RpY2tlclwiKV1cbmBgYCJ9 -->
+<pre class="r"><code>filter(real_estate_companies, real_estate_sub_sector==&quot;Industrial/Office/Retail/Residential&quot;)[, c(&quot;name&quot;, &quot;root__ticker&quot;)]</code></pre>
+<!-- rnb-source-end -->
+<!-- rnb-frame-begin eyJtZXRhZGF0YSI6eyJjbGFzc2VzIjpbInRibF9kZiIsInRibCIsImRhdGEuZnJhbWUiXSwibmNvbCI6MiwibnJvdyI6MzN9LCJyZGYiOiJVa1JZTXdwWUNnQUFBQU1BQXdZREFBTUZBQUFBQUFWVlZFWXRPQUFBQkFJQUFBQUJBQVFBQ1FBQUFBRjRBQUFERXdBQUFBSUFBQUFRQUFBQUlRQUVBQWtBQUFBdVFXeHNhV1ZrSUZCeWIzQmxjblJwWlhNZ1VtVmhiQ0JGYzNSaGRHVWdTVzUyWlhOMGJXVnVkQ0JVY25WemRBQUVBQWtBQUFBeVFYVjBiMjF2ZEdsMlpTQlFjbTl3WlhKMGFXVnpJRkpsWVd3Z1JYTjBZWFJsSUVsdWRtVnpkRzFsYm5RZ1ZISjFjM1FBQkFBSkFBQUFKa0p2WVhKa2QyRnNheUJTWldGc0lFVnpkR0YwWlNCSmJuWmxjM1J0Wlc1MElGUnlkWE4wQUFRQUNRQUFBQ0ZDY205dmEyWnBaV3hrSUU5bVptbGpaU0JRY205d1pYSjBhV1Z6SUVsdVl5NEFCQUFKQUFBQUlVSnliMjlyWm1sbGJHUWdVSEp2Y0dWeWRIa2dVR0Z5ZEc1bGNuTWdUQzVRTGdBRUFBa0FBQUFnUWxSQ0lGSmxZV3dnUlhOMFlYUmxJRWx1ZG1WemRHMWxiblFnVkhKMWMzUUFCQUFKQUFBQU9rTmhibUZrYVdGdUlFRndZWEowYldWdWRDQlFjbTl3WlhKMGFXVnpJRkpsWVd3Z1JYTjBZWFJsSUVsdWRtVnpkRzFsYm5RZ1ZISjFjM1FBQkFBSkFBQUFMa05vYjJsalpTQlFjbTl3WlhKMGFXVnpJRkpsWVd3Z1JYTjBZWFJsSUVsdWRtVnpkRzFsYm5RZ1ZISjFjM1FBQkFBSkFBQUFIME5VSUZKbFlXd2dSWE4wWVhSbElFbHVkbVZ6ZEcxbGJuUWdWSEoxYzNRQUJBQUpBQUFBS1VSeVpXRnRJRTltWm1salpTQlNaV0ZzSUVWemRHRjBaU0JKYm5abGMzUnRaVzUwSUZSeWRYTjBBQVFBQ1FBQUFDMUVjbVZoYlNCSmJtUjFjM1J5YVdGc0lGSmxZV3dnUlhOMFlYUmxJRWx1ZG1WemRHMWxiblFnVkhKMWMzUUFCQUFKQUFBQUkwUnlaV0Z0SUVoaGNtUWdRWE56WlhRZ1FXeDBaWEp1WVhScGRtVnpJRlJ5ZFhOMEFBUUFDUUFBQUJWRVVrVkJUU0JWYm14cGJXbDBaV1FnUTI5eWNDNEFCQUFKQUFBQUdFWnBjbk4wVTJWeWRtbGpaU0JEYjNKd2IzSmhkR2x2YmdBRUFBa0FBQUFnUWxOU0lGSmxZV3dnUlhOMFlYUmxJRWx1ZG1WemRHMWxiblFnVkhKMWMzUUFCQUFKQUFBQUtFRnRaWEpwWTJGdUlFaHZkR1ZzSUVsdVkyOXRaU0JRY205d1pYSjBhV1Z6SUZKRlNWUWdURkFBQkFBSkFBQUFKa2x1ZEdWeVVtVnVkQ0JTWldGc0lFVnpkR0YwWlNCSmJuWmxjM1J0Wlc1MElGUnlkWE4wQUFRQUNRQUFBQ1ZKYm05MllXeHBjeUJTWldGc0lFVnpkR0YwWlNCSmJuWmxjM1J0Wlc1MElGUnlkWE4wQUFRQUNRQUFBQ3hOYVc1MGJ5QkJjR0Z5ZEcxbGJuUWdVbVZoYkNCRmMzUmhkR1VnU1c1MlpYTjBiV1Z1ZENCVWNuVnpkQUFFQUFrQUFBQWpUV1ZzWTI5eUlGSmxZV3dnUlhOMFlYUmxJRWx1ZG1WemRHMWxiblFnVkhKMWMzUUFCQUFKQUFBQVFFMXZjbWQxWVhKa0lFNXZjblJvSUVGdFpYSnBZMkZ1SUZKbGMybGtaVzUwYVdGc0lGSmxZV3dnUlhOMFlYUmxJRWx1ZG1WemRHMWxiblFnVkhKMWMzUUFCQUFKQUFBQUpVMXZjbWQxWVhKa0lGSmxZV3dnUlhOMFlYUmxJRWx1ZG1WemRHMWxiblFnVkhKMWMzUUFCQUFKQUFBQU1FNXZjblJvZG1sbGR5QkJjR0Z5ZEcxbGJuUWdVbVZoYkNCRmMzUmhkR1VnU1c1MlpYTjBiV1Z1ZENCVWNuVnpkQUFFQUFrQUFBQVJVR3hoZW1FZ1VtVjBZV2xzSUZKRlNWUUFCQUFKQUFBQUlGQlNUeUJTWldGc0lFVnpkR0YwWlNCSmJuWmxjM1J0Wlc1MElGUnlkWE4wQUFRQUNRQUFBQ05TYVc5allXNGdVbVZoYkNCRmMzUmhkR1VnU1c1MlpYTjBiV1Z1ZENCVWNuVnpkQUFFQUFrQUFBQWRVM1Z0YldsMElFbHVaSFZ6ZEhKcFlXd2dTVzVqYjIxbElGSkZTVlFBQkFBSkFBQUFFVk5zWVhSbElFOW1abWxqWlNCU1JVbFVBQVFBQ1FBQUFCRlRiR0YwWlNCU1pYUmhhV3dnVWtWSlZBQUVBQWtBQUFBcFUyMWhjblJEWlc1MGNtVnpJRkpsWVd3Z1JYTjBZWFJsSUVsdWRtVnpkRzFsYm5RZ1ZISjFjM1FBQkFBSkFBQUFNbFJ5ZFdVZ1RtOXlkR2dnUTI5dGJXVnlZMmxoYkNCU1pXRnNJRVZ6ZEdGMFpTQkpiblpsYzNSdFpXNTBJRlJ5ZFhOMEFBUUFDUUFBQUJKVVpXMXdiR1VnU0c5MFpXeHpJRWx1WXk0QUJBQUpBQUFBSzFkUVZDQkpibVIxYzNSeWFXRnNJRkpsWVd3Z1JYTjBZWFJsSUVsdWRtVnpkRzFsYm5RZ1ZISjFjM1FBQUFBUUFBQUFJUUFFQUFrQUFBQUNRVkFBQkFBSkFBQUFBMEZRVWdBRUFBa0FBQUFEUWtWSkFBUUFDUUFBQUFOQ1VFOEFCQUFKQUFBQUEwSlFXUUFFQUFrQUFBQURRbFJDQUFRQUNRQUFBQU5EUVZJQUJBQUpBQUFBQTBOSVVBQUVBQWtBQUFBRFExSlVBQVFBQ1FBQUFBRkVBQVFBQ1FBQUFBTkVTVklBQkFBSkFBQUFBMFJTUVFBRUFBa0FBQUFEUkZKTkFBUUFDUUFBQUFOR1UxWUFCQUFKQUFBQUEwaFBUUUFFQUFrQUFBQURTRTlVQUFRQUNRQUFBQU5KU1ZBQUJBQUpBQUFBQTBsT1R3QUVBQWtBQUFBQ1RVa0FCQUFKQUFBQUFrMVNBQVFBQ1FBQUFBTk5Va2NBQkFBSkFBQUFBMDFTVkFBRUFBa0FBQUFEVGxaVkFBUUFDUUFBQUFOUVRGb0FCQUFKQUFBQUExQlNWZ0FFQUFrQUFBQURVa1ZKQUFRQUNRQUFBQU5UVFZVQUJBQUpBQUFBQTFOUFZBQUVBQWtBQUFBRFUxSlVBQVFBQ1FBQUFBTlRVbFVBQkFBSkFBQUFBMVJPVkFBRUFBa0FBQUFEVkZCSUFBUUFDUUFBQUFOWFNWSUFBQVFDQUFBQUFRQUVBQWtBQUFBRmJtRnRaWE1BQUFBUUFBQUFBZ0FFQUFrQUFBQUVibUZ0WlFBRUFBa0FBQUFNY205dmRGOWZkR2xqYTJWeUFBQUVBZ0FBQUFFQUJBQUpBQUFBQ1hKdmR5NXVZVzFsY3dBQUFBMEFBQUFDZ0FBQUFQLy8vOThBQUFRQ0FBQUFBUUFFQUFrQUFBQUZZMnhoYzNNQUFBQVFBQUFBQVFBRUFBa0FBQUFLWkdGMFlTNW1jbUZ0WlFBQUFQNEFBQVFDQUFBQUFRQUVBQWtBQUFBSGIzQjBhVzl1Y3dBQUFoTUFBQUFGQUFBQUVBQUFBQUVBQkFBSkFBQUFBWElBQUFBUUFBQUFBUUFFQUFrQUFBQVBkVzV1WVcxbFpDMWphSFZ1YXkwMEFBQUFDZ0FBQUFFQUFBQUFBQUFBRFFBQUFBRUFBQUFoQUFBQURRQUFBQUVBQUFBQ0FBQUVBZ0FBQXY4QUFBQVFBQUFBQlFBRUFBa0FBQUFHWlc1bmFXNWxBQVFBQ1FBQUFBVnNZV0psYkFBRUFBa0FBQUFPY205M2JtRnRaWE11Y0hKcGJuUUFCQUFKQUFBQUNuSnZkM011ZEc5MFlXd0FCQUFKQUFBQUNtTnZiSE11ZEc5MFlXd0FBQUQrQUFBQS9nPT0ifQ== -->
+<div data-pagedtable="false">
+<script data-pagedtable-source type="application/json">
+{"columns":[{"label":["name"],"name":[1],"type":["chr"],"align":["left"]},{"label":["root__ticker"],"name":[2],"type":["chr"],"align":["left"]}],"data":[{"1":"Allied Properties Real Estate Investment Trust","2":"AP"},{"1":"Automotive Properties Real Estate Investment Trust","2":"APR"},{"1":"Boardwalk Real Estate Investment Trust","2":"BEI"},{"1":"Brookfield Office Properties Inc.","2":"BPO"},{"1":"Brookfield Property Partners L.P.","2":"BPY"},{"1":"BTB Real Estate Investment Trust","2":"BTB"},{"1":"Canadian Apartment Properties Real Estate Investment Trust","2":"CAR"},{"1":"Choice Properties Real Estate Investment Trust","2":"CHP"},{"1":"CT Real Estate Investment Trust","2":"CRT"},{"1":"Dream Office Real Estate Investment Trust","2":"D"},{"1":"Dream Industrial Real Estate Investment Trust","2":"DIR"},{"1":"Dream Hard Asset Alternatives Trust","2":"DRA"},{"1":"DREAM Unlimited Corp.","2":"DRM"},{"1":"FirstService Corporation","2":"FSV"},{"1":"BSR Real Estate Investment Trust","2":"HOM"},{"1":"American Hotel Income Properties REIT LP","2":"HOT"},{"1":"InterRent Real Estate Investment Trust","2":"IIP"},{"1":"Inovalis Real Estate Investment Trust","2":"INO"},{"1":"Minto Apartment Real Estate Investment Trust","2":"MI"},{"1":"Melcor Real Estate Investment Trust","2":"MR"},{"1":"Morguard North American Residential Real Estate Investment Trust","2":"MRG"},{"1":"Morguard Real Estate Investment Trust","2":"MRT"},{"1":"Northview Apartment Real Estate Investment Trust","2":"NVU"},{"1":"Plaza Retail REIT","2":"PLZ"},{"1":"PRO Real Estate Investment Trust","2":"PRV"},{"1":"Riocan Real Estate Investment Trust","2":"REI"},{"1":"Summit Industrial Income REIT","2":"SMU"},{"1":"Slate Office REIT","2":"SOT"},{"1":"Slate Retail REIT","2":"SRT"},{"1":"SmartCentres Real Estate Investment Trust","2":"SRU"},{"1":"True North Commercial Real Estate Investment Trust","2":"TNT"},{"1":"Temple Hotels Inc.","2":"TPH"},{"1":"WPT Industrial Real Estate Investment Trust","2":"WIR"}],"options":{"columns":{"min":{},"max":[10],"total":[2]},"rows":{"min":[10],"max":[10],"total":[33]},"pages":{}}}
+  </script>
+</div>
+<!-- rnb-frame-end -->
+<!-- rnb-chunk-end -->
+<!-- rnb-text-begin -->
+<p>Real Estate Operating Companies:</p>
+<!-- rnb-text-end -->
+<!-- rnb-chunk-begin -->
+<!-- rnb-source-begin eyJkYXRhIjoiYGBgclxuZmlsdGVyKHJlYWxfZXN0YXRlX2NvbXBhbmllcywgcmVhbF9lc3RhdGVfc3ViX3NlY3Rvcj09XCJSZWFsIEVzdGF0ZSBPcGVyYXRpbmcgQ29tcGFuaWVzXCIpWywgYyhcIm5hbWVcIiwgXCJyb290X190aWNrZXJcIildXG5gYGAifQ== -->
+<pre class="r"><code>filter(real_estate_companies, real_estate_sub_sector==&quot;Real Estate Operating Companies&quot;)[, c(&quot;name&quot;, &quot;root__ticker&quot;)]</code></pre>
+<!-- rnb-source-end -->
+<!-- rnb-frame-begin eyJtZXRhZGF0YSI6eyJjbGFzc2VzIjpbInRibF9kZiIsInRibCIsImRhdGEuZnJhbWUiXSwibmNvbCI6MiwibnJvdyI6OH0sInJkZiI6IlVrUllNd3BZQ2dBQUFBTUFBd1lEQUFNRkFBQUFBQVZWVkVZdE9BQUFCQUlBQUFBQkFBUUFDUUFBQUFGNEFBQURFd0FBQUFJQUFBQVFBQUFBQ0FBRUFBa0FBQUFoUW5KdmIydG1hV1ZzWkNCQ2RYTnBibVZ6Y3lCUVlYSjBibVZ5Y3lCTUxsQXVBQVFBQ1FBQUFCNUNaV05yWlhJZ1RXbHNheUJEYjIxd1lXNTVJRXgwWkM0Z0tGUm9aU2tBQkFBSkFBQUFJVU52Ykd4cFpYSnpJRWx1ZEdWeWJtRjBhVzl1WVd3Z1IzSnZkWEFnU1c1akxnQUVBQWtBQUFBa1IzSmhibWwwWlNCU1pXRnNJRVZ6ZEdGMFpTQkpiblpsYzNSdFpXNTBJRlJ5ZFhOMEFBUUFDUUFBQUJkRFlXNXNZVzRnU1dObElGTndiM0owY3lCRGIzSndMZ0FFQUFrQUFBQXRTMmxzYkdGdElFRndZWEowYldWdWRDQlNaV0ZzSUVWemRHRjBaU0JKYm5abGMzUnRaVzUwSUZSeWRYTjBBQVFBQ1FBQUFCZE5ZV2x1YzNSeVpXVjBJRVZ4ZFdsMGVTQkRiM0p3TGdBRUFBa0FBQUFmVFdGa2FYTnZiaUJRWVdOcFptbGpJRkJ5YjNCbGNuUnBaWE1nU1c1akxnQUFBQkFBQUFBSUFBUUFDUUFBQUFOQ1FsVUFCQUFKQUFBQUEwSkZTd0FFQUFrQUFBQUVRMGxIU1FBRUFBa0FBQUFEUjFKVUFBUUFDUUFBQUFOSlEwVUFCQUFKQUFBQUEwdE5VQUFFQUFrQUFBQURUVVZSQUFRQUNRQUFBQU5OVUVNQUFBUUNBQUFBQVFBRUFBa0FBQUFGYm1GdFpYTUFBQUFRQUFBQUFnQUVBQWtBQUFBRWJtRnRaUUFFQUFrQUFBQU1jbTl2ZEY5ZmRHbGphMlZ5QUFBRUFnQUFBQUVBQkFBSkFBQUFDWEp2ZHk1dVlXMWxjd0FBQUEwQUFBQUNnQUFBQVAvLy8vZ0FBQVFDQUFBQUFRQUVBQWtBQUFBRlkyeGhjM01BQUFBUUFBQUFBUUFFQUFrQUFBQUtaR0YwWVM1bWNtRnRaUUFBQVA0QUFBUUNBQUFBQVFBRUFBa0FBQUFIYjNCMGFXOXVjd0FBQWhNQUFBQUZBQUFBRUFBQUFBRUFCQUFKQUFBQUFYSUFBQUFRQUFBQUFRQUVBQWtBQUFBUGRXNXVZVzFsWkMxamFIVnVheTAxQUFBQUNnQUFBQUVBQUFBQUFBQUFEUUFBQUFFQUFBQUlBQUFBRFFBQUFBRUFBQUFDQUFBRUFnQUFBdjhBQUFBUUFBQUFCUUFFQUFrQUFBQUdaVzVuYVc1bEFBUUFDUUFBQUFWc1lXSmxiQUFFQUFrQUFBQU9jbTkzYm1GdFpYTXVjSEpwYm5RQUJBQUpBQUFBQ25KdmQzTXVkRzkwWVd3QUJBQUpBQUFBQ21OdmJITXVkRzkwWVd3QUFBRCtBQUFBL2c9PSJ9 -->
+<div data-pagedtable="false">
+<script data-pagedtable-source type="application/json">
+{"columns":[{"label":["name"],"name":[1],"type":["chr"],"align":["left"]},{"label":["root__ticker"],"name":[2],"type":["chr"],"align":["left"]}],"data":[{"1":"Brookfield Business Partners L.P.","2":"BBU"},{"1":"Becker Milk Company Ltd. (The)","2":"BEK"},{"1":"Colliers International Group Inc.","2":"CIGI"},{"1":"Granite Real Estate Investment Trust","2":"GRT"},{"1":"Canlan Ice Sports Corp.","2":"ICE"},{"1":"Killam Apartment Real Estate Investment Trust","2":"KMP"},{"1":"Mainstreet Equity Corp.","2":"MEQ"},{"1":"Madison Pacific Properties Inc.","2":"MPC"}],"options":{"columns":{"min":{},"max":[10],"total":[2]},"rows":{"min":[10],"max":[10],"total":[8]},"pages":{}}}
+  </script>
+</div>
+<!-- rnb-frame-end -->
+<!-- rnb-chunk-end -->
+<!-- rnb-text-begin -->
+<p>Real Estate Development and Services:</p>
+<!-- rnb-text-end -->
+<!-- rnb-chunk-begin -->
+<!-- rnb-source-begin eyJkYXRhIjoiYGBgclxuZmlsdGVyKHJlYWxfZXN0YXRlX2NvbXBhbmllcywgcmVhbF9lc3RhdGVfc3ViX3NlY3Rvcj09XCJSZWFsIEVzdGF0ZSBEZXZlbG9wbWVudCBhbmQgU2VydmljZXNcIilbLCBjKFwibmFtZVwiLCBcInJvb3RfX3RpY2tlclwiKV1cbmBgYCJ9 -->
+<pre class="r"><code>filter(real_estate_companies, real_estate_sub_sector==&quot;Real Estate Development and Services&quot;)[, c(&quot;name&quot;, &quot;root__ticker&quot;)]</code></pre>
+<!-- rnb-source-end -->
+<!-- rnb-frame-begin eyJtZXRhZGF0YSI6eyJjbGFzc2VzIjpbInRibF9kZiIsInRibCIsImRhdGEuZnJhbWUiXSwibmNvbCI6MiwibnJvdyI6M30sInJkZiI6IlVrUllNd3BZQ2dBQUFBTUFBd1lEQUFNRkFBQUFBQVZWVkVZdE9BQUFCQUlBQUFBQkFBUUFDUUFBQUFGNEFBQURFd0FBQUFJQUFBQVFBQUFBQXdBRUFBa0FBQUFrUW5KcFpHZGxiV0Z5Y1NCU1pXRnNJRVZ6ZEdGMFpTQlRaWEoyYVdObGN5QkpibU11QUFRQUNRQUFBQjVIWlc1bGMybHpJRXhoYm1RZ1JHVjJaV3h2Y0cxbGJuUWdRMjl5Y0M0QUJBQUpBQUFBR0UxbGJHTnZjaUJFWlhabGJHOXdiV1Z1ZEhNZ1RIUmtMZ0FBQUJBQUFBQURBQVFBQ1FBQUFBTkNVa1VBQkFBSkFBQUFBMGRFUXdBRUFBa0FBQUFEVFZKRUFBQUVBZ0FBQUFFQUJBQUpBQUFBQlc1aGJXVnpBQUFBRUFBQUFBSUFCQUFKQUFBQUJHNWhiV1VBQkFBSkFBQUFESEp2YjNSZlgzUnBZMnRsY2dBQUJBSUFBQUFCQUFRQUNRQUFBQWx5YjNjdWJtRnRaWE1BQUFBTkFBQUFBb0FBQUFELy8vLzlBQUFFQWdBQUFBRUFCQUFKQUFBQUJXTnNZWE56QUFBQUVBQUFBQUVBQkFBSkFBQUFDbVJoZEdFdVpuSmhiV1VBQUFEK0FBQUVBZ0FBQUFFQUJBQUpBQUFBQjI5d2RHbHZibk1BQUFJVEFBQUFCUUFBQUJBQUFBQUJBQVFBQ1FBQUFBRnlBQUFBRUFBQUFBRUFCQUFKQUFBQUQzVnVibUZ0WldRdFkyaDFibXN0TmdBQUFBb0FBQUFCQUFBQUFBQUFBQTBBQUFBQkFBQUFBd0FBQUEwQUFBQUJBQUFBQWdBQUJBSUFBQUwvQUFBQUVBQUFBQVVBQkFBSkFBQUFCbVZ1WjJsdVpRQUVBQWtBQUFBRmJHRmlaV3dBQkFBSkFBQUFEbkp2ZDI1aGJXVnpMbkJ5YVc1MEFBUUFDUUFBQUFweWIzZHpMblJ2ZEdGc0FBUUFDUUFBQUFwamIyeHpMblJ2ZEdGc0FBQUEvZ0FBQVA0PSJ9 -->
+<div data-pagedtable="false">
+<script data-pagedtable-source type="application/json">
+{"columns":[{"label":["name"],"name":[1],"type":["chr"],"align":["left"]},{"label":["root__ticker"],"name":[2],"type":["chr"],"align":["left"]}],"data":[{"1":"Bridgemarq Real Estate Services Inc.","2":"BRE"},{"1":"Genesis Land Development Corp.","2":"GDC"},{"1":"Melcor Developments Ltd.","2":"MRD"}],"options":{"columns":{"min":{},"max":[10],"total":[2]},"rows":{"min":[10],"max":[10],"total":[3]},"pages":{}}}
+  </script>
+</div>
+<!-- rnb-frame-end -->
 <!-- rnb-chunk-end -->
 <!-- rnb-text-begin -->
 <!-- rnb-text-end -->
@@ -2316,7 +2020,7 @@ ggplotly(p, width=800, height=490)</code></pre>
 </div>
 </div>
 
-<div id="rmd-source-code">LS0tCnRpdGxlOiAiUiBOb3RlYm9vayIKb3V0cHV0OiBodG1sX25vdGVib29rCi0tLQoKIyBJbnZlc3RtZW50IGluIEJ1aWxkaW5nIENvbnN0cnVjdGlvbiBFREEKCiMjIyBHb2FscwoKKiBFeHBsb3JhdGlvbiBvZiB0aGUgSW52ZXN0bWVudCBpbiBCdWlsZGlnbiBDb25zdHJ1Y3Rpb24gVGFibGUKKiBJZGVudGlmeSAKCiMjIyBDb21tZW50cwoKYGBge3J9CnN1cHByZXNzTWVzc2FnZXMobGlicmFyeShjYW5zaW0pKQpzdXBwcmVzc01lc3NhZ2VzKGxpYnJhcnkoc3RyaW5ncikpCnN1cHByZXNzTWVzc2FnZXMobGlicmFyeShnZ3Bsb3QyKSkKc3VwcHJlc3NNZXNzYWdlcyhsaWJyYXJ5KHpvbykpCnN1cHByZXNzTWVzc2FnZXMobGlicmFyeShkcGx5cikpCnN1cHByZXNzTWVzc2FnZXMobGlicmFyeShwbG90bHkpKQpgYGAKCmBgYHtyfQpvcHRpb25zKGNhbnNpbS5jYWNoZV9wYXRoID0gIi9ob21lL2pvdnlhbi9kYXRhIikKYGBgCgojIFN0ZXAgSTogRGF0YSBFeHRyYWN0aW9uCgpJbnZlc3RtZW50IGluIGJ1aWxkaW5nIGNvbnN0cnVjdGlvbiB0YWJsZSBbaGVyZV0oaHR0cHM6Ly93d3cxNTAuc3RhdGNhbi5nYy5jYS90MS90YmwxL2VuL3R2LmFjdGlvbj9waWQ9MzQxMDAxNzUwMSZwaWNrTWVtYmVycyU1QjAlNUQ9NC4xJmN1YmVUaW1lRnJhbWUuc3RhcnRNb250aD0wNCZjdWJlVGltZUZyYW1lLnN0YXJ0WWVhcj0yMDEwJmN1YmVUaW1lRnJhbWUuZW5kTW9udGg9MDgmY3ViZVRpbWVGcmFtZS5lbmRZZWFyPTIwMjAmcmVmZXJlbmNlUGVyaW9kcz0yMDEwMDQwMSUyQzIwMjAwODAxKQoKYGBge3IgcmVzdWx0cz0naGlkZSd9CmludmVzdG1lbnRfdGFibGUgPC0gZ2V0X2NhbnNpbSgiMzQtMTAtMDE3NS0wMSIpCmBgYAoKIyBTdGVwIElJOiBNZWV0IGFuZCBncmVldCB0aGUgZGF0YQoKYGBge3J9CmhlYWQoaW52ZXN0bWVudF90YWJsZSkKYGBgCgpgYGB7cn0KbnJvdyhpbnZlc3RtZW50X3RhYmxlKQpgYGAKCgpyZW5hbWUgY29sdW1ucyBmb3IgY29uZm9ybWl0eQpgYGB7cn0KY29sbmFtZXMoaW52ZXN0bWVudF90YWJsZSkgPC0gc3RyX3JlcGxhY2VfYWxsKAogICAgY29sbmFtZXMoaW52ZXN0bWVudF90YWJsZSksIGMoIiAiID0gIl8iLCAiXFwoIiA9ICJfIiwgIlxcKSIgPSAiXyIpKQogIGNvbG5hbWVzKGludmVzdG1lbnRfdGFibGUpIDwtIHNhcHBseShjb2xuYW1lcyhpbnZlc3RtZW50X3RhYmxlKSwKICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICB0b2xvd2VyKQpgYGAKCmBgYHtyfQpjb2xuYW1lcyhpbnZlc3RtZW50X3RhYmxlKQpgYGAKCgpTdWJzZWxlY3QgdGhlIHJlbGV2YW50IGNvbHVtbnMgZm9yIGZ1cnRoZXIgYW5hbHlzaXM6CmBgYHtyfQpyZWxldmFudF9jb2x1bW5zIDwtIGMoInR5cGVfb2Zfc3RydWN0dXJlIiwgInR5cGVfb2Zfd29yayIsICJpbnZlc3RtZW50X3ZhbHVlIiwKICAgICAgICAgICAgICAgICAgICAgICJ2ZWN0b3IiLCAiY29vcmRpbmF0ZSIsICJnZW8iLCAicmVmX2RhdGUiLAogICAgICAgICAgICAgICAgICAgICAgInZhbHVlIiwgICJ1b20iKQppbnZlc3RtZW50IDwtIGludmVzdG1lbnRfdGFibGVbLCByZWxldmFudF9jb2x1bW5zXQpoZWFkKGludmVzdG1lbnQpCmBgYAoKIyMjIE1pc3NpbmcgdmFsdWVzCgpgYGB7cn0Kc2FwcGx5KGludmVzdG1lbnQsIGZ1bmN0aW9uKHgpIHN1bShpcy5uYSh4KSkpCmBgYAoKYGBge3J9Cm5yb3coaW52ZXN0bWVudCkKYGBgCgoKYGBge3J9Cm1pc3NpbmdfdmFsdWVzIDwtIGludmVzdG1lbnRbaXMubmEoaW52ZXN0bWVudCR2YWx1ZSksIF0KYGBgCgpgYGB7cn0KaGVhZChtaXNzaW5nX3ZhbHVlcykKYGBgCgpgYGB7cn0Kc2V0LnNlZWQoMTIzKQpkcGx5cjo6c2FtcGxlX24obWlzc2luZ192YWx1ZXMsIDEwKQpgYGAKCgojIFN0ZXAgSUlJOiBVbml2YXJpYXRlIERpc3RyaWJ1dGlvbnMKCiMjIyBUeXBlIG9mIFN0cnVjdHVyZQoKSW1wb3J0YW50IGNhdGVnb3JpZXM6ICJUb3RhbCByZXNpZGVudGlhbCBhbmQgbm9uLXJlc2lkZW50aWFsIiwgCiJUb3RhbCByZXNpZGVudGlhbCIsICJUb3RhbCBjb21tZXJjaWFsIgpgYGB7cn0KdW5pcXVlKGludmVzdG1lbnQkdHlwZV9vZl9zdHJ1Y3R1cmUpCmBgYAoKCmBgYHtyfQp0YWJsZShpbnZlc3RtZW50JHR5cGVfb2Zfc3RydWN0dXJlKQpgYGAKCkFsbCAzIGltcG9ydGFudCB0aW1lIHNlcmllcyBoYXZlIHRoZSBzYW1lIGxlbmd0aC4KYGBge3J9CmludmVzdG1lbnQgJT4lIAogIHNlbGVjdCh0eXBlX29mX3N0cnVjdHVyZSkgJT4lCiAgZmlsdGVyKHR5cGVfb2Zfc3RydWN0dXJlICVpbiUgYygiVG90YWwgcmVzaWRlbnRpYWwgYW5kIG5vbi1yZXNpZGVudGlhbCIsCiAgICAgICAgICAgICAgICAgICAgICAgICJUb3RhbCByZXNpZGVudGlhbCIsICJUb3RhbCBjb21tZXJjaWFsIikpICU+JQogIHRhYmxlKCkKYGBgCgojIyMgVHlwZSBvZiBXb3JrCgpJbXBvcnRhbnQgY2F0ZWdvcnk6ICJUeXBlcyBvZiB3b3JrLCB0b3RhbCIKYGBge3J9CnVuaXF1ZShpbnZlc3RtZW50JHR5cGVfb2Zfd29yaykKYGBgCgpgYGB7cn0KdGFibGUoaW52ZXN0bWVudCR0eXBlX29mX3dvcmspCmBgYAoKYGBge3J9CmxhcHBseSh0YWJsZShpbnZlc3RtZW50JHR5cGVfb2Zfd29yayksCiAgICAgICBmdW5jdGlvbih4KSB4IC8gYXMubnVtZXJpYyhucm93KGludmVzdG1lbnQpKSkKYGBgCgojIyMgSW52ZXN0bWVudCBWYWx1ZQoKRGlzdGluZ3Vpc2hlcyBiZXR3ZWVuIHNlYXNvbmFsIGFkanVzdGVkIGFuZCB1bmFqdXN0ZWQsIGNvbnN0YW50IGFuZCBjdXJyZW50LiAKT24gdGhlIFN0YXRDYW4gd2Vic2l0ZSBkZWZpbmVzIHRoZSBkaWZmZXJlbmNlOgoiRGVmbGF0aW9uOiBUaGUgbWV0aG9kb2xvZ3kgb2YgdHJhbnNmb3JtaW5nIGN1cnJlbnQgZG9sbGFyIHZhbHVlcyB0byBjb25zdGFudCBkb2xsYXIgdmFsdWVzIChkZWZsYXRpb24gcHJvY2VzcykgaGFzIGJlZW4gdXBkYXRlZCBmcm9tIDIwMDc9MTAwIHRvIDIwMTI9MTAwLiIgClN0ZXZlJ3MgY29tbWVudCBpcyB0byB1c2UgY3VycmVudCBkb2xsYXJzIGZvciBub3cgYXMgd2UgY2FuIHRyYW5zZm9ybSB0aGVtCmludG8gY29uc3RhbnQgZG9sbGFycyBsYXRlci4KCgpgYGB7cn0KdW5pcXVlKGludmVzdG1lbnQkaW52ZXN0bWVudF92YWx1ZSkKYGBgCgpgYGB7cn0KbGFwcGx5KHRhYmxlKGludmVzdG1lbnQkaW52ZXN0bWVudF92YWx1ZSksCiAgICAgICBmdW5jdGlvbih4KSB4IC8gYXMubnVtZXJpYyhucm93KGludmVzdG1lbnQpKSkKYGBgCgoKIyMjIFRpbWUgU3BhbgoKVGltZSBzcGFuIGF2YWlsYWJsZSBpcyBmcm9tIDEvMjAxMCB0byA4LzIwMjAuIDgvMjAyMCBpcyBleHBlY3RlZCBkdWUgdG8gdGhlIHB1YmxpY2F0aW9uIGxhZyBvZiB0d28gbW9udGhzLiBTYW1lIG51bWJlciBvZiBkYXRhIHBvaW50cyBwZXIgbW9udGggZm9yIHRoZSB3aG9sZSB0aW1lIHNwYW4uCgpgYGB7cn0KdGFibGUoaW52ZXN0bWVudCRyZWZfZGF0ZSkKYGBgCgpgYGB7cn0KdW5pcXVlKHRhYmxlKGludmVzdG1lbnQkcmVmX2RhdGUpKQpgYGAKCiMjIyBHZW9ncmFwaGljIEluZm9ybWF0aW9uCgpHZW9ncmFwaGljIGluZm9ybWF0aW9uIGlzIGF2aWFsYWJsZSBvbiB0aGUgY291bnRyeSBsZXZlbCAoIkNhbmFkYSIpLCBvbiB0aGUgcHJvdmluY2UgbGV2ZWwgYW5kIG9uIHNvbWUgY2FzZXMsIHRoZSBjaXR5IGFyZWFzLgpgYGB7cn0KdW5pcXVlKGludmVzdG1lbnQkZ2VvKQpgYGAKCkF2YWlsYWJsZSBwcm92aW5jZXMgZXh0cmFjdGVkIGZyb20gdGhlIGFib3ZlIGxpc3Q6CmBgYHtyfQpwcm92aW5jZV9uYW1lcyA8LSBjKCJCcml0aXNoIENvbHVtYmlhIiwgIk5vdmEgU2NvdGlhIiwgIk51bmF2dXQiLCAiUXVlYmVjIiwKICAgICAgICAgICAgICAgICAgICAiU2Fza2F0Y2hld2FuIiwKICAgICAgICAgICAgICAgICAgICAiQWxiZXJ0YSIsICJNYW5pdG9iYSIsICJOZXcgQnJ1bnN3aWNrIiwKICAgICAgICAgICAgICAgICAgICAiTmV3Zm91bmRsYW5kIGFuZCBMYWJyYWRvciIsICJOb3J0aHdlc3QgVGVycml0b3JpZXMiLAogICAgICAgICAgICAgICAgICAgICJPbnRhcmlvIiwgIlByaW5jZSBFZHdhcmQgSXNsYW5kIiwgIll1a29uIikKbGVuZ3RoKHByb3ZpbmNlX25hbWVzKQpgYGAKCj4gQWxsIDEzIHByb3ZpbmNlcyBhbmQgdGVycml0b3JpZXMgYXZhaWxhYmxlLgoKIyMjIFVuaXRzCgpBbGwgZGF0YSBpcyBpbiBkb2xsYXJzLgpgYGB7cn0KdW5pcXVlKGludmVzdG1lbnQkdW9tKQpgYGAKCiMjIyBWZWN0b3IgYW5kIENvb3JkaW5hdGVzCgpCb3RoIGFyZSB1c2VkIHRvIHN1YnNldCB0aGUgZGF0YSB0byBjcmVhdGUgc2VyaWVzIG9mIGRhdGEuIFZlY3RvcnMgYWxsb3cgdG8gY2hvb3NlIHRoZSByaWdodCB0aW1lIHNlcmllcyBmb3Igb3VyIHB1cnBvc2VzCgpgYGB7cn0KbGVuZ3RoKHVuaXF1ZShpbnZlc3RtZW50JHZlY3RvcikpCmBgYAoKIyMgU3RlcCBJVjogTXVsdGl2YXJpYXRlIEFuYWx5c2lzCgpTdWJzZWxlY3QgcmVsZXZhbnQgZGF0YSBhbmQgY29tcGFyZSB0aW1lIHNlcmllcyBieSBjYXRlZ29yaWVzLgoKCiMjIyBUb3RhbCAKCmBgYHtyfQp0b3RhbCA8LSBpbnZlc3RtZW50ICU+JQogIGZpbHRlcih0eXBlX29mX3N0cnVjdHVyZSA9PSAiVG90YWwgcmVzaWRlbnRpYWwgYW5kIG5vbi1yZXNpZGVudGlhbCIpICU+JQogICAgZmlsdGVyKHR5cGVfb2Zfd29yayA9PSAiVHlwZXMgb2Ygd29yaywgdG90YWwiKSAlPiUKICAgICAgZmlsdGVyKGludmVzdG1lbnRfdmFsdWUgPT0gIlVuYWRqdXN0ZWQgLSBjdXJyZW50IikgJT4lCiAgICAgICAgZmlsdGVyKGdlbyA9PSAiQ2FuYWRhIikKYGBgCgpgYGB7cn0KbnJvdyh0b3RhbCkKYGBgCgp0aW1lIHNlcmllcyBgdG90YWxgIGNvcnJlc3BvbmRzIHRvIG9uZSBkYXRhcG9pbnQgcGVyIG1vbnRoLgpgYGB7cn0KbGFwcGx5KHRvdGFsLCB1bmlxdWUpCmBgYAoKCk5vIG1pc3NpbmcgdmFsdWVzLgpgYGB7cn0Kc3VtKGlzLm5hKHRvdGFsKSkKYGBgCgoKRmluZGluZ3Mgb2YgdG90YWwgdGltZSBzZXJpZXMKKiBUaW1lIHNlcmllcyByZXZlYWxzIGNsZWFyIHRyZW5kIGFuZCBzZWFzb25hbCBlZmZlY3RzLiAKKiBFeHRyZW1lIGRyb3AgZHVlIHRvIENvdmlkLTE5LgoqIFBlYWtzIHByb25vdW5jZWQgaW4gSnVseS9BdWd1c3QsIHdpdGggYSBzZWNvbmQgd2VhayBwZWFrIGFyb3VuZCBOb3ZlbWJlcgoqIFRoZSBhdWd1c3QgdmFsdWUgaXMgY2xlYXJseSBoaWdoZXIgdGhhbiB3aGF0IG9uZSBjYW4gaW5mZXIgZnJvbSB0aGUgdHJlbmQgCm9mIHByZXZpb3VzIHllYXJzCgoKYGBge3J9CnRvdGFsJHR5cGVfb2Zfc3RydWN0dXJlIDwtICJUb3RhbCIKYGBgCgoKCgpgYGB7cn0KcCA8LSBnZ3Bsb3QoZGF0YT10b3RhbCwgYWVzKHg9YXMueWVhcm1vbihyZWZfZGF0ZSksIHk9dmFsdWUpKSArIGdlb21fbGluZSgpICsKICAgICAgICAgICAgICBsYWJzKHRpdGxlID0gIlRvdGFsIEludmVzdG1lbnQiLCAKICAgICAgICAgICAgICAgICAgIHggPSAicmVmZXJlbmNlIG1vbnRoIiwgeSA9ICJ2YWx1ZSAoZG9sbGFycykiKQpnZ3Bsb3RseShwKQpgYGAKCgojIyMgQ29tcGFyaW5nIFJlc2lkZW50aWFsIGFuZCBOb24tUmVzaWRlbnRpYWwKCmBgYHtyfQp0b3RhbF9yZXNfY29tIDwtIGludmVzdG1lbnQgJT4lCiAgZmlsdGVyKHR5cGVfb2Zfc3RydWN0dXJlICVpbiUgYygiVG90YWwgcmVzaWRlbnRpYWwiLCAiVG90YWwgY29tbWVyY2lhbCIpKSAlPiUKICAgIGZpbHRlcih0eXBlX29mX3dvcmsgPT0gIlR5cGVzIG9mIHdvcmssIHRvdGFsIikgJT4lCiAgICAgIGZpbHRlcihpbnZlc3RtZW50X3ZhbHVlID09ICJVbmFkanVzdGVkIC0gY3VycmVudCIpICU+JQogICAgICAgIGZpbHRlcihnZW8gPT0gIkNhbmFkYSIpCmBgYAoKCmBgYHtyfQpsYXBwbHkodG90YWxfcmVzX2NvbSwgdW5pcXVlKVtjKDEsMiwzLDQsNSw2KV0KYGBgCgpgYGB7cn0KcCA8LSBnZ3Bsb3QoZGF0YT10b3RhbF9yZXNfY29tKSArIGdlb21fbGluZShhZXMoeD1hcy55ZWFybW9uKHJlZl9kYXRlKSwgeT12YWx1ZSwgCiAgICAgICAgICAgICAgICAgICAgICBncm91cD10eXBlX29mX3N0cnVjdHVyZSwgbGluZXR5cGU9dHlwZV9vZl9zdHJ1Y3R1cmUpKSArCiAgICAgICAgICAgICAgZ2VvbV9saW5lKGRhdGE9dG90YWwsIGFlcyh4PWFzLnllYXJtb24ocmVmX2RhdGUpLCB5PXZhbHVlLCBsaW5ldHlwZT10eXBlX29mX3N0cnVjdHVyZSwgYWxwaGE9MC4xKSkgKwogICAgICAgICAgICAgIGxhYnModGl0bGUgPSAiQ29tcGFyaXNvbiBSZXNpZGVudGlhbCAtIENvbW1lcmljYWwiLCB4ID0gInJlZmVyZW5jZSBtb250aCIsIHkgPSAidmFsdWUgKGRvbGxhcnMpIiwKICAgICAgICAgICAgICAgICAgIGFscGhhPSAiIiwgbGluZXR5cGU9ICJUeXBlIG9mIFN0cnVjdHVyZSIpCmdncGxvdGx5KHAsIHdpZHRoPTgwMCkKYGBgCgoKCiMjIyBDb21wYXJpc29uIFRvdGFsIGJ5IEdlb2dyYXBoeQoKYGBge3J9CnRvdGFsX2J5X2dlbyA8LSBpbnZlc3RtZW50ICU+JQogIGZpbHRlcih0eXBlX29mX3N0cnVjdHVyZSA9PSAiVG90YWwgcmVzaWRlbnRpYWwgYW5kIG5vbi1yZXNpZGVudGlhbCIpICU+JQogICAgZmlsdGVyKHR5cGVfb2Zfd29yayA9PSAiVHlwZXMgb2Ygd29yaywgdG90YWwiKSAlPiUKICAgICAgZmlsdGVyKGludmVzdG1lbnRfdmFsdWUgPT0gIlVuYWRqdXN0ZWQgLSBjdXJyZW50IikgJT4lCiAgICAgICAgZmlsdGVyKGdlbyAlaW4lIHByb3ZpbmNlX25hbWVzKQpgYGAKCmBgYHtyfQpsYXBwbHkodG90YWxfYnlfZ2VvLCB1bmlxdWUpW2MoMSwyLDMsNCw1LDYpXQpgYGAKCiogT250YXJpbyBoYXMgYnkgZmFyIHRoZSBtb3N0IGludmVzdG1lbnQsIGNvbXBhcmVkIHRvIG90aGVyIHByb3ZpbmNlcwoqIAoKYGBge3IsIGZpZy5oZWlnaHQ9N30KcCA8LSBnZ3Bsb3QoZGF0YT10b3RhbF9ieV9nZW8pICsgZ2VvbV9saW5lKGFlcyh4PWFzLnllYXJtb24ocmVmX2RhdGUpLAogICAgICAgICAgICAgICAgICAgICAgICB5PXZhbHVlLCBncm91cD1nZW8sIGNvbG9yPWdlbykpICsKICAgICAgICAgICAgZ2VvbV9saW5lKGRhdGE9dG90YWwsIGFlcyh4PWFzLnllYXJtb24ocmVmX2RhdGUpLCB5PXZhbHVlLCAKICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICBjb2xvcj1nZW8sIGFscGhhPTAuMSkpICsKICAgICAgICAgICAgICBsYWJzKHRpdGxlID0gIkNvbXBhcmlzb24gVG90YWwgYnkgR2VvZ3JhcGh5IiwKICAgICAgICAgICAgICAgICAgIHggPSAicmVmZXJlbmNlIG1vbnRoIiwgeSA9ICJ2YWx1ZSAoZG9sbGFycykiLCAKICAgICAgICAgICAgICAgICAgICAgICAgICAgIGFscGhhPSAiIiwgY29sb3I9ICJQcm92aW5jZS9Db3VudHJ5IikgKwogICAgICAgICAgICBzY2FsZV95X2NvbnRpbnVvdXModHJhbnM9J2xvZzEwJykKZ2dwbG90bHkocCwgd2lkdGg9ODAwLCBoZWlnaHQ9NDkwKQpgYGAKCgoKCg==</div>
+<div id="rmd-source-code">LS0tCnRpdGxlOiAiUiBOb3RlYm9vayIKb3V0cHV0OiBodG1sX25vdGVib29rCi0tLQoKIyBMaXN0IG9mIFRTWCBJc3N1ZXJzCgojIyMgR29hbHMKCiogQW5hbHlzZSBjb21wb3NpdGlvbiBvZiBUU1ggSXNzdWVycyByZWxhdGVkIHRvIENvbnN0cnVjdGlvbiBhbmQgUmVhbCBFc3RhdGUKCiMjIyBOb3RlcwoKKiBGaWxlIHByb3ZpZGVkIGJ5IERhdmlkIEJlcnRyYW5kIGZyb20gMjAxOQoKCmBgYHtyfQpybShsaXN0PWxzKCkpCmxpYnJhcnkoInJlYWR4bCIpCmBgYAoKIyMgSS4gTG9hZGluZyBhbmQgUHJlcHJvY2Vzc2luZyBvZiBFeGNlbCBmaWxlCgpgYGB7cn0KaXNzdWVycyA8LSByZWFkX2V4Y2VsKCIuLi8uLi8uLi9kYXRhX3RtcC90c3hfbGlzdGVkX2lzc3VlcnNfMjAxOS54bHN4IikKYGBgCgpgYGB7cn0KaGVhZChpc3N1ZXJzKQpgYGAKCgpgYGB7cn0KY29sbmFtZXMoaXNzdWVycykgPC0gbGFwcGx5KHN0cl9yZXBsYWNlX2FsbChjb2xuYW1lcyhpc3N1ZXJzKSwgIltcclxuIC1dIiwgIl8iKSwgRlVOPXRvbG93ZXIpCmNvbG5hbWVzKGlzc3VlcnMpCmBgYAoKIyMgSUkuIFVuaXZhcmlhdGUgQW5hbHlzaXMKCiMjIyBTZWN0b3JzCgpgYGB7cn0KdGFibGUoaXNzdWVycyRzZWN0b3IpCmBgYAoKIyMjIFN1YnNlY3RvcgoKYGBge3J9CnRhYmxlKGlzc3VlcnMkc3ViX19zZWN0b3IpCmBgYAoKCiMjIyBSZWFsIEVzdGF0ZSBTdWJzZWN0b3IKCkFWYWlsYWJsZSBpbiByZWFsX2VzdGF0ZV9zdWItc2VjdG9yCgpgYGB7cn0KdGFibGUoaXNzdWVyc1ssICdyZWFsX2VzdGF0ZV9zdWJfc2VjdG9yJ10pCmBgYAoKCiMjIElJSS4gQW5hbHlzaXMgb2YgUmVhbC1Fc3RhdGUgQ29tcGFuaWVzCgoKCmBgYHtyfQpyZWFsX2VzdGF0ZSA8LSBmaWx0ZXIoaXNzdWVycywgIWlzLm5hKGlzc3VlcnNbLCAncmVhbF9lc3RhdGVfc3ViX3NlY3RvciddKSkKaGVhZChyZWFsX2VzdGF0ZSkKYGBgCgpBbGwgaXNzdWVycyBhcmUgZnJvbSB0aGUgVFNYOgpgYGB7cn0KdGFibGUocmVhbF9lc3RhdGUkZXhjaGFuZ2UpCmBgYAoKYGBge3J9CnJlYWxfZXN0YXRlX2NvbXBhbmllcyA8LSByZWFsX2VzdGF0ZVssIGMoInJlYWxfZXN0YXRlX3N1Yl9zZWN0b3IiLCAibmFtZSIsICJyb290X190aWNrZXIiKV0KYGBgCgoKIyMjIEFuYWx5c2lzIG9mIHRoZSA1IGRpZmZlcmVudCByZWFsLWVzdGF0ZSBzdWJzZWN0b3JzCgpgYGB7cn0KdGFibGUocmVhbF9lc3RhdGVfY29tcGFuaWVzWywncmVhbF9lc3RhdGVfc3ViX3NlY3RvciddKQpgYGAKCkluZHVzdHJpYWwvT2ZmaWNlL1JldGFpbC9SZXNpZGVudGlhbApgYGB7cn0KZmlsdGVyKHJlYWxfZXN0YXRlX2NvbXBhbmllcywgcmVhbF9lc3RhdGVfc3ViX3NlY3Rvcj09IkluZHVzdHJpYWwvT2ZmaWNlL1JldGFpbC9SZXNpZGVudGlhbCIpWywgYygibmFtZSIsICJyb290X190aWNrZXIiKV0KYGBgCgpSZWFsIEVzdGF0ZSBPcGVyYXRpbmcgQ29tcGFuaWVzOiAKYGBge3J9CmZpbHRlcihyZWFsX2VzdGF0ZV9jb21wYW5pZXMsIHJlYWxfZXN0YXRlX3N1Yl9zZWN0b3I9PSJSZWFsIEVzdGF0ZSBPcGVyYXRpbmcgQ29tcGFuaWVzIilbLCBjKCJuYW1lIiwgInJvb3RfX3RpY2tlciIpXQpgYGAKClJlYWwgRXN0YXRlIERldmVsb3BtZW50IGFuZCBTZXJ2aWNlczogCmBgYHtyfQpmaWx0ZXIocmVhbF9lc3RhdGVfY29tcGFuaWVzLCByZWFsX2VzdGF0ZV9zdWJfc2VjdG9yPT0iUmVhbCBFc3RhdGUgRGV2ZWxvcG1lbnQgYW5kIFNlcnZpY2VzIilbLCBjKCJuYW1lIiwgInJvb3RfX3RpY2tlciIpXQpgYGAKCgo=</div>
 
 
 
@@ -2363,7 +2067,7 @@ $(document).ready(function () {
 <!-- code folding -->
 <script>
 $(document).ready(function () {
-  window.initializeSourceEmbed("InvestmentEDA.Rmd");
+  window.initializeSourceEmbed("TSX_listed_Issuers.Rmd");
   window.initializeCodeFolding("show" === "show");
 });
 </script>

@@ -1,0 +1,122 @@
+---
+title: "R Notebook"
+output: html_notebook
+---
+
+# List of TSX Issuers
+
+### Goals
+
+* Analyse composition of TSX Issuers related to Construction and Real Estate
+
+### Notes
+
+* Data directly from TSX at https://www.tsx.com/listings/current-market-statistics
+and specifically. This data we would want to ingest at some point.
+
+
+```{r}
+rm(list=ls())
+library("readxl")
+```
+
+## I. Loading and Preprocessing of Excel file
+
+
+
+The file below was downloaded 26/10/2020 from the TSX website above.
+File contains first some rows with non-relevant information to skipo
+```{r}
+issuers_tsx <- read_excel(paste("../../../data_tmp/tsx-andamp-tsxv-listed", 
+                            "-companies-2020-10-16-en-1.xlsx", sep=""), 
+                      sheet=2, skip=6)
+
+issuers_tsxv <- read_excel(paste("../../../data_tmp/tsx-andamp-tsxv-listed", 
+                            "-companies-2020-10-16-en-1.xlsx", sep=""), 
+                      sheet=3, skip=6)
+
+```
+
+```{r}
+head(issuers_tsx)
+```
+
+```{r}
+head(issuers_tsxv)
+```
+
+```{r}
+colnames(issuers_tsx) <- lapply(str_replace_all(colnames(issuers_tsx), "[\r\n -$\\(\\)\\-]", "_"), FUN=tolower)
+colnames(issuers_tsxv) <- lapply(str_replace_all(colnames(issuers_tsxv), "[\r\n -$\\(\\)]", "_"), FUN=tolower)
+colnames(issuers_tsx)
+```
+
+```{r}
+cols_of_interest <- c("name" , "real_estate_sub_sector", 
+      "market_cap__c____30_september_2020", "root__ticker")
+```
+
+Based on David Bertrand's comments I am not considinger TSVX stocks here.
+```{r}
+# issuers <- rbind(issuers_tsx[, cols_of_interest], issuers_tsxv[, cols_of_interest])
+issuers <- issuers_tsx[, cols_of_interest]
+```
+
+## II. Analysis of Real-Estate Companies
+
+
+
+```{r}
+real_estate <- filter(issuers, !is.na(issuers[, 'real_estate_sub_sector']))
+head(real_estate)
+```
+
+All issuers are from the TSX.
+
+```{r}
+real_estate_companies <- real_estate[, c("real_estate_sub_sector", "name", "root__ticker", "market_cap__c____30_september_2020")]
+```
+
+```{r}
+nrow(real_estate_companies)
+```
+
+```{r, fig.height=7}
+ggplot(real_estate_companies) + geom_bar(aes(x=reorder(name, market_cap__c____30_september_2020), y=market_cap__c____30_september_2020, fill=real_estate_sub_sector), 
+                                         stat="identity") + coord_flip() + labs(x="Market Cap", y="CAD", title = "Market capitalization")
+```
+
+
+### Analysis of the 5 different real-estate subsectors
+
+```{r}
+table(real_estate_companies[,'real_estate_sub_sector'])
+```
+
+Industrial/Office/Retail/Residential
+```{r}
+filter(real_estate_companies, real_estate_sub_sector=="Industrial/Office/Retail/Residential")[, c("name", "root__ticker", "market_cap__c____30_september_2020")]
+```
+
+Real Estate Operating Companies: 
+Elton mentioned these companies are not of interest.
+```{r}
+filter(real_estate_companies, real_estate_sub_sector=="Real Estate Operating Companies")[, c("name", "root__ticker", "market_cap__c____30_september_2020")]
+```
+
+Real Estate Development and Services: 
+```{r}
+filter(real_estate_companies, real_estate_sub_sector=="Real Estate Development and Services")[, c("name", "root__ticker", "market_cap__c____30_september_2020")]
+```
+
+
+```{r}
+filter(real_estate_companies, real_estate_sub_sector=="Specialized")[, c("name", "root__ticker", "market_cap__c____30_september_2020")]
+```
+
+```{r}
+filter(real_estate_companies, real_estate_sub_sector=="Specialized")[, c("name", "root__ticker", "market_cap__c____30_september_2020")]
+```
+
+
+

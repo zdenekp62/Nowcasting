@@ -1,0 +1,102 @@
+---
+title: "R Notebook"
+output: html_notebook
+---
+
+# List of TSX Issuers
+
+### Goals
+
+* Analyse composition of TSX Issuers related to Construction and Real Estate
+
+### Notes
+
+* File provided by David Bertrand from 2019
+
+
+```{r}
+rm(list=ls())
+library("readxl")
+```
+
+## I. Loading and Preprocessing of Excel file
+
+```{r}
+issuers <- read_excel("../../../data_tmp/tsx_listed_issuers_2019.xlsx")
+```
+
+```{r}
+head(issuers)
+```
+
+
+```{r}
+colnames(issuers) <- lapply(str_replace_all(colnames(issuers), "[\r\n -]", "_"), FUN=tolower)
+colnames(issuers)
+```
+
+## II. Univariate Analysis
+
+### Sectors
+
+```{r}
+table(issuers$sector)
+```
+
+### Subsector
+
+```{r}
+table(issuers$sub__sector)
+```
+
+
+### Real Estate Subsector
+
+AVailable in real_estate_sub-sector
+
+```{r}
+table(issuers[, 'real_estate_sub_sector'])
+```
+
+
+## III. Analysis of Real-Estate Companies
+
+
+
+```{r}
+real_estate <- filter(issuers, !is.na(issuers[, 'real_estate_sub_sector']))
+head(real_estate)
+```
+
+All issuers are from the TSX:
+```{r}
+table(real_estate$exchange)
+```
+
+```{r}
+real_estate_companies <- real_estate[, c("real_estate_sub_sector", "name", "root__ticker")]
+```
+
+
+### Analysis of the 5 different real-estate subsectors
+
+```{r}
+table(real_estate_companies[,'real_estate_sub_sector'])
+```
+
+Industrial/Office/Retail/Residential
+```{r}
+filter(real_estate_companies, real_estate_sub_sector=="Industrial/Office/Retail/Residential")[, c("name", "root__ticker")]
+```
+
+Real Estate Operating Companies: 
+```{r}
+filter(real_estate_companies, real_estate_sub_sector=="Real Estate Operating Companies")[, c("name", "root__ticker")]
+```
+
+Real Estate Development and Services: 
+```{r}
+filter(real_estate_companies, real_estate_sub_sector=="Real Estate Development and Services")[, c("name", "root__ticker")]
+```
+
+

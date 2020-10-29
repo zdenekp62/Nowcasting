@@ -1,0 +1,334 @@
+---
+title: "R Notebook"
+output: html_notebook
+---
+
+# List of TSX Issuers
+
+### Goals
+
+* Analyse composition of stocks from TSX Issuers related to Construction and Real Estate
+
+### Notes
+
+* Data directly from TSX at https://www.tsx.com/listings/current-market-statistics
+and specifically. This data we would want to ingest at some point.
+
+
+```{r}
+rm(list=ls())
+library("readxl")
+library(quantmod)
+library(dplyr)
+#library(tsibble)
+```
+
+## I. Loading and Preprocessing of Excel file
+
+
+The file below was downloaded 26/10/2020 from the TSX website above.
+File contains first some rows with non-relevant information to skip
+```{r}
+issuers <- read_excel(paste("../../../data_tmp/tsx-andamp-tsxv-listed", 
+                            "-companies-2020-10-16-en-1.xlsx", sep=""), 
+                      sheet=2, skip=6)
+```
+
+```{r}
+head(issuers, 2)
+```
+
+```{r}
+colnames(issuers) <- lapply(str_replace_all(colnames(issuers), "[\r\n -$\\(\\)\\-]", "_"), FUN=tolower)
+```
+
+
+Discard companies from the sector `Real Estate Operating Companies` as not
+relevant based on Elton's comments.
+```{r}
+issuers <- issuers %>% filter(real_estate_sub_sector != 
+                      "Real Estate Operating Companies")
+```
+
+```{r}
+real_estate <- filter(issuers, !is.na(issuers[, 'real_estate_sub_sector']))[,  c("real_estate_sub_sector", "name", "root__ticker", "market_cap__c____30_september_2020")]
+head(real_estate)
+```
+
+
+### Download of Stocks based on Tickers
+
+Root ticker are not representative of the TSX
+
+```{r}
+head(real_estate)  
+```
+
+
+Use `ticker` column to download data. Try statement to catch errors.
+
+```{r}
+#stock_name <- "BPY-UN.TO"
+
+get_stockdata <- function(stock_name_root) {
+
+  out <- try ({
+    stock_name <- paste(stock_name_root, "-UN.TO", sep="")
+    stock <- getSymbols(stock_name, src = "yahoo", auto.assign = FALSE) 
+
+    colnames(stock) <- sapply(colnames(stock), function (colstock) str_split(colstock, "\\.")[[1]][length(str_split(colstock, "\\.")[[1]])])
+    stock <- data.frame(date=index(stock), coredata(stock))
+    stock$stock_name <- rep(stock_name, nrow(stock))
+    stock$stock_name_root <- rep(stock_name_root, nrow(stock))
+    stock
+  })
+  
+  # if stock is not available as "[stockname]-UN.TO", try "[stockname"].TO"
+  if (class(out) == "try-error") {
+  
+    out <- try ({
+      stock_name <- paste(stock_name_root, ".TO", sep="")
+      stock <- getSymbols(stock_name, src = "yahoo", auto.assign = FALSE) 
+    
+      colnames(stock) <- sapply(colnames(stock), function (colstock) str_split(colstock, "\\.")[[1]][length(str_split(colstock, "\\.")[[1]])])
+      stock <- data.frame(date=index(stock), coredata(stock))
+      stock$stock_name <- rep(stock_name, nrow(stock))
+      stock$stock_name_root <- rep(stock_name_root, nrow(stock))
+      stock
+    })
+  }
+  
+  out
+  
+  }
+```
+
+
+```{r}
+start.time <- Sys.time()
+get_stock_series <- lapply(real_estate$root__ticker, get_stockdata)
+print(paste("total download time :", Sys.time() - start.time, "s"))
+```
+
+
+Identify which time series was not downloaded successfully and print their 
+error messages. Successfull stocks are saved in stock_series.
+```{r}
+downloaded <- list()
+stock_series <- list()
+j = 1
+k = 1
+for (i in 1:length(get_stock_series)) {
+  if (class(get_stock_series[[i]]) == "try-error") {
+    #missing_data_log[[k]] <- get_stock_series[[i]]
+    print(get_stock_series[[i]])
+    downloaded[[i]] <- FALSE
+  } else {
+    downloaded[[i]] <- TRUE
+    stock_series[[j]] <- get_stock_series[[i]]
+    j <- j + 1
+  }
+}
+real_estate['downloaded'] <- unlist(list(downloaded))
+```
+
+### Analysis of missing data
+
+A small amount of stocks were not downloaded/are not available
+```{r}
+table(real_estate$downloaded)
+```
+
+The following 3 stocks could not be downloaded. In fact 
+* BPO.TO: shows NA values in Yahoo: https://ca.finance.yahoo.com/quote/bpo.to/
+* ERE: not available on Yahoo, should be available on TSX, according 
+to https://www.eresreit.com. As its European I discard the ticker for now.
+* SGR: should be availalbe at https://ca.finance.yahoo.com/quote/SGR-UN.TO/
+Note that all 3 missing stocks are part of the 
+`Industrial/Office/Retail/Residential` subsector for which plenty of companies
+are available already. Discard the companies below in further work.
+```{r}
+real_estate[ !real_estate$downloaded, ]
+```
+
+## II. Analysis of stocks Properties
+
+```{r}
+stock_series <- bind_rows(stock_series)
+```
+
+
+add sub-sector information to stocks
+```{r}
+stock_series <- merge(stock_series, real_estate, by.x="stock_name_root", by.y="root__ticker", all=FALSE)
+head(stock_series, 2)
+```
+
+
+```{r}
+table(real_estate[real_estate$downloaded, ]$real_estate_sub_sector)
+```
+
+### 1. Category: Diversified
+
+```{r}
+stock_series_stats <- stock_series %>% 
+  filter(real_estate_sub_sector=="Diversified") %>%
+  group_by(stock_name_root) %>%
+      summarize(
+        min = min(date, na.rm=TRUE),
+        max = max(date, na.rm=TRUE),
+        real_estate_sub_sector = unique(real_estate_sub_sector),
+        market_cap__c____30_september_2020 = 
+          max(market_cap__c____30_september_2020),
+        .groups = "keep"
+      )
+stock_series_stats$market_cap_fraction <- 
+  stock_series_stats$market_cap__c____30_september_2020/sum(stock_series_stats$market_cap__c____30_september_2020)
+stock_series_stats$real_estate_sub_sector <- NULL
+stock_series_stats
+```
+
+### 2. Category: Specialized
+
+```{r}
+stock_series_stats <- stock_series %>% 
+  filter(real_estate_sub_sector=="Specialized") %>%
+  group_by(stock_name_root) %>%
+      summarize(
+        min = min(date, na.rm=TRUE),
+        max = max(date, na.rm=TRUE),
+        real_estate_sub_sector = unique(real_estate_sub_sector),
+        market_cap__c____30_september_2020 = 
+          max(market_cap__c____30_september_2020),
+        .groups = "keep"
+      )
+stock_series_stats$market_cap_fraction <- 
+  stock_series_stats$market_cap__c____30_september_2020/sum(stock_series_stats$market_cap__c____30_september_2020)
+stock_series_stats$real_estate_sub_sector <- NULL
+stock_series_stats
+```
+
+
+### 3. Category: Real Estate Development and Services
+
+```{r}
+stock_series_stats <- stock_series %>% 
+  filter(real_estate_sub_sector=="Real Estate Development and Services") %>%
+  group_by(stock_name_root) %>%
+      summarize(
+        min = min(date, na.rm=TRUE),
+        max = max(date, na.rm=TRUE),
+        real_estate_sub_sector = unique(real_estate_sub_sector),
+        market_cap__c____30_september_2020 = 
+          max(market_cap__c____30_september_2020),
+        .groups = "keep"
+      )
+stock_series_stats$market_cap_fraction <- 
+  stock_series_stats$market_cap__c____30_september_2020/sum(stock_series_stats$market_cap__c____30_september_2020)
+stock_series_stats$real_estate_sub_sector <- NULL
+stock_series_stats
+```
+
+
+### 4. Category: Industrial/Office/Retail/Residential
+
+```{r}
+stock_series_stats <- stock_series %>% 
+  filter(real_estate_sub_sector=="Industrial/Office/Retail/Residential") %>%
+  group_by(stock_name_root) %>%
+      summarize(
+        min = min(date, na.rm=TRUE),
+        max = max(date, na.rm=TRUE),
+        real_estate_sub_sector = unique(real_estate_sub_sector),
+        market_cap__c____30_september_2020 = 
+          max(market_cap__c____30_september_2020),
+        .groups = "keep"
+      )
+stock_series_stats$market_cap_fraction <- 
+  stock_series_stats$market_cap__c____30_september_2020/sum(stock_series_stats$market_cap__c____30_september_2020)
+stock_series_stats$real_estate_sub_sector <- NULL
+stock_series_stats
+```
+
+Top companies in company for market cap:
+```{r}
+
+head(stock_series_stats %>% arrange(across(market_cap_fraction, desc)), 10)
+```
+
+## II. Analysis of Time Series
+
+
+
+
+
+
+
+
+
+Real Estate Development and Services
+
+```{r}
+stock_series_stats
+```
+
+
+
+
+```{r}
+ggplot(stock_series)
+```
+
+
+
+
+
+
+```{r}
+bpy_stock <- getSymbols("BPY", src = "yahoo", auto.assign = FALSE) 
+```
+
+
+
+
+
+
+```{r, fig.height=7}
+ggplot(real_estate_companies) + geom_bar(aes(x=reorder(name, market_cap__c____30_september_2020), y=market_cap__c____30_september_2020, fill=real_estate_sub_sector), 
+                                         stat="identity") + coord_flip() + labs(x="Market Cap", y="CAD", title = "Market capitalization")
+```
+
+
+### Analysis of the 5 different real-estate subsectors
+
+```{r}
+table(real_estate_companies[,'real_estate_sub_sector'])
+```
+
+Industrial/Office/Retail/Residential
+```{r}
+filter(real_estate_companies, real_estate_sub_sector=="Industrial/Office/Retail/Residential")[, c("name", "root__ticker", "market_cap__c____30_september_2020")]
+```
+
+Real Estate Operating Companies: 
+```{r}
+filter(real_estate_companies, real_estate_sub_sector=="Real Estate Operating Companies")[, c("name", "root__ticker", "market_cap__c____30_september_2020")]
+```
+
+Real Estate Development and Services: 
+```{r}
+filter(real_estate_companies, real_estate_sub_sector=="Real Estate Development and Services")[, c("name", "root__ticker", "market_cap__c____30_september_2020")]
+```
+
+
+```{r}
+filter(real_estate_companies, real_estate_sub_sector=="Specialized")[, c("name", "root__ticker", "market_cap__c____30_september_2020")]
+```
+
+```{r}
+filter(real_estate_companies, real_estate_sub_sector=="Specialized")[, c("name", "root__ticker", "market_cap__c____30_september_2020")]
+```
+
+
+

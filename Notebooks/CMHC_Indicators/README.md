@@ -1,6 +1,9 @@
 # Indicators available from CMHC
 
 
+
+## Data Collection Research
+
 * Some CMHC Data published on the StatCan webiste
   * Housing starts and completion
   * https://www150.statcan.gc.ca/t1/tbl1/en/tv.action?pid=3410014301
@@ -16,6 +19,19 @@
 * Number of Households: Canada, Provinces and Territories 1976–2036
   * Long-term projections
   * https://www.cmhc-schl.gc.ca/en/data-and-research/data-tables/number-households-canada-provinces-territories-1976-2036
+  
+
+*  Canada Mortgage and Housing Corporation, conventional mortgage lending rate, 5-year term
+  * https://www150.statcan.gc.ca/t1/tbl1/en/tv.action?pid=3410014501
+
+* Canada Mortgage and Housing Corporation, average rents for areas with a population of 10,000 and over
+  * Annually
+  * https://www150.statcan.gc.ca/t1/tbl1/en/tv.action?pid=3410013301
+  
+  
+* Canada Mortgage and Housing Corporation, vacancy rates, apartment structures of six units and over, privately initiated in census metropolitan areas
+  * annually
+  * https://www150.statcan.gc.ca/t1/tbl1/en/tv.action?pid=3410012701
   
 
 ## On CMHC Website
@@ -34,4 +50,6 @@ Data tables available at https://www.cmhc-schl.gc.ca/en/data-and-research/data-t
   * from 2002 ownoards, 
   * https://www.cmhc-schl.gc.ca/en/data-and-research/data-tables/canadian-us-residential-mortgage-arrears-foreclosure-rates
   
+  
+
   

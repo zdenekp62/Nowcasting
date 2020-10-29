@@ -1,0 +1,118 @@
+---
+title: "R Notebook"
+output: html_notebook
+---
+
+# Test R Package Quantmod
+
+### Goals
+
+* Test functionality of quantmod package to retrive data
+
+### Comments
+
+* Focus on BPY	Brookfield Property Partners L.P. suggested by David (SM)
+* There is a difference between BPY (NasdaqGS) and BPY-UN.TO 
+* Each stock has multiple values (e.g. open, close). Which ones are the most valuable to include in our models?
+* Questions:
+  * comparison with Yahoo displayed data, is it open/close?
+  * How to interpret the tickers?BPY-UN.TO
+
+
+```{r}
+rm(list=ls())
+library(quantmod)
+```
+
+
+Manual acces to 
+https://finance.yahoo.com/quote/BPY?p=BPY&.tsrc=fin-srch
+
+
+```{r}
+bpy_stock <- getSymbols("BPY", src = "yahoo", auto.assign = FALSE) 
+```
+
+
+columns Open, High, Low, Close, Volume, and Adjusted (Yahoo): 
+
+```{r}
+head(bpy_stock)
+```
+
+```{r}
+class(bpy_stock)
+```
+
+```{r}
+min(index(bpy_stock))
+max(index(bpy_stock))
+```
+
+```{r}
+plot_close <- function (stock) {
+  # plots daily close stock price
+  stock_name <- str_split(colnames(stock)[1], "\\.", simplify = TRUE)[1]
+  ggplot(stock, aes(x = index(stock), y = stock[, 4])) + geom_line(color = "darkblue") + 
+      ggtitle(paste(stock_name, "Close Value")) + xlab("Date") + 
+    ylab("Price") + theme(plot.title = element_text(hjust = 0.5)) + 
+    scale_x_date(date_labels = "%b %y", date_breaks = "6 months") 
+}
+```
+
+```{r}
+plot_close(bpy_stock)
+```
+
+
+
+### BPY-UN.TO 
+
+Data for Toronto TSX at https://ca.finance.yahoo.com/quote/BPY-UN.TO/history?p=BPY-UN.TO
+
+```{r}
+bpy_tsx_stock <- getSymbols("BPY-UN.TO", src = "yahoo", auto.assign = FALSE) 
+```
+
+```{r}
+head(bpy_tsx_stock)
+```
+
+```{r}
+min(index(bpy_tsx_stock))
+max(index(bpy_tsx_stock))
+```
+
+```{r}
+plot_close(bpy_tsx_stock)
+```
+
+
+### Open-to-close Percentage change
+
+
+```{r}
+head(OpCl(bpy_tsx_stock))
+```
+
+
+```{r}
+summary(bpy_tsx_stock)
+```
+
+
+Stock returns: https://financeformulas.net/Total-Stock-Return.html
+
+```{r}
+head(monthlyReturn(bpy_tsx_stock))
+```
+
+
+### CAR-UN.TO
+
+SM suggestion
+
+https://ca.finance.yahoo.com/quote/CAR-UN.TO/history?p=CAR-UN.TO&.tsrc=fin-srch
+
+
+

@@ -12,8 +12,6 @@ output: html_notebook
 
 ### Comments
 
-
-
 ```{r}
 suppressMessages(library(cansim))
 suppressMessages(library(stringr))
