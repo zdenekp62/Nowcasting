@@ -4,7 +4,7 @@ Using the stock market data as a sentiment indicator to track investment
 in building construction
 
 
-## Analysis Workflow
+## Analysis Workflow with Notebooks
 
 * PackageTesting: Tested `qandmod` package capabilities for later use.
 * TSX_listed_Issuers: Analyzed which stocks are available for construction indusry based
@@ -56,6 +56,7 @@ for example
 
 * Google Finance API: no google support, suggested to use differene API (https://rapidapi.com/blog/google-finance-api-alternatives/)
 * Yahoo Finance API : one of the most popular and visited financial sites with extensive stock market data (rapidapi)
+  * Limited access to company statistics such as history of enterprise value, requires premium. Stock data is for free.
 * Yahoo Finance Direct manual download of certain stocks is possible through their website (e.g. csv download https://ca.finance.yahoo.com/quote/BPY-UN.TO/history?p=BPY-UN.TO)
 * rapidapi.com: hosts many apis: free, fremium; Yahoo F API is fremium (needs credit card); collaborates with many API providers and provides their services through their platform
 * Alphavantage: https://rapidapi.com/alphavantage/api/alpha-vantage/pricing

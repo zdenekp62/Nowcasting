@@ -107,12 +107,69 @@ Stock returns: https://financeformulas.net/Total-Stock-Return.html
 head(monthlyReturn(bpy_tsx_stock))
 ```
 
+## Extracting Enterprise Value
 
-### CAR-UN.TO
+Enterprise Value = market cap + debt
 
-SM suggestion
+```{r}
+metrics <- yahooQF(c("Name", "Enterprise Value", "Enterprise Value/Revenue", "Enterprise Value/EBITDA", "Total Cash Per Share (mrq)", "EBITDA", "Volume", "P/E Ratio", "Dividend Yield", "Shares Outstanding", "Price/Book"))
+```
 
-https://ca.finance.yahoo.com/quote/CAR-UN.TO/history?p=CAR-UN.TO&.tsrc=fin-srch
+```{r}
+getQuote("BPY", what = yahooQF(c("Name", "Enterprise Value")))
+```
+
+```{r}
+head(stats)
+```
+
+
+
+```{r}
+metrics <- yahooQF(c("Name", "Enterprise Value", "Enterprise Value/Revenue", "Enterprise Value/EBITDA", "Total Cash Per Share (mrq)", "EBITDA", "Volume", "P/E Ratio", "Dividend Yield", "Shares Outstanding", "Price/Book"))
+
+stats <- getQuote(symbols, what = metrics) %>%
+  rownames_to_column("symbol")
+```
+
+
+
+```{r}
+ap_tsx_stock <- getSymbols("AP-UN.TO", src = "yahoo", auto.assign = FALSE) 
+```
+
+
+```{r}
+head(ap_tsx_stock)
+```
+
+```{r}
+head(monthlyReturn(ap_tsx_stock))
+```
+
+```{r}
+stock = ap_tsx_stock
+stock = monthlyReturn(stock)
+colnames(stock) <- sapply(colnames(stock), function (colstock) str_split(colstock, "\\.")[[1]][length(str_split(colstock, "\\.")[[1]])])
+stock <- data.frame(date=index(stock), coredata(stock))
+stock
+```
+
+
+
+```{r}
+class(bpy_tsx_stock)
+```
+
+```{r}
+head(monthlyReturn(ap_tsx_stock$`AP-UN.TO.Close`))
+```
+
+```{r}
+monthlyReturn(
+```
+
+
 
 
 

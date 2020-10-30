@@ -1,0 +1,23 @@
+---
+title: "R Notebook"
+output: html_notebook
+---
+
+```{r}
+require(httr)
+
+headers = c(
+  `Upgrade-Insecure-Requests` = '1',
+)
+
+params = list(
+  `datatype` = 'json'
+)
+
+res <- httr::GET(url = 'https://financialmodelingprep.com/api/v3/enterprise-values/AAPL', httr::add_headers(.headers=headers), query = params)
+```
+
+```{r}
+res
+```
+
