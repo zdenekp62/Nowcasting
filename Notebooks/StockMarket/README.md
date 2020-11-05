@@ -6,12 +6,14 @@ in building construction
 
 ## Analysis Workflow with Notebooks
 
-* PackageTesting: Tested `qandmod` package capabilities for later use.
-* TSX_listed_Issuers: Analyzed which stocks are available for construction indusry based
+* PackageTesting.Rmd: Tested `qandmod` package capabilities for later use.
+* TSX_listed_Issuers.Rmd: Analyzed which stocks are available for construction indusry based
 on what David Bertrand provided
-* TSX_listed_Issuers2: Analyzed which TSX construction industry stocks are available 
+* TSX_listed_Issuers2.Rmd: Analyzed which TSX construction industry stocks are available 
 based on latest overview excel file downloaded from TSX page
-* EDA_TSX_listed: EDA of TSX construction companies analyzed previously.
+* EDA_TSX_listed.Rmd: EDA of TSX construction companies analyzed previously.
+Identify and anlayze properties to build stock indices.
+* Build_Stock_Indices.Rmd: Downloads the stock data and builds indices. 
 
 
 

@@ -1,0 +1,400 @@
+---
+title: "R Notebook"
+output: html_notebook
+---
+
+# List of TSX Issuers
+
+### Goals
+
+* Build stock indices from TSX Issuers related to Construction and Real Estate
+
+### Notes
+
+* Data directly from TSX at https://www.tsx.com/listings/current-market-statistics
+and specifically. 
+* We want to ingest the produced indices at some point.
+
+```{r}
+rm(list=ls())
+```
+
+
+```{r}
+library("readxl")
+library(quantmod)
+library(dplyr)
+library(ggplot2)
+#library(tidyr)
+```
+
+## I. Loading and Preprocessing of Excel file
+
+
+The file below was downloaded 26/10/2020 from the TSX website above.
+File contains first some rows with non-relevant information to skip
+```{r}
+issuers <- read_excel(paste("../../../data_tmp/tsx-andamp-tsxv-listed", 
+                            "-companies-2020-10-16-en-1.xlsx", sep=""), 
+                      sheet=2, skip=6)
+```
+
+
+```{r}
+colnames(issuers) <- lapply(str_replace_all(colnames(issuers), "[\r\n -$\\(\\)\\-]", "_"), FUN=tolower)
+```
+
+
+```{r}
+issuers <- issuers %>% filter(real_estate_sub_sector != 
+                      "Real Estate Operating Companies")
+real_estate <- filter(issuers, !is.na(issuers[, 'real_estate_sub_sector']))[,  c("real_estate_sub_sector", "name", "root__ticker", "market_cap__c____30_september_2020")]
+```
+
+```{r}
+head(real_estate)
+```
+
+
+### Download of Stocks based on Tickers
+
+
+```{r}
+get_stockdata <- function(stock_name_root) {
+
+  out <- try ({
+    stock_name <- paste(stock_name_root, "-UN.TO", sep="")
+    stock <- getSymbols(stock_name, src = "yahoo", auto.assign = FALSE) 
+
+    # calculate monthly returns instead of using all stock data
+    stock = monthlyReturn(stock)
+    colnames(stock) <- sapply(colnames(stock), function (colstock) str_split(colstock, "\\.")[[1]][length(str_split(colstock, "\\.")[[1]])])
+    stock <- data.frame(date=index(stock), coredata(stock))
+    stock$stock_name <- rep(stock_name, nrow(stock))
+    stock$stock_name_root <- rep(stock_name_root, nrow(stock))
+    stock
+  })
+  
+  # if stock is not available as "[stockname]-UN.TO", try "[stockname"].TO"
+  if (class(out) == "try-error") {
+  
+    out <- try ({
+      stock_name <- paste(stock_name_root, ".TO", sep="")
+      stock <- getSymbols(stock_name, src = "yahoo", auto.assign = FALSE) 
+    # calculate monthly returns instead of using all stock data
+      stock = monthlyReturn(stock)
+      colnames(stock) <- sapply(colnames(stock), function (colstock) str_split(colstock, "\\.")[[1]][length(str_split(colstock, "\\.")[[1]])])
+      stock <- data.frame(date=index(stock), coredata(stock))
+      stock$stock_name <- rep(stock_name, nrow(stock))
+      stock$stock_name_root <- rep(stock_name_root, nrow(stock))
+      stock
+    })
+  }
+  
+  out
+  }
+```
+
+
+```{r}
+start.time <- Sys.time()
+get_stock_series <- lapply(real_estate$root__ticker, get_stockdata)
+print(paste("total download time :", Sys.time() - start.time, "s"))
+```
+
+
+Check downloads
+```{r}
+downloaded <- list()
+stock_series <- list()
+j = 1
+k = 1
+for (i in 1:length(get_stock_series)) {
+  if (class(get_stock_series[[i]]) == "try-error") {
+    #missing_data_log[[k]] <- get_stock_series[[i]]
+    print(get_stock_series[[i]])
+    downloaded[[i]] <- FALSE
+  } else {
+    downloaded[[i]] <- TRUE
+    stock_series[[j]] <- get_stock_series[[i]]
+    j <- j + 1
+  }
+}
+real_estate['downloaded'] <- unlist(list(downloaded))
+```
+
+### Analysis of missing data
+
+A small amount of stocks were not downloaded/are not available
+```{r}
+table(real_estate$downloaded)
+```
+
+
+## II. Analysis of stocks Properties
+
+```{r}
+stock_series <- bind_rows(stock_series)
+```
+
+
+
+```{r}
+head(stock_series)
+```
+
+add sub-sector information to stocks
+```{r}
+stock_series <- merge(stock_series, real_estate, by.x="stock_name_root", 
+                      by.y="root__ticker", all=FALSE)
+head(stock_series, 2)
+```
+
+
+```{r}
+table(real_estate[real_estate$downloaded, ]$real_estate_sub_sector)
+```
+
+### 1. Category: Diversified
+
+Most companies go back to 2007 but those with the largest market cap
+go back only to 2012. Fair amount of distribution.
+```{r}
+stock_series_stats_div <- stock_series %>% 
+  filter(real_estate_sub_sector=="Diversified") %>%
+  group_by(stock_name_root) %>%
+      summarize(
+        min = min(date, na.rm=TRUE),
+        max = max(date, na.rm=TRUE),
+        real_estate_sub_sector = unique(real_estate_sub_sector),
+        market_cap__c____30_september_2020 = 
+          max(market_cap__c____30_september_2020),
+        name = unique(name),
+        .groups = "keep"
+      )
+stock_series_stats_div$market_cap_fraction <- 
+  stock_series_stats_div$market_cap__c____30_september_2020/sum(stock_series_stats_div$market_cap__c____30_september_2020)
+stock_series_stats_div$real_estate_sub_sector <- NULL
+stock_series_stats_div
+```
+
+```{r, fig.width=24, fig.height=12}
+p <- ggplot(data = filter(stock_series, real_estate_sub_sector == "Diversified")) + 
+              geom_line(aes(x = as.Date(date), y = returns, group=stock_name_root, color=name, linetype=name)) +
+                labs(title = "Category - Diversified",
+                   x = "reference month", y = "monthly stock returns", 
+                            group= "Ticker", color= "Ticker")
+ggplotly(p, width=880, height=450)
+```
+
+
+To calculate the index for the category I move the stock tickers into theor 
+own column which allows easier calculations later on. Each row corresponds
+to one unique month
+```{r}
+stock_series_div <- tidyr::pivot_wider(filter(stock_series, real_estate_sub_sector == "Diversified")[, c("date", "stock_name_root", "returns")],
+                   names_from = stock_name_root, values_from = returns)
+
+# ensures that if stock is not available this month, there is a 0
+stock_series_div[is.na(stock_series_div)] <- 0
+
+head(stock_series_div, 2)
+```
+
+
+```{r}
+# get market caps for stock tickers of category.
+market_cap <- stock_series_stats_div$market_cap__c____30_september_2020
+
+create_index_value <- function(x) {
+
+  # create sum of market cap for all stocks existing this month
+  missing_value_flag <- x != 0
+  monthly_norm_factor <-  sum(market_cap[missing_value_flag])
+
+  # index are stocks x weighted by normalized market cap   
+  monthly_index <- sum((x * market_cap) / monthly_norm_factor)
+  monthly_index
+}
+stock_series_div$index <- apply(stock_series_div[, stock_series_stats_div$stock_name_root], 1, create_index_value)
+```
+
+
+```{r}
+head(stock_series_div)
+```
+
+```{r, fig.width=24, fig.height=12}
+p <- ggplot(data = stock_series_div) + 
+              geom_line(aes(x = as.Date(date), y = index)) +
+                labs(title = " Category -Diversified - Index",
+                   x = "reference month", y = "index", 
+                            group= "Ticker", color= "Ticker")
+ggplotly(p, width=880, height=450)
+```
+
+
+
+```{r}
+head(stock_series_div)
+```
+
+
+
+
+
+
+
+
+```{r}
+filter(stock_series, real_estate_sub_sector == "Diversified")
+```
+
+
+
+### 2. Category: Specialized
+
+The companies with a largest market capitalization exist also the longest.
+If we would weight according to capitalization, then only two companies would
+dominate an categorical indicator.
+```{r}
+stock_series_stats_spec <- stock_series %>% 
+  filter(real_estate_sub_sector=="Specialized") %>%
+  group_by(stock_name_root) %>%
+      summarize(
+        min = min(date, na.rm=TRUE),
+        max = max(date, na.rm=TRUE),
+        real_estate_sub_sector = unique(real_estate_sub_sector),
+        market_cap__c____30_september_2020 = 
+          max(market_cap__c____30_september_2020),
+        name = unique(name),
+        .groups = "keep"
+      )
+stock_series_stats_spec$market_cap_fraction <- 
+  stock_series_stats_spec$market_cap__c____30_september_2020/sum(stock_series_stats_spec$market_cap__c____30_september_2020)
+stock_series_stats_spec$real_estate_sub_sector <- NULL
+stock_series_stats_spec
+```
+
+```{r, fig.width=24, fig.height=16}
+p <- ggplot(data = filter(stock_series, real_estate_sub_sector == "Specialized")) + 
+              geom_line(aes(x = as.Date(date), y = returns, group=stock_name_root, color=name, linetype=name)) +
+                labs(title = "Category - Specialized",
+                   x = "reference month", y = "close stock value", 
+                            group= "Ticker", color= "Ticker")
+ggplotly(p, width=80, height=450)
+```
+
+
+### 3. Category: Real Estate Development and Services
+
+All 3 companies exist for a longer time at the stock market and have a similar
+market cap. One company would dominate a categorical indicator with 50%.
+
+```{r}
+stock_series_stats_real <- stock_series %>% 
+  filter(real_estate_sub_sector=="Real Estate Development and Services") %>%
+  group_by(stock_name_root) %>%
+      summarize(
+        min = min(date, na.rm=TRUE),
+        max = max(date, na.rm=TRUE),
+        real_estate_sub_sector = unique(real_estate_sub_sector),
+        market_cap__c____30_september_2020 = 
+          max(market_cap__c____30_september_2020),
+        name = unique(name),
+        .groups = "keep"
+      )
+stock_series_stats_real$market_cap_fraction <- 
+  stock_series_stats_real$market_cap__c____30_september_2020/sum(stock_series_stats_real$market_cap__c____30_september_2020)
+stock_series_stats_real$real_estate_sub_sector <- NULL
+stock_series_stats_real
+```
+
+```{r, fig.width=24, fig.height=14}
+p <- ggplot(data = filter(stock_series, real_estate_sub_sector == "Real Estate Development and Services")) + 
+              geom_line(aes(x = as.Date(date), y = returns, group=stock_name_root, color=name, linetype=name)) +
+                labs(title = "Category - Real Estate Development and Services",
+                   x = "reference month", y = "close stock value", 
+                            group= "Ticker", color= "Ticker")
+ggplotly(p, width=780, height=450)
+```
+
+
+### 4. Category: Industrial/Office/Retail/Residential
+
+```{r}
+stock_series_stats_ind <- stock_series %>% 
+  filter(real_estate_sub_sector=="Industrial/Office/Retail/Residential") %>%
+  group_by(stock_name_root) %>%
+      summarize(
+        min = min(date, na.rm=TRUE),
+        max = max(date, na.rm=TRUE),
+        real_estate_sub_sector = unique(real_estate_sub_sector),
+        market_cap__c____30_september_2020 = 
+          max(market_cap__c____30_september_2020),
+        .groups = "keep"
+      )
+stock_series_stats_ind$market_cap_fraction <- 
+  stock_series_stats_ind$market_cap__c____30_september_2020/sum(stock_series_stats_ind$market_cap__c____30_september_2020)
+stock_series_stats_ind$real_estate_sub_sector <- NULL
+stock_series_stats_ind
+```
+
+Top companies in company for market cap indicates that the market cap is fairly
+distributed and there may be a less dependency of a categorical indicator on
+individual companies.
+```{r}
+
+head(stock_series_stats_ind %>% arrange(across(market_cap_fraction, desc)), 10)
+```
+
+```{r, fig.width=24, fig.height=12}
+p <- ggplot(data = filter(stock_series, real_estate_sub_sector == "Industrial/Office/Retail/Residential")) + 
+              geom_line(aes(x = as.Date(date), y = returns, group=stock_name_root, color=name, linetype=name)) +
+                labs(title = "Category - Industrial/Office/Retail/Residential",
+                   x = "reference month", y = "close stock value", 
+                            group= "Ticker", color= "Ticker")
+ggplotly(p, width=880, height=450)
+```
+
+
+## 5. All Categories
+
+```{r}
+stock_series_stats_all <- stock_series %>% 
+  group_by(stock_name_root) %>%
+      summarize(
+        min = min(date, na.rm=TRUE),
+        max = max(date, na.rm=TRUE),
+        real_estate_sub_sector = unique(real_estate_sub_sector),
+        market_cap__c____30_september_2020 = 
+          max(market_cap__c____30_september_2020),
+        .groups = "keep"
+      )
+stock_series_stats_all$market_cap_fraction <- 
+  stock_series_stats_all$market_cap__c____30_september_2020/sum(stock_series_stats_all$market_cap__c____30_september_2020)
+stock_series_stats_all$real_estate_sub_sector <- NULL
+stock_series_stats_all
+```
+
+
+Fairly well distributed.
+```{r}
+head(stock_series_stats_all %>% arrange(across(market_cap_fraction, desc)), 10)
+```
+
+```{r, fig.width=24, fig.height=12}
+p <- ggplot(data = stock_series) + 
+              geom_line(aes(x = as.Date(date), y = returns, group=stock_name_root, alpha=0.2)) +
+                labs(title = "All tickers",
+                   x = "reference month", y = "close stock value", 
+                            group= "Ticker", color= "Ticker")
+ggplotly(p, width=880, height=450)
+```
+
+
+
+
+
+
+
