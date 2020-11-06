@@ -10,10 +10,13 @@ in building construction
 * TSX_listed_Issuers.Rmd: Analyzed which stocks are available for construction indusry based
 on what David Bertrand provided
 * TSX_listed_Issuers2.Rmd: Analyzed which TSX construction industry stocks are available 
-based on latest overview excel file downloaded from TSX page
+based on latest overview excel file downloaded from TSX page. 
+This excel file was copied into the StockMarket directory for version control.
 * EDA_TSX_listed.Rmd: EDA of TSX construction companies analyzed previously.
 Identify and anlayze properties to build stock indices.
-* Build_Stock_Indices.Rmd: Downloads the stock data and builds indices. 
+* Build_Stock_Indices.Rmd: Downloads the stock data and builds indices.
+
+
 
 
 
