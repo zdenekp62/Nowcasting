@@ -25,6 +25,7 @@ library("readxl")
 library(quantmod)
 library(dplyr)
 library(ggplot2)
+library(plotly)
 #library(tidyr)
 ```
 
@@ -206,7 +207,7 @@ head(stock_series_div, 2)
 # get market caps for stock tickers of category.
 market_cap <- stock_series_stats_div$market_cap__c____30_september_2020
 
-create_index_value <- function(x) {
+create_index_value <- function(x, market_cap) {
 
   # create sum of market cap for all stocks existing this month
   missing_value_flag <- x != 0
@@ -216,7 +217,7 @@ create_index_value <- function(x) {
   monthly_index <- sum((x * market_cap) / monthly_norm_factor)
   monthly_index
 }
-stock_series_div$index <- apply(stock_series_div[, stock_series_stats_div$stock_name_root], 1, create_index_value)
+stock_series_div$index <- apply(stock_series_div[, stock_series_stats_div$stock_name_root], 1, create_index_value, market_cap=market_cap)
 ```
 
 
@@ -231,23 +232,6 @@ p <- ggplot(data = stock_series_div) +
                    x = "reference month", y = "index", 
                             group= "Ticker", color= "Ticker")
 ggplotly(p, width=880, height=450)
-```
-
-
-
-```{r}
-head(stock_series_div)
-```
-
-
-
-
-
-
-
-
-```{r}
-filter(stock_series, real_estate_sub_sector == "Diversified")
 ```
 
 
@@ -282,7 +266,32 @@ p <- ggplot(data = filter(stock_series, real_estate_sub_sector == "Specialized")
                 labs(title = "Category - Specialized",
                    x = "reference month", y = "close stock value", 
                             group= "Ticker", color= "Ticker")
-ggplotly(p, width=80, height=450)
+ggplotly(p, width=880, height=450)
+```
+
+```{r}
+stock_series_spec <- tidyr::pivot_wider(filter(stock_series, real_estate_sub_sector == "Specialized")[, c("date", "stock_name_root", "returns")],
+                   names_from = stock_name_root, values_from = returns)
+
+# ensures that if stock is not available this month, there is a 0
+stock_series_spec[is.na(stock_series_spec)] <- 0
+
+head(stock_series_spec, 2)
+```
+
+```{r}
+stock_series_spec$index <- apply(stock_series_spec[, stock_series_stats_spec$stock_name_root], 1, 
+                                create_index_value, market_cap=stock_series_stats_spec$market_cap__c____30_september_2020)
+head(stock_series_spec)
+```
+
+```{r, fig.width=24, fig.height=12}
+p <- ggplot(data = stock_series_spec) + 
+              geom_line(aes(x = as.Date(date), y = index)) +
+                labs(title = " Category -Specialized - Index",
+                   x = "reference month", y = "index", 
+                            group= "Ticker", color= "Ticker")
+ggplotly(p, width=880, height=450)
 ```
 
 
@@ -317,6 +326,33 @@ p <- ggplot(data = filter(stock_series, real_estate_sub_sector == "Real Estate D
                    x = "reference month", y = "close stock value", 
                             group= "Ticker", color= "Ticker")
 ggplotly(p, width=780, height=450)
+```
+
+
+```{r}
+stock_series_real <- tidyr::pivot_wider(filter(stock_series, 
+                  real_estate_sub_sector == "Real Estate Development and Services")[, c("date", "stock_name_root", "returns")],
+                   names_from = stock_name_root, values_from = returns)
+
+# ensures that if stock is not available this month, there is a 0
+stock_series_real[is.na(stock_series_real)] <- 0
+
+head(stock_series_real, 2)
+```
+
+```{r}
+stock_series_real$index <- apply(stock_series_real[, stock_series_stats_real$stock_name_root], 1, 
+                                create_index_value, market_cap=stock_series_stats_real$market_cap__c____30_september_2020)
+head(stock_series_real)
+```
+
+```{r, fig.width=24, fig.height=12}
+p <- ggplot(data = stock_series_real) + 
+              geom_line(aes(x = as.Date(date), y = index)) +
+                labs(title = " Category - Real Estate Development and Services - Index",
+                   x = "reference month", y = "index", 
+                            group= "Ticker", color= "Ticker")
+ggplotly(p, width=880, height=450)
 ```
 
 
@@ -357,6 +393,32 @@ p <- ggplot(data = filter(stock_series, real_estate_sub_sector == "Industrial/Of
 ggplotly(p, width=880, height=450)
 ```
 
+```{r}
+stock_series_ind <- tidyr::pivot_wider(filter(stock_series, 
+                  real_estate_sub_sector == "Industrial/Office/Retail/Residential")[, c("date", "stock_name_root", "returns")],
+                   names_from = stock_name_root, values_from = returns)
+
+# ensures that if stock is not available this month, there is a 0
+stock_series_ind[is.na(stock_series_ind)] <- 0
+
+head(stock_series_ind, 2)
+```
+
+```{r}
+stock_series_ind$index <- apply(stock_series_ind[, stock_series_stats_ind$stock_name_root], 1, 
+                                create_index_value, market_cap=stock_series_stats_ind$market_cap__c____30_september_2020)
+head(stock_series_ind)
+```
+
+```{r, fig.width=24, fig.height=12}
+p <- ggplot(data = stock_series_ind) + 
+              geom_line(aes(x = as.Date(date), y = index)) +
+                labs(title = " Category - Industrial/Office/Retail/Residential - Index",
+                   x = "reference month", y = "index", 
+                            group= "Ticker", color= "Ticker")
+ggplotly(p, width=880, height=450)
+```
+
 
 ## 5. All Categories
 
@@ -392,9 +454,28 @@ p <- ggplot(data = stock_series) +
 ggplotly(p, width=880, height=450)
 ```
 
+```{r}
+stock_series_all <- tidyr::pivot_wider(stock_series[, c("date", "stock_name_root", "returns")],
+                   names_from = stock_name_root, values_from = returns)
 
+# ensures that if stock is not available this month, there is a 0
+stock_series_all[is.na(stock_series_all)] <- 0
 
+head(stock_series_all, 2)
+```
 
+```{r}
+stock_series_all$index <- apply(stock_series_all[, stock_series_stats_all$stock_name_root], 1, 
+                                create_index_value, market_cap=stock_series_stats_all$market_cap__c____30_september_2020)
+head(stock_series_all)
+```
 
-
+```{r, fig.width=24, fig.height=12}
+p <- ggplot(data = stock_series_all) + 
+              geom_line(aes(x = as.Date(date), y = index)) +
+                labs(title = " Category - All Categories Combined - Index",
+                   x = "reference month", y = "index", 
+                            group= "Ticker", color= "Ticker")
+ggplotly(p, width=880, height=450)
+```
 
