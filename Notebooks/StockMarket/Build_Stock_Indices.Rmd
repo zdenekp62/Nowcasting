@@ -1,19 +1,19 @@
 ---
-title: "R Notebook"
-output: html_notebook
+title: "Develop Stock Indices Methodology"
+output:
+  html_notebook:
+    toc: yes
 ---
-
-# List of TSX Issuers
 
 ### Goals
 
 * Build stock indices from TSX Issuers related to Construction and Real Estate
+* Use data directly from TSX via Yahoo Finance.
 
 ### Notes
 
-* Data directly from TSX at https://www.tsx.com/listings/current-market-statistics
-and specifically. 
-* We want to ingest the produced indices at some point.
+* Data directly from TSX at https://www.tsx.com/listings/current-market-statistics.
+* We want to ingest the produced indices based on elasticsearch data in a different notebook.
 
 ```{r}
 rm(list=ls())
@@ -132,7 +132,7 @@ table(real_estate$downloaded)
 ```
 
 
-## II. Analysis of stocks Properties
+## II. Derive Stock Indices for Cateogries
 
 ```{r}
 stock_series <- bind_rows(stock_series)
@@ -420,7 +420,7 @@ ggplotly(p, width=880, height=450)
 ```
 
 
-## 5. All Categories
+### 5. All Categories
 
 ```{r}
 stock_series_stats_all <- stock_series %>% 
