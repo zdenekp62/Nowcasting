@@ -1,9 +1,9 @@
 ---
-title: "R Notebook"
-output: html_notebook
+title: "List of TSX Issuers"
+output:
+  html_notebook:
+    toc: yes
 ---
-
-# List of TSX Issuers
 
 ### Goals
 

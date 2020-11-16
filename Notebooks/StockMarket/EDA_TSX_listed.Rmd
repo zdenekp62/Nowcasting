@@ -1,9 +1,10 @@
 ---
-title: "R Notebook"
-output: html_notebook
+title: "EDA on New TSX List"
+output:
+  html_notebook:
+    toc: yes
 ---
 
-# List of TSX Issuers
 
 ### Goals
 

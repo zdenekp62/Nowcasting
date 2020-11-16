@@ -29,17 +29,17 @@ Identify and anlayze properties to build stock indices.
   * OpOp(GS) #one period open to open change
   * HiCl(GS) #the percent change from high to close 
   * As we consider the monthly value, do we aggregate per month or just take the value at the end of the month?
+  * I decided to go with using monthly returns which can be directly calculated with the quantmod package (recommended by Razieh)
   
 
 
 ## TSX Stock access
 
-
 * Market Statistics reports for TSX by Industry: https://www.tsx.com/listings/current-market-statistics
   * Use this categorization to extract construction-related companies
 
 
-* Requirements
+* Requirements for the data provider source
   * Must have access to TSX stock data
   * Must be free, with simple API key
   * automatic download once per month possible (for latest data)
@@ -56,8 +56,7 @@ Identify and anlayze properties to build stock indices.
 
       read.csv(curl::curl(yahoo.URL, handle = handle$ch)
 ```
-for example
-
+APIs which give access to stock data:
 
 * Google Finance API: no google support, suggested to use differene API (https://rapidapi.com/blog/google-finance-api-alternatives/)
 * Yahoo Finance API : one of the most popular and visited financial sites with extensive stock market data (rapidapi)
@@ -87,7 +86,7 @@ CSH	Chartwell Retirement Residences
 CUF	Cominar Real Estate Investment Trust
 MRC	Morguard Corporation
 
-## Own Research
+## Own Research and Scratch Notes
 
 * Cost total capital: cost debt (total debt) + cost of equity (stock)
   * Cost debt: interest expense/total debt 
@@ -104,8 +103,6 @@ MRC	Morguard Corporation
   
 * IATD purchases monthly data from the TMX group (Vivian's group)
   
-
-
 Construction and engineering stocks include companies that build residential and non-residential building construction, contract services and other building, material and infrastructure related companies.
 
 
