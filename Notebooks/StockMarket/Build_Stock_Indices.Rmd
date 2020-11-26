@@ -156,7 +156,7 @@ head(stock_series, 2)
 table(real_estate[real_estate$downloaded, ]$real_estate_sub_sector)
 ```
 
-### 1. Category: Diversified
+### 1. Subsector: Diversified
 
 Most companies go back to 2007 but those with the largest market cap
 go back only to 2012. Fair amount of distribution.
@@ -182,7 +182,7 @@ stock_series_stats_div
 ```{r, fig.width=24, fig.height=12}
 p <- ggplot(data = filter(stock_series, real_estate_sub_sector == "Diversified")) + 
               geom_line(aes(x = as.Date(date), y = returns, group=stock_name_root, color=name, linetype=name)) +
-                labs(title = "Category - Diversified",
+                labs(title = "Subsector - Diversified",
                    x = "reference month", y = "monthly stock returns", 
                             group= "Ticker", color= "Ticker")
 ggplotly(p, width=880, height=450)
@@ -228,7 +228,7 @@ head(stock_series_div)
 ```{r, fig.width=24, fig.height=12}
 p <- ggplot(data = stock_series_div) + 
               geom_line(aes(x = as.Date(date), y = index)) +
-                labs(title = " Category -Diversified - Index",
+                labs(title = " Subsector -Diversified - Index",
                    x = "reference month", y = "index", 
                             group= "Ticker", color= "Ticker")
 ggplotly(p, width=880, height=450)
@@ -236,7 +236,7 @@ ggplotly(p, width=880, height=450)
 
 
 
-### 2. Category: Specialized
+### 2. Subsector: Specialized
 
 The companies with a largest market capitalization exist also the longest.
 If we would weight according to capitalization, then only two companies would
@@ -263,7 +263,7 @@ stock_series_stats_spec
 ```{r, fig.width=24, fig.height=16}
 p <- ggplot(data = filter(stock_series, real_estate_sub_sector == "Specialized")) + 
               geom_line(aes(x = as.Date(date), y = returns, group=stock_name_root, color=name, linetype=name)) +
-                labs(title = "Category - Specialized",
+                labs(title = "Subsector - Specialized",
                    x = "reference month", y = "close stock value", 
                             group= "Ticker", color= "Ticker")
 ggplotly(p, width=880, height=450)
@@ -288,14 +288,14 @@ head(stock_series_spec)
 ```{r, fig.width=24, fig.height=12}
 p <- ggplot(data = stock_series_spec) + 
               geom_line(aes(x = as.Date(date), y = index)) +
-                labs(title = " Category -Specialized - Index",
+                labs(title = " Subsector -Specialized - Index",
                    x = "reference month", y = "index", 
                             group= "Ticker", color= "Ticker")
 ggplotly(p, width=880, height=450)
 ```
 
 
-### 3. Category: Real Estate Development and Services
+### 3. Subsector: Real Estate Development and Services
 
 All 3 companies exist for a longer time at the stock market and have a similar
 market cap. One company would dominate a categorical indicator with 50%.
@@ -322,7 +322,7 @@ stock_series_stats_real
 ```{r, fig.width=24, fig.height=14}
 p <- ggplot(data = filter(stock_series, real_estate_sub_sector == "Real Estate Development and Services")) + 
               geom_line(aes(x = as.Date(date), y = returns, group=stock_name_root, color=name, linetype=name)) +
-                labs(title = "Category - Real Estate Development and Services",
+                labs(title = "Subsector - Real Estate Development and Services",
                    x = "reference month", y = "close stock value", 
                             group= "Ticker", color= "Ticker")
 ggplotly(p, width=780, height=450)
@@ -349,7 +349,7 @@ head(stock_series_real)
 ```{r, fig.width=24, fig.height=12}
 p <- ggplot(data = stock_series_real) + 
               geom_line(aes(x = as.Date(date), y = index)) +
-                labs(title = " Category - Real Estate Development and Services - Index",
+                labs(title = " Subsector - Real Estate Development and Services - Index",
                    x = "reference month", y = "index", 
                             group= "Ticker", color= "Ticker")
 ggplotly(p, width=880, height=450)
@@ -387,7 +387,7 @@ head(stock_series_stats_ind %>% arrange(across(market_cap_fraction, desc)), 10)
 ```{r, fig.width=24, fig.height=12}
 p <- ggplot(data = filter(stock_series, real_estate_sub_sector == "Industrial/Office/Retail/Residential")) + 
               geom_line(aes(x = as.Date(date), y = returns, group=stock_name_root, color=name, linetype=name)) +
-                labs(title = "Category - Industrial/Office/Retail/Residential",
+                labs(title = "Subsector - Industrial/Office/Retail/Residential",
                    x = "reference month", y = "close stock value", 
                             group= "Ticker", color= "Ticker")
 ggplotly(p, width=880, height=450)
@@ -413,7 +413,7 @@ head(stock_series_ind)
 ```{r, fig.width=24, fig.height=12}
 p <- ggplot(data = stock_series_ind) + 
               geom_line(aes(x = as.Date(date), y = index)) +
-                labs(title = " Category - Industrial/Office/Retail/Residential - Index",
+                labs(title = " Subsector - Industrial/Office/Retail/Residential - Index",
                    x = "reference month", y = "index", 
                             group= "Ticker", color= "Ticker")
 ggplotly(p, width=880, height=450)
@@ -448,7 +448,7 @@ head(stock_series_stats_all %>% arrange(across(market_cap_fraction, desc)), 10)
 ```{r, fig.width=24, fig.height=12}
 p <- ggplot(data = stock_series) + 
               geom_line(aes(x = as.Date(date), y = returns, group=stock_name_root, alpha=0.2)) +
-                labs(title = "All tickers",
+                labs(title = "All Subsectors",
                    x = "reference month", y = "close stock value", 
                             group= "Ticker", color= "Ticker")
 ggplotly(p, width=880, height=450)
@@ -473,7 +473,7 @@ head(stock_series_all)
 ```{r, fig.width=24, fig.height=12}
 p <- ggplot(data = stock_series_all) + 
               geom_line(aes(x = as.Date(date), y = index)) +
-                labs(title = " Category - All Categories Combined - Index",
+                labs(title = " All Subsectors Combined - Index",
                    x = "reference month", y = "index", 
                             group= "Ticker", color= "Ticker")
 ggplotly(p, width=880, height=450)

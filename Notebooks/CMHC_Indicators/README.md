@@ -1,6 +1,9 @@
 # Indicators available from CMHC
 
+## Notebooks
 
+* HousingMarketIndicators: did not start analyzing the data yet. Most was the
+research shown below.
 
 ## Data Collection Research
 
