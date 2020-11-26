@@ -165,11 +165,4 @@ class(bpy_tsx_stock)
 head(monthlyReturn(ap_tsx_stock$`AP-UN.TO.Close`))
 ```
 
-```{r}
-monthlyReturn(
-```
-
-
-
-
 
