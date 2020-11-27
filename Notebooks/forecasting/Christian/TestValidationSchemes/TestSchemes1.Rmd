@@ -1,0 +1,164 @@
+---
+title: "ValidationSchemesTest"
+output: html_document
+---
+
+### Goals
+
+* Test available Validation schemes in R 
+
+### Comments
+
+* Use permit data
+
+```{r, warning=FALSE, message=FALSE, include=FALSE, results='hide'}
+knitr::opts_chunk$set(echo = TRUE)
+suppressMessages(library(reticulate))
+suppressMessages(library(rjson))
+import("datetime")
+import("elasticsearch")
+import("certifi")
+library(tidyverse)
+```
+
+# I. Retrieve data
+
+Load the data.
+```{r}
+path <- "/home/jovyan/forecasting_data_ingestion/notebooks/"
+source_python(paste(path, "load_es_data.py", sep=""))
+creds = fromJSON(file=paste(path, "cred.json", sep=""))
+
+indexname = "buildingpermits"
+permits <- load_from_es(creds, indexname)
+```
+
+```{r}
+dim(permits)
+```
+
+```{r}
+head(permits)
+```
+
+
+```{r}
+permits$ref_date <- as.Date(permits$ref_date)
+```
+
+
+## II. Data Exploration 
+
+```{r}
+summary(permits)
+```
+
+```{r}
+min(as.Date(permits$ref_date))
+```
+
+
+## Filter out one series for testing
+
+Pick value of permits, choose `Value of permits `. Which one to forecast?
+```{r}
+table(permits$variables)
+```
+
+Choose `Total residential and non-residential` for now.
+```{r}
+table(permits$type_of_structure)
+```
+
+Choose `Types of work, total ` for now:
+```{r}
+table(permits$type_of_work)
+```
+
+Choose Canada
+```{r}
+table(permits$geo)
+```
+
+```{r}
+table(permits$seasonal_adjustment)
+```
+
+```{r}
+permits_series <- permits %>%
+  filter(variables=="Value of permits", 
+         type_of_structure=="Total residential and non-residential",
+         type_of_work=="Types of work, total",
+         geo=="Canada",
+         seasonal_adjustment=="Seasonally adjusted")
+head(permits_series)
+```
+
+Ensure unique series after filtering.
+```{r}
+sapply(permits_series, function (x) length(unique(x)))
+dim(permits_series)
+```
+
+## Visualization of test series
+
+```{r}
+ggplot(permits_series) + geom_line(aes(x=as.Date(ref_date), y=value))
+```
+
+```{r}
+library(tsibble)
+```
+
+```{r}
+permits_series[, c("ref_date", "value")]
+```
+
+
+```{r}
+y <- tsibble(Year = 2011:2020, Observation = c(123,39,78,52,110), index = Year)
+```
+
+```{r}
+permits_series_t <- permits_series %>%
+  mutate(Month = yearmonth(ref_date)) %>%
+  as_tsibble(index = Month)
+permits_series_t
+```
+
+```{r}
+head(permits_series$value)
+```
+
+```{r}
+#difference(permits_series$value, lag=1)
+```
+
+# II. Modeling
+
+Create test set.
+```{r}
+y_test <- (permits_series %>%
+  filter(ref_date > 216))[, c("ref_date", "value")]
+head(y_test)
+```
+
+Build fake forcasting model and prediction `y_pred` is 
+just taking the previous months value.
+```{r}
+y_pred <- lag(y_test, lag=1)[2:length(y_test$value),]
+y_test <- y_test[2:length(y_test$value),] 
+```
+
+```{r}
+dim(y_pred); dim(y_test)
+```
+
+# III. Testing the Validation Setups
+
+
+
+
+
+
+
