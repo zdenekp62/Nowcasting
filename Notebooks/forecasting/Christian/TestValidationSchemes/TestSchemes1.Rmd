@@ -1,6 +1,6 @@
 ---
 title: "ValidationSchemesTest"
-output: html_document
+output: html_notebook
 ---
 
 ### Goals
@@ -49,6 +49,7 @@ permits$ref_date <- as.Date(permits$ref_date)
 
 ## II. Data Exploration 
 
+Building permits start at 2011?
 ```{r}
 summary(permits)
 ```
@@ -156,7 +157,22 @@ dim(y_pred); dim(y_test)
 
 # III. Testing the Validation Setups
 
+```{r}
+library(rsample)
+```
 
+
+
+```{r}
+rolling_origin(
+  data,
+  initial = 5,
+  assess = 1,
+  cumulative = TRUE,
+  skip = 0,
+  lag = 0,
+)
+```
 
 
 

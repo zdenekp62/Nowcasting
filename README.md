@@ -6,8 +6,15 @@ The project goal is the forecast of economic indicators to provide more timely i
 ## Setup
 
 * Make sure that .Rprofile is loaded to allow access to pre-installed packages
-* Type `packrat::status()` to see if all packages are loaded properly when setting up a new server. The do `packrat::restore()` to install the packages via packrat (snapshots are done with packrat::snapshot())
 * GitHub repo at https://github.com/dsd-statcan/forecasting_modeling
+
+### Installation Packages
+
+* renv package: https://blog.rstudio.com/2019/11/06/renv-project-environments-for-r/ 
+* `renv::restore()`: installs all packages available in renv
+* `renv::snapshot()`: adds newly installed packages to renv
+* `renv::init(bare = TRUE)` 
+* `renv::use_python()`, 
 
 ## R Style Guide
 
