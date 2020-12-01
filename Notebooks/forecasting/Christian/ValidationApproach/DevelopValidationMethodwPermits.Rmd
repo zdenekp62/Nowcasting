@@ -1,0 +1,328 @@
+---
+title: "ValidationSchemesTest"
+output: html_notebook
+---
+
+### Goals
+
+* Develop validation methods for training, validation and test phases.
+* Use building permits for testing of setup to ensure as close as possible to
+real ase.
+
+### Comments
+
+
+```{r, warning=FALSE, message=FALSE, include=FALSE, results='hide'}
+knitr::opts_chunk$set(echo = TRUE)
+suppressMessages(library(reticulate))
+suppressMessages(library(rjson))
+library(fpp3)
+library(tsibble)
+import("datetime")
+import("elasticsearch")
+import("certifi")
+
+library(tidyverse)
+```
+
+# I. Retrieve data
+
+Load the data.
+```{r}
+path <- "/home/jovyan/forecasting_data_ingestion/notebooks/"
+source_python(paste(path, "load_es_data.py", sep=""))
+creds = fromJSON(file=paste(path, "cred.json", sep=""))
+
+indexname = "buildingpermits"
+permits <- load_from_es(creds, indexname)
+```
+
+```{r}
+dim(permits)
+```
+
+```{r}
+head(permits)
+```
+
+
+```{r}
+permits$ref_date <- as.Date(permits$ref_date)
+```
+
+
+## II. Data Exploration 
+
+Building permits start at 2011?
+```{r}
+summary(permits)
+```
+
+```{r}
+min(as.Date(permits$ref_date))
+```
+
+
+## Filter out one series for testing
+
+Pick value of permits, choose `Value of permits `. Which one to forecast?
+```{r}
+table(permits$variables)
+```
+
+Choose `Total residential and non-residential` for now.
+```{r}
+table(permits$type_of_structure)
+```
+
+Choose `Types of work, total ` for now:
+```{r}
+table(permits$type_of_work)
+```
+
+Choose Canada
+```{r}
+table(permits$geo)
+```
+
+```{r}
+table(permits$seasonal_adjustment)
+```
+
+```{r}
+permits_series <- permits %>%
+  filter(variables=="Value of permits", 
+         type_of_structure=="Total residential and non-residential",
+         type_of_work=="Types of work, total",
+         geo=="Canada",
+         seasonal_adjustment=="Seasonally adjusted")
+head(permits_series)
+```
+
+Ensure unique series after filtering.
+```{r}
+sapply(permits_series, function (x) length(unique(x)))
+dim(permits_series)
+```
+
+## Visualization of test series
+
+```{r}
+ggplot(permits_series) + geom_line(aes(x=as.Date(ref_date), y=value))
+```
+
+
+```{r}
+permits_series[, c("ref_date", "value")]
+```
+
+
+
+# III. Developing validation setups
+
+```{r}
+head(y_test)
+```
+
+I construction a tsibble time series object 
+(https://otexts.com/fpp3/tsibbles.html) for training and validation.
+
+```{r}
+time_series <-permits_series %>% mutate(date = yearmonth(ref_date)) %>%
+  as_tsibble(index = date) %>% select("value")
+head(time_series)
+```
+
+## A) Hyperparameter tuning and model selection
+
+
+```{r}
+train_test_split <- function (data, valid_year="2017") {
+  # this splitting is for the model development work, hence only 
+  # returns train and validation splits. The validation year is specified.
+  
+  stopifnot("tbl_ts" %in% class(data))
+  stopifnot("date" %in% colnames(data))
+
+  
+  valid_idx <- format(data$date, "%Y") == valid_year
+  
+  train_dates <- lapply((as.numeric(test_year) - 6):(as.numeric(test_year) - 1),
+              as.character)
+  train_idx <- format(data$date, "%Y") %in% train_dates
+  
+  test_year <- as.character(as.numeric(valid_year) +1)
+  test_idx <- format(data$date, "%Y") == test_year
+
+  valid_year <- as.character(as.numeric(test_year) - 1) # prev year validation
+  print(paste("validation year: ", valid_year, "test year: ", test_year))
+  
+  test_idx <- format(data$date, "%Y") == test_year
+  valid_idx <- format(data$date, "%Y") == valid_year
+  train_idx <-  !(test_idx | valid_idx)
+  
+  print(paste("train len: ", sum(train_idx), ", valid len: ", sum(valid_idx), 
+              ", test len: ", sum(test_idx)))
+
+  list(train=train_idx, valid=valid_idx)
+  
+}
+
+```
+
+Example:
+```{r}
+splitted_indexes <- train_test_split(time_series, valid_year="2017")
+
+# one can then just get the training and validation data.
+tr <-   time_series[splitted_indexes$train, ]
+val <-  time_series[splitted_indexes$valid, ]
+```
+
+
+```{r}
+training_validations <- function (train, valid) {
+  # takes training data and validation data to identify best model and
+  # hyperparameter
+  
+  # doing modeling, hyperparameter search, trying different algos
+  
+  best_model
+}
+```
+
+
+## B) Final Model Test Evaluation
+
+After the best model was identified through the training and validation set
+we want to do the final comparison/evaluation on the test set.
+
+I assume here a simple average model was the best model. Hence I would create
+the two functions below which are used as input for test evaluation framework.
+
+I create as my fit function (parameter `best_model_fit` in testing 
+framework) the following function. It needs to be able to take any training 
+data and does the fitting/learning on it and return the fitted model.
+I code a my fit function to contain the best hyperparameter I found during
+the previous train and validation efforts.
+
+```{r}
+average_model_fit <- function (train_data) {
+  # I implement simple average forecasting method
+  # see https://otexts.com/fpp3/simple-methods.html
+  
+  # doing the fitting here
+  avg_model_fit <- train_data %>% model(MEAN(value))
+  
+  avg_model_fit
+}
+```
+
+I create as my prediction function (for test set prediction) the function
+which takes my fitted model as `model` and provides predictions based any test 
+data provided.
+
+```{R}
+average_model_predict <- function(model, test_data) {
+  
+  #predictions <- predict(model, test_data)
+  
+  # forecast for all months of test data
+  horizon = dim(test_data)[1]
+
+  predictions <- model %>% forecast(h = horizon)
+  
+  predictions_out <- predictions[, c(".mean", "date")] %>% 
+    mutate(value=.mean) %>% 
+      select(c("value", "date"))
+  
+  # needs to return predictions on test_data, needs to contain 
+  # date and predictor column.
+  predictions_out
+}
+```
+
+
+```{r}
+
+mape <- function(actual,pred){
+           mape <- mean(abs((actual - pred)/actual))*100
+           return (mape)
+         }
+mae <- function(actual,pred){
+           mae <- mean(abs(actual - pred))
+           return (mae)
+         }
+
+
+test_evaluation_year <- function(best_model_fit, best_model_predict, 
+                          test_year="2019", data, dependent="value",
+                          train_window_size=7) {
+  # data must contain 'value' column which is ground truth
+  
+  stopifnot("tbl_ts" %in% class(data))
+  stopifnot("date" %in% colnames(data))
+  
+  test_idx <- format(data$date, "%Y") == test_year
+  train_dates <- lapply((as.numeric(test_year) - train_window_size):(as.numeric(
+    test_year) - 1),
+              as.character)
+  train_idx <- format(data$date, "%Y") %in% train_dates
+  
+  # fitting the model
+  
+  model <- best_model_fit(data[train_idx, ])
+
+  y_pred <- pull(best_model_predict(model, data[test_idx, ]), dependent)
+  y_true <-  pull(data[test_idx, ], dependent)
+
+  
+  # validation of y_pred from best_model_predict
+  if (length(y_pred) != length(y_true)) {
+    stop(paste("STOP! number of predictions not equal length of test set",
+         "Check your best_model_predict function provided."))
+  }
+    
+
+  mape_error <- mape(y_true, y_pred)
+  mae_error <- mae(y_true, y_pred)
+
+  # calculate validation metrics and MAPE mape
+  metrics <- data.frame(mape=mape_error, mae=mae_error)
+  metrics
+}
+test_evaluation_multi_year <- function (best_model_fit, best_model_predict, 
+                          data, dependent="value",
+                          train_window_size=7) {
+  
+  test_years <- c("2018", "2019", "2020")
+  
+  result_2018 <- test_evaluation_year(best_model_fit, best_model_predict, 
+                          "2018", data, dependent=dependent, train_window_size)
+  result_2018$test_year <- "2018"
+  
+  result_2019 <- test_evaluation_year(best_model_fit, best_model_predict, 
+                          "2019", data, dependent=dependent, train_window_size)
+  result_2019$test_year <- "2019"
+  
+  result_2020 <- test_evaluation_year(best_model_fit, best_model_predict, 
+                          "2020", data, dependent=dependent, train_window_size)
+  result_2020$test_year <- "2020"
+
+  rbind(result_2018, result_2019, result_2020)
+}
+
+```
+
+```{r}
+test_result <- test_evaluation_multi_year(average_model_fit, average_model_predict, time_series, 
+              "value")
+test_result
+```
+
+```{r, fig.height=2}
+ggplot(test_result, aes(x=test_year, y=mape, group=1, marker)) + 
+  geom_line() + geom_point()
+```
+
+
