@@ -70,4 +70,3 @@ ggplot(unemployed, aes(x=as.Date(REF_DATE), y=VALUE)) + geom_line() +
   labs(x='reference date', y='unemployed persons')
 ```
 
-

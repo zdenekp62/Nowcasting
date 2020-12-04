@@ -1,0 +1,379 @@
+---
+title: "BP_model1"
+output: html_document
+---
+
+### Goals
+
+* Create baseline model for building permit forecast
+
+### Comments
+
+* Requirement for baseline model: 
+  * simple, 
+  * easy to interpret
+  * few parameter
+  * trained without exogenous variables and other time series
+* Decide for AR model, aim to create stationary data
+* Serves in comparison with more complex models
+
+
+```{r, warning=FALSE, message=FALSE, include=FALSE, results='hide'}
+knitr::opts_chunk$set(echo = TRUE)
+suppressMessages(library(reticulate))
+suppressMessages(library(rjson))
+library(fpp3)
+library(tsibble)
+import("datetime")
+import("elasticsearch")
+import("certifi")
+library(tidyverse)
+source("../../../../src/validation.R") # import project functions for validation
+```
+
+# I. Data Loading
+
+```{r}
+path <- "/home/jovyan/forecasting_data_ingestion/notebooks/"
+source_python(paste(path, "load_es_data.py", sep=""))
+creds = fromJSON(file=paste(path, "cred.json", sep=""))
+
+indexname = "buildingpermits"
+permits <- load_from_es(creds, indexname)
+```
+```{r}
+dim(permits)
+```
+
+
+# II. Preprocessing and Data Selection
+
+```{r}
+head(permits, 2)
+```
+
+```{r}
+permits_series <- permits %>%
+  filter(variables=="Value of permits", 
+         type_of_structure=="Total residential and non-residential",
+         type_of_work=="Types of work, total",
+         geo=="Canada",
+         seasonal_adjustment=="Seasonally adjusted") %>%
+  subset(select = -c(variables, type_of_structure,
+                                     type_of_work, geo, seasonal_adjustment))
+  
+head(permits_series)
+```
+
+```{r}
+permits_series$ref_date <- as.Date(permits_series$ref_date)
+dim(permits_series)
+```
+
+```{r}
+time_series <-permits_series %>% 
+  mutate(date = yearmonth(ref_date)) %>%
+    as_tsibble(index = date) %>%
+      subset(select=c(date, value))
+head(time_series)
+```
+
+```{r}
+time_series
+```
+
+
+# III. Modeling
+
+I choose a AR model.
+
+Split in training and validation (and test) for modeling.
+
+```{r}
+source("../../../../src/validation.R") # import project functions for validation
+```
+
+## A. Validation Year 2017
+
+```{r}
+splitted_indexes <- train_valid_split(time_series, valid_year="2017")
+
+# one can then just get the training and validation data.
+train <-   time_series[splitted_indexes$train, ]
+valid <-  time_series[splitted_indexes$valid, ]
+```
+
+### Stationarity
+
+```{r}
+tail(train)
+```
+
+```{r, fig.height=3}
+train %>% autoplot(value)
+```
+
+Trend visible, create first difference
+```{r}
+train <- train %>%
+  mutate(diff_value = difference(value)) 
+train <- train[-1, ]
+head(train)
+```
+
+```{r, fig.height=3}
+train %>% autoplot(diff_value)
+```
+Kwiatkowski-Phillips-Schmidt-Shin (KPSS) test with H0 hypotheis of stationarity.
+Series is stationary (https://otexts.com/fpp3/stationarity.html).
+```{r}
+train %>%
+  features(diff_value, unitroot_kpss)
+```
+
+
+```{r, fig.height=3}
+par(mar=c(5,2,3,2)) 
+train %>% 
+  ACF(diff_value) %>%
+    autoplot() + ggtitle("ACF of original series")
+```
+
+```{r, fig.height=3}
+par(mar=c(5,2,3,2)) 
+train %>% 
+  PACF(diff_value) %>%
+    autoplot() + ggtitle("PACF of original series")
+```
+
+> Based on PACF I choose p=5
+
+
+```{r}
+model_2017 <- train %>%
+  model(ARIMA(value ~ pdq(5,0,0) + PDQ(0,0,0)))
+report(model_2017)
+```
+
+1-year ahead forecast.
+```{r, fig.height=3}
+predict_17 <- model_2017 %>%  forecast(h=12)
+predict_17 %>% autoplot(train) 
+```
+
+```{r}
+head(predict_17, 2)
+```
+
+
+Error metrics at https://otexts.com/fpp3/accuracy.html.
+```{r}
+accuracy(predict_17,  valid)
+```
+MASE requires complete training set for evaluation.
+```{r}
+metrics_17 <- accuracy(predict_17,  
+                       time_series[(splitted_indexes$train | 
+                                      splitted_indexes$valid), ]) %>%
+  mutate(year = 2017)
+metrics_17
+```
+
+## B. Validation Year 2018
+
+```{r}
+splitted_indexes <- train_valid_split(time_series, valid_year="2018")
+
+# one can then just get the training and validation data.
+train <-   time_series[splitted_indexes$train, ]
+valid <-  time_series[splitted_indexes$valid, ]
+```
+
+```{r, fig.height=3}
+train %>% autoplot(value)
+```
+
+Trend visible, create first difference
+```{r}
+train <- train %>%
+  mutate(diff_value = difference(value)) 
+train <- train[-1, ]
+head(train, 1)
+```
+
+```{r, fig.height=3}
+train %>% autoplot(diff_value)
+```
+
+```{r}
+train %>%
+  features(diff_value, unitroot_kpss)
+```
+
+```{r, fig.height=3}
+par(mar=c(5,2,3,2)) 
+train %>% 
+  PACF(diff_value) %>%
+    autoplot() + ggtitle("PACF of original series")
+```
+
+> Based on PACF I choose p=5 again
+
+
+```{r}
+model_2018 <- train %>%
+  model(ARIMA(value ~ pdq(5,0,0) + PDQ(0,0,0)))
+report(fit)
+```
+
+1-year ahead forecast.
+```{r, fig.height=3}
+predict_18 <- model_2018 %>%  forecast(h=12)
+predict_18 %>% autoplot(train) 
+```
+
+MASE requires complete training set for evaluation.
+```{r}
+metrics_18 <- accuracy(predict_18,  
+                       time_series[(splitted_indexes$train | 
+                                      splitted_indexes$valid), ]) %>%
+  mutate(year = 2018)
+metrics_18
+```
+
+## C. Validation Year 2019
+
+```{r}
+splitted_indexes <- train_valid_split(time_series, valid_year="2019")
+
+# one can then just get the training and validation data.
+train <-   time_series[splitted_indexes$train, ]
+valid <-  time_series[splitted_indexes$valid, ]
+```
+
+
+```{r, fig.height=3}
+train %>% autoplot(value)
+```
+
+Trend visible, create first difference
+```{r}
+train <- train %>%
+  mutate(diff_value = difference(value)) 
+train <- train[-1, ]
+head(train, 1)
+```
+
+```{r, fig.height=3}
+train %>% autoplot(diff_value)
+```
+
+```{r}
+train %>%
+  features(diff_value, unitroot_kpss)
+```
+
+```{r, fig.height=3}
+par(mar=c(5,2,3,2)) 
+train %>% 
+  PACF(diff_value) %>%
+    autoplot() + ggtitle("PACF of original series")
+```
+
+> Based on PACF I choose p=5 again, but line is close to CI.
+
+
+```{r}
+model_2019 <- train %>%
+  model(ARIMA(value ~ pdq(5,0,0) + PDQ(0,0,0)))
+report(model_2019)
+```
+
+1-year ahead forecast.
+```{r, fig.height=3}
+predict_19 <- model_2019 %>%  forecast(h=12)
+predict_19 %>% autoplot(train) 
+```
+
+```{r}
+metrics_19 <- accuracy(predict_19,  
+                       time_series[(splitted_indexes$train | 
+                                      splitted_indexes$valid), ]) %>%
+  mutate(year = 2019)
+metrics_19
+```
+
+
+### D. Final Comparison of Years
+
+
+```{r}
+metrics_18$year <- 2018
+
+```
+
+
+```{r}
+rbind(metrics_17, metrics_18, metrics_19)[, c("year", ".model", "MAPE", "MASE")]
+```
+
+## IV. Bonus: Test set application demo
+
+Define your best models found in tuning process in section III. Modeling. We
+found that AR(5) models were best performing. Under real conditions we would
+not want to test only our final best model of all choices, not just 
+one AR model.
+
+```{r}
+
+best_model_fit_17 <- function (train_data) {
+  model <- train %>%
+    model(ARIMA(value ~ pdq(5,0,0) + PDQ(0,0,0)))
+  model
+}
+
+best_model_predict_17 <- function(model, test_data) {
+  
+  #predictions <- predict(model, test_data)
+  
+  # forecast for all months of test data
+  horizon = dim(test_data)[1]
+
+  predictions <- model %>% forecast(h = horizon)
+  
+  predictions_out <- predictions[, c(".mean", "date")] %>% 
+    mutate(value=.mean) %>% 
+      select(c("value", "date"))
+  
+  # needs to return predictions on test_data, needs to contain 
+  # date and predictor column.
+  predictions_out
+}
+```
+
+Our 2018, 2019 models are the same as our 2017 models:
+
+```{r}
+best_model_fit_18 <- best_model_fit_17
+best_model_predict_18 <- best_model_predict_17
+best_model_fit_19 <- best_model_fit_17
+best_model_predict_19 <- best_model_predict_17
+```
+
+
+
+```{r}
+
+result_2018 <- test_evaluation_year(best_model_fit_17, best_model_predict_17, 
+                                    "2018", time_series, dependent="value")
+result_2018$test_year <- "2018"
+result_2019 <- test_evaluation_year(best_model_fit_18, best_model_predict_18, 
+                                    "2019", time_series, dependent="value")
+result_2019$test_year <- "2019"
+result_2020 <- test_evaluation_year(best_model_fit_19, best_model_predict_19, 
+                                    "2020", time_series, dependent="value")
+result_2020$test_year <- "2020"
+
+rbind(result_2018, result_2019, result_2020)[, c("test_year", "mape", "mae")]
+
+```

@@ -137,7 +137,7 @@ head(time_series)
 
 
 ```{r}
-train_test_split <- function (data, valid_year="2017") {
+train_valid_split <- function (data, valid_year="2017") {
   # this splitting is for the model development work, hence only 
   # returns train and validation splits. The validation year is specified.
   
@@ -172,7 +172,7 @@ train_test_split <- function (data, valid_year="2017") {
 
 Example:
 ```{r}
-splitted_indexes <- train_test_split(time_series, valid_year="2017")
+splitted_indexes <- train_valid_split(time_series, valid_year="2017")
 
 # one can then just get the training and validation data.
 tr <-   time_series[splitted_indexes$train, ]

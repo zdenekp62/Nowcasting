@@ -1,0 +1,195 @@
+---
+title: "ValidationSchemesTest"
+output: html_notebook
+---
+
+### Goals
+
+* Develop validation methods for training, validation and test phases.
+* Use building permits for testing of setup to ensure as close as possible to
+real ase.
+
+### Comments
+
+* Get clarification on type of work and other variables to choose correct
+series.
+
+```{r, warning=FALSE, message=FALSE, include=FALSE, results='hide'}
+knitr::opts_chunk$set(echo = TRUE)
+suppressMessages(library(reticulate))
+suppressMessages(library(rjson))
+library(fpp3)
+library(tsibble)
+import("datetime")
+import("elasticsearch")
+import("certifi")
+
+library(tidyverse)
+```
+
+# I. Retrieve data
+
+Load the data.
+```{r}
+path <- "/home/jovyan/forecasting_data_ingestion/notebooks/"
+source_python(paste(path, "load_es_data.py", sep=""))
+creds = fromJSON(file=paste(path, "cred.json", sep=""))
+
+indexname = "buildingpermits"
+permits <- load_from_es(creds, indexname)
+```
+
+```{r}
+dim(permits)
+```
+
+```{r}
+head(permits)
+```
+
+
+```{r}
+permits$ref_date <- as.Date(permits$ref_date)
+```
+
+
+# II. Data Exploration 
+
+
+* There are different categories of series, 
+
+Building permits start at 2011!
+```{r}
+summary(permits)
+```
+
+```{r}
+min(as.Date(permits$ref_date))
+```
+
+
+## Different Categories of series
+
+Pick value of permits, choose `Value of permits `. Which one to forecast?
+
+### variable
+
+```{r}
+table(permits$variables)
+```
+
+### type_of_structure
+
+Choose `Total residential and non-residential` for now.
+
+What represents the non-residential sector: `Total non-residential` 
+(or `Total industrial` or ` Total commercial`)
+
+```{r}
+table(permits$type_of_structure)
+```
+
+### Type of work
+
+Choose `Types of work, total ` for now. Are we only interested
+in the total `Types of work, total` or in `New construction`.
+```{r}
+table(permits$type_of_work)
+```
+
+### Geo Level
+
+Choose Canada
+```{r}
+table(permits$geo)
+```
+
+### Adjustment
+
+```{r}
+table(permits$seasonal_adjustment)
+```
+
+## Series of interest overview
+
+
+```{r}
+permits_series_set <- permits %>%
+  filter(variables=="Value of permits", 
+         (type_of_structure == "Total residential and non-residential" |
+          type_of_structure == "Total non-residential" | 
+          type_of_structure == "Total residential"),
+         type_of_work=="Types of work, total",
+         #geo=="Canada", all
+         seasonal_adjustment=="Seasonally adjusted")
+permits_series_set <- permits_series_set[, c("ref_date", "type_of_structure", "geo", "value")]
+head(permits_series_set)
+```
+
+```{r}
+permits_series_cols <- pivot_wider(permits_series_set, names_from = c("type_of_structure", "geo"), values_from=value)
+colnames(permits_series_cols) <- str_replace_all( 
+  colnames(permits_series_cols), c(" " = "_", "\\(" = "_", "\\)" = "_"))
+head(permits_series_cols)
+```
+
+
+
+
+```{r, fig.width=12, fig.height=12}
+ggplot(permits_series_set) + geom_line(aes(x=ref_date, y=value, 
+                                           color = type_of_structure)) +
+  facet_wrap( ~ geo, nrow = 12, scales = "free_y") +
+  labs(title = "Permit Value")
+```
+
+### Missing Values
+
+Above series indicates ther is missing data for Nunavut and Northwestern 
+Territories. Below I show which exact dates and which values are missing.
+
+```{r}
+permits_series_ts <-permits_series_cols %>% 
+  mutate(date = yearmonth(ref_date)) %>%
+    as_tsibble(index = date) %>%
+      subset(select=-c(ref_date))
+head(permits_series_ts)
+```
+
+
+```{r}
+# we explicitly fill month gaps with nan, if a month data is missing
+explicit_missingness <- fill_gaps(permits_series_ts) # %>% filter(is.na(value))
+
+explicit_missingness <- explicit_missingness[rowSums(is.na(explicit_missingness)) > 0,]
+cbind(explicit_missingness["date"], explicit_missingness[sapply(explicit_missingness, function (x) sum(is.na(x)) >0)])
+
+```
+
+
+
+
+## Subselect on series for analysis
+
+```{r}
+permits_series <- permits %>%
+  filter(variables=="Value of permits", 
+         type_of_structure"Total residential and non-residential",
+         type_of_work=="Types of work, total",
+         geo=="Canada",
+         seasonal_adjustment=="Seasonally adjusted")
+head(permits_series)
+```
+
+Ensure unique series after filtering.
+```{r}
+sapply(permits_series, function (x) length(unique(x)))
+dim(permits_series)
+```
+
+## Visualization of test series
+
+```{r}
+ggplot(permits_series) + geom_line(aes(x=as.Date(ref_date), y=value))
+```
+
